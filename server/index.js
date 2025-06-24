@@ -1,45 +1,39 @@
-const dotenv=require('dotenv')
-dotenv.config();
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { sequelize } = require('./models');
-const errorHandler = require('./middlewares/error');
-const cookieparser=require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
 const app = express();
+const adminRoute = require('./routes/admin/index')
+const authenticateJWT = require('./middlewares/auth')
+const { sequelize } = require('./models');
+const authRoutes = require('./routes/authRoutes');
+const errorHandler = require('./middlewares/error');
+const {isAdmin, isEmployee} = require('./middlewares/roleCheck')
+require('./config/passport')(passport);
 
-app.use(cors({
-  origin: "http://localhost:3000", 
-  credentials: true, 
-}));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
-app.use(cookieparser())
+app.use(cookieParser());
+app.use(passport.initialize());
 
 
-app.get('/', (req, res) => {
-  res.send('Hello from Express!');
-});
+app.get('/', (req, res) => res.send('Welcome to the API!'));
 
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'This is your API data' });
-});
-const PORT = process.env.PORT || 4000;
+app.use('/api', authRoutes);
+app.use('/admin',authenticateJWT,isAdmin,adminRoute)
+
+const PORT = process.env.PORT || 5000;
 sequelize.authenticate()
   .then(() => {
-    console.log('✅ Database connected');
+    console.log('✅ DB Connected');
     return sequelize.sync();
   })
   .then(() => {
-    console.log('✅ Models synced');
- 
-    console.log('PORT from env:', PORT); // debug line
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
   })
-  .catch(err => {
-    console.error('❌ DB connection error:', err);
-  });
+  .catch(err => console.error('❌ DB Error:', err));
 
-// Error Middleware
 app.use(errorHandler);

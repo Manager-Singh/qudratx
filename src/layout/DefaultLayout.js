@@ -1,14 +1,15 @@
 import React from 'react'
-import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
-
+import {  AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { Outlet } from 'react-router-dom'
 const DefaultLayout = () => {
   return (
     <div>
       <AppSidebar />
-      <div className="wrapper d-flex flex-column min-vh-100">
+      <div className="wrapper d-flex flex-column min-vh-100 ">
         <AppHeader />
         <div className="body flex-grow-1">
-          <AppContent />
+          {/* <AppContent /> */}
+          <Outlet />
         </div>
         <AppFooter />
       </div>

@@ -20,10 +20,23 @@ body {
   min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
 }
 
+.sidebar-header {
+    background-color: #ffffff;
+}
+.sidebar{
+  background-color: #2F1051!important;
+}
 .sidebar-brand-full {
   margin-left: 3px;
 }
 
+.nav-title {
+  color: #c1c1c1 !important;
+}
+.custom-button{
+    background-color:#2F1051;
+    color:#fff;
+  }
 .sidebar-header {
   .nav-underline-border {
     --cui-nav-underline-border-link-padding-x: 1rem;

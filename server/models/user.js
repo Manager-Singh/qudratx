@@ -1,9 +1,14 @@
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize, DataTypes) => {
-
   const User = sequelize.define('User', {
 
+       uuid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4, // Auto-generate UUID
+      allowNull: false,
+      unique: true,
+    },
     name: {
       type: DataTypes.STRING(100),
       allowNull: false
@@ -20,19 +25,28 @@ module.exports = (sequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM('admin', 'employee'),
       allowNull: false
-    }
+    },
+     last_login: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    login_status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   }, {
     tableName: 'users',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: false,
+    paranoid: true, // ✅ enable soft delete
+    deletedAt: 'deleted_at' // ✅ custom field name
   });
 
- User.prototype.validatePassword = async function (password) {
+  User.prototype.validatePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
   };
 
   return User;
 };
-
- 

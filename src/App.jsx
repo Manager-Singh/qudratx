@@ -7,7 +7,7 @@ import './scss/examples.scss'
 
 // Lazy imports
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-const Login = React.lazy(() => import('./views/pages/login/Login'))
+const EmployeeLogin = React.lazy(() => import('./views/pages/login/EmployeeLogin'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
@@ -16,6 +16,9 @@ import { verifyUser } from './store/authSlice'
 import { AppContent } from './components'
 import EmployeesListing from './views/pages/employees/EmployeesListing'
 import AddEmployee from './views/pages/employees/AddEmployee'
+import AdminLogin from './views/pages/login/AdminLogin'
+import BusinessZone from './views/pages/businesszone/BusinessZone'
+ 
 const App = () => {
   const { isLoading,user } = useSelector((state) => state.auth)
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -64,13 +67,14 @@ if (isLoading) {
       >
         <Routes>
           {/* <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} /> */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/employee-login" element={<EmployeeLogin />} />
+            <Route path="/admin-login" element={<AdminLogin/>} />
           <Route path="/register" element={<Register />} />
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
 
           {/* Protected Routes */}
-         
+      
           <Route
             path="/"
             element={
@@ -82,8 +86,10 @@ if (isLoading) {
 
        <Route path="/employees" element={<EmployeesListing/>} />
        <Route path="/add-employees" element={<AddEmployee/>} />
-
+       <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
+       <Route path="/business-zone" element={<BusinessZone/>} />
           </Route>
+         
         </Routes>
       </Suspense>
    </BrowserRouter>

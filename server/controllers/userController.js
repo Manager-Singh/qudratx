@@ -88,26 +88,33 @@ const getEmployees = async (req, res) => {
 
 const deleteEmployee = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { uuid } = req.params
 
-    // Find employee
     const employee = await User.findOne({
-      where: { id, role: 'employee' }
-    });
+      where: { uuid, role: 'employee' }
+    })
 
     if (!employee) {
-      return res.status(404).json({ message: 'Employee not found' });
+      return res.status(404).json({ message: 'Employee not found' })
     }
 
-    // Soft delete with userId for audit hook
-    await employee.destroy({ userId: req.user.id });
+    await employee.destroy({ userId: req.user.id })
 
-    res.status(200).json({ message: 'Employee deleted successfully', employee });
+    res.status(200).json({
+      message: 'Employee deleted successfully',
+      success: true,
+      employee: {
+        uuid: employee.uuid,
+        name: employee.name,
+        email: employee.email,
+      },
+    })
   } catch (error) {
-    console.error('Delete employee error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Delete employee error:', error)
+    res.status(500).json({ message: 'Internal server error' })
   }
-};
+}
+
 
 const getDeletedEmployees = async (req, res) => {
   try {
@@ -151,6 +158,63 @@ const getDeletedEmployees = async (req, res) => {
   }
 };
 
+// updated Employees
+const updateEmployee = async (req, res) => {
+  try {
+    const { uuid } = req.params
+    const { name, email, password } = req.body
+
+    if (!name && !email && !password) {
+      return res.status(400).json({ message: 'At least one field must be provided' })
+    }
+
+    const employee = await User.findOne({
+      where: { uuid, role: 'employee' }
+    })
+
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' })
+    }
+
+    if (email && email !== employee.email) {
+      const existing = await User.findOne({
+        where: {
+          email,
+          uuid: { [Op.ne]: uuid },
+        },
+      })
+      if (existing) {
+        return res.status(409).json({ message: 'Email already in use' })
+      }
+    }
+
+    if (name) employee.name = name
+    if (email) employee.email = email
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10)
+      employee.password = hashedPassword
+    }
+
+    await employee.save({ userId: req.user.id })
+
+    res.status(200).json({
+      message: 'Employee updated successfully',
+      success: true,
+      user: {
+        uuid: employee.uuid,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+      },
+    })
+  } catch (error) {
+    console.error('Update employee error:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+
+
 
 const verfyUser = async (req, res) => {
   try {
@@ -166,10 +230,30 @@ const verfyUser = async (req, res) => {
   }
 };
 
+const getEmployeeBYuuid= async (req,res) => {
+  try {
+   const { uuid } = req.params
+    const employee = await User.findOne({
+      where: { uuid}
+    })
+   console.log(employee,"employee not exist")
+   if (!employee) {
+    return res.status(400).json("id can not match")
+   }
+
+   res.status(200).json({success:true, message:"user fetch successfully", employee})
+  } catch (error) {
+    console.log(error,"error")
+    res.status(500).json({message:error.message || "something went wrong"})
+  }
+}
+
 module.exports = {
   createEmployee,
   getEmployees,
   deleteEmployee,
   getDeletedEmployees,
-  verfyUser
+  verfyUser,
+  updateEmployee,
+  getEmployeeBYuuid
 };

@@ -1,13 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
-import { FaCircle } from 'react-icons/fa';
+import { FaCircle ,FaTrash,} from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmployees } from '../../../store/admin/employeeSlice';
+import { deleteEmployee, getEmployees } from '../../../store/admin/employeeSlice';
 import { Link } from 'react-router-dom';
-
+import { useToast } from '../../../utils/ToastProvider'
 
 // Columns for DataTable
+
+function EmployeesListing() {
+const { showToast } = useToast()
+const dispatch= useDispatch()
+const {employees,isLoading}=useSelector((state)=>state.employee)
+
+function handleDelete(uuid){
+
+dispatch(deleteEmployee(uuid)).then((data)=>{
+  console.log(data,"deleted data ")
+  if(data.payload.success){
+    dispatch(getEmployees())
+    console.log("employee fetch successfully")
+  }
+})
+}
+useEffect(()=>{
+  if (!employees || employees.length <1) {
+     dispatch(getEmployees())
+  }
+ 
+},[dispatch])
+
 const columns = [
   {
     name: 'ID',
@@ -43,18 +66,31 @@ const columns = [
     selector: row => new Date(row.created_at).toLocaleString(),
     sortable: true,
   },
+  
+ {
+    name: 'Action',
+    cell: row => (
+      <div className='d-flex gap-1'>
+         <button
+        onClick={() => handleDelete(row.uuid)}
+        className="btn btn-danger btn-sm"
+      >
+        Delete
+      </button>
+      <Link
+          to={`/edit-employee/${row.uuid}`}
+          className="btn btn-primary btn-sm"
+        >
+          Edit
+        </Link>
+      
+      </div>
+     
+    ),
+    ignoreRowClick: true,
+     width: '150px',
+  },
 ];
-
-function EmployeesListing() {
-const dispatch= useDispatch()
-const {employees,isLoading}=useSelector((state)=>state.employee)
-
-useEffect(()=>{
-  dispatch(getEmployees()).then((data)=>{
-    console.log(data,"data")
-  })
-},[dispatch])
-
 
   const [filterText, setFilterText] = useState('');
  
@@ -63,7 +99,7 @@ useEffect(()=>{
     item.name.toLowerCase().includes(filterText.toLowerCase()) ||
     item.email.toLowerCase().includes(filterText.toLowerCase())
   );
-console.log(employees,"employees")
+
   return (
     <div className='container'>
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
@@ -81,11 +117,12 @@ console.log(employees,"employees")
         columns={columns}
         data={filteredData}
         pagination
-        selectableRows
+        // selectableRows
         highlightOnHover
         responsive
         striped
       />
+      
     </div>
   );
 }

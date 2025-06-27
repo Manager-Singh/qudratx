@@ -5,9 +5,12 @@ import 'core-js'
 
 import App from './App'
 import store from './store/store'
+import { ToastProvider } from './utils/ToastProvider'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <App />
+    <ToastProvider>
+      <App />
+    </ToastProvider>
   </Provider>,
 )

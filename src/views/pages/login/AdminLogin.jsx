@@ -16,24 +16,26 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { loginUser } from '../../../store/authSlice'
+import { loginUser, verifyUser } from '../../../store/authSlice'
 
 
-const Login = () => {
+const AdminLogin = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('admin@example.com')
   const [password, setPassword] = useState('admin123')
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
      
-      const result = await dispatch(loginUser({ email, password }))
-     console.log(result,"result")
+      const result = await dispatch(loginUser({ email, password , login_type: 'admin'}))
+    
       if (result.payload.success) {
          localStorage.setItem('token',result.payload.token)
+         dispatch(verifyUser())
          navigate('/')
       } else {
         alert('Login failed')
@@ -52,7 +54,14 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
-                    <h1>Login</h1>
+                   <CRow>
+                    <CCol xs={9}>
+                      <h1>Admin Login</h1>
+                        </CCol>
+                        <CCol xs={3}>
+                     <Link to='/employee-login'>Employee Login</Link>
+                    </CCol>
+                    </CRow>
                     <p className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
@@ -79,6 +88,7 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                       
                       />
+                      
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
@@ -119,4 +129,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default AdminLogin

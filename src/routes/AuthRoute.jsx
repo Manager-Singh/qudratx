@@ -19,7 +19,7 @@ const AuthRoute = ({ children }) => {
   }
 
   // After loading, either allow access or redirect
-  return user ? children : <Navigate to="/login" replace />
+  return user ? children : <Navigate to="/employee-login" replace />
 }
 
 export default AuthRoute

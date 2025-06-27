@@ -15,6 +15,7 @@ import logo  from 'src/assets/brand/logo.png'
 import { sygnet } from 'src/assets/brand/sygnet'
 
 import { admin_nav, employee_nav } from '../_nav'
+import { Link } from 'react-router-dom'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -43,11 +44,8 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
-          {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
-          <img src={logo} style={{width:'92%'}}
-    />
+        <CSidebarBrand className="d-flex justify-content-center align-items-center" as={Link} to="/">
+         <img src={logo} alt="Logo" style={{ width: '92%' }} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

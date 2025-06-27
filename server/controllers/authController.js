@@ -5,12 +5,19 @@ const jwt = require('jsonwebtoken');
 
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password,login_type } = req.body;
 
   try {
    
     // 1. Find user by email
-    const user = await User.findOne({ where: { email } });
+      let user;
+    if (login_type === 'admin') {
+    user = await User.findOne({ where: { email, role: 'admin' } });
+  } else if (login_type === 'employee') {
+    user = await User.findOne({ where: { email, role: 'employee' } });
+  } else {
+    return res.status(400).json({ message: 'Invalid login type' });
+  }
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

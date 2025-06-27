@@ -1,18 +1,7 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
-  cilCalculator,
-  cilChartPie,
-  cilCursor,
-  cilDescription,
-  cilDrop,
-  cilExternalLink,
-  cilNotes,
-  cilPencil,
-  cilPuzzle,
   cilSpeedometer,
-  cilStar,
   cilPeople
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
@@ -42,7 +31,13 @@ export const admin_nav = [
   
   {
     component: CNavTitle,
-    name: 'Proposal management',
+    name: 'BusinessZone management',
+  },
+  {
+    component: CNavItem,
+    name: 'BusinessZones',
+    to: '/business-zone',
+    
   },
 ]
 

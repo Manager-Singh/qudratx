@@ -3,13 +3,15 @@ import authReducer from './authSlice'
 import themeReducer from './themeSlice'
 import employeeReducer from './admin/employeeSlice'
 import businessZoneReducer from './admin/businessZoneSlice'
+import businessZonesAuthorityReducer from './admin/zoneAuthoritySlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
     theme: themeReducer,
     employee:employeeReducer,
     businesszone:businessZoneReducer,
-  },
+    businessZonesAuthority:businessZonesAuthorityReducer
+  }, 
 })
 
 export default store

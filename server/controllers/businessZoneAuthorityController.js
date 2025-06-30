@@ -17,10 +17,10 @@ const createBusinessZonesAuthority = async (req, res) => {
 
     // Check if authority with same name exists under the same zone
     const existingAuthority = await BusinessZonesAuthority.findOne({
-      where: { name, zone_id }
+      where: { name}
     });
     if (existingAuthority) {
-      return res.status(400).json({ message: 'Authority with this name already exists in the specified zone' });
+      return res.status(400).json({ message: 'Authority with this name already exists' });
     }
 
     const authority = await BusinessZonesAuthority.create({
@@ -73,13 +73,12 @@ const getBusinessZonesAuthorities = async (req, res) => {
 };
 
 // GET ONE by UUID
-const getBusinessZonesAuthorityByUUID = async (req, res) => {
+const getBusinessZonesAuthorityByZoneId = async (req, res) => {
   try {
-    const { uuid } = req.params;
+    const { id } = req.params;
 
-    const authority = await BusinessZonesAuthority.findOne({
-      where: { uuid, deleted_at: null },
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
+    const authority = await BusinessZonesAuthority.findAll({
+      where: { zone_id: id},
     });
     if (!authority) {
       return res.status(404).json({ message: 'Business zone authority not found' });
@@ -185,7 +184,7 @@ const getDeletedBusinessZonesAuthorities = async (req, res) => {
 module.exports = {
   createBusinessZonesAuthority,
   getBusinessZonesAuthorities,
-  getBusinessZonesAuthorityByUUID,
+  getBusinessZonesAuthorityByZoneId,
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
   getDeletedBusinessZonesAuthorities,

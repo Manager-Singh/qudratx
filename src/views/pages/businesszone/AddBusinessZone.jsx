@@ -50,7 +50,7 @@ function AddBusinessZone() {
         if (data.payload.success) {
           navigate('/business-zone')
         } else {
-          setError(data.payload.message || 'Update failed')
+          setError(data.payload)
           setTimeout(() => setError(''), 3000)
         }
       })
@@ -60,7 +60,7 @@ function AddBusinessZone() {
           setName('')
           navigate('/business-zone')
         } else {
-          setError(data.payload.message || 'Creation failed')
+          setError(data.payload)
           setTimeout(() => setError(''), 3000)
         }
       })

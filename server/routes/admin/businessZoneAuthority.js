@@ -4,11 +4,11 @@ const router = express.Router();
 const {
   createBusinessZonesAuthority,
   getBusinessZonesAuthorities,
-  getBusinessZonesAuthorityByUUID,
+  getBusinessZonesAuthorityByZoneId,
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
   getDeletedBusinessZonesAuthorities
-} = require('../../controllers/businessZonesAuthorityController');
+} = require('../../controllers/businessZoneAuthorityController');
 
 // Create authority
 router.post('/create-authority', createBusinessZonesAuthority);
@@ -17,7 +17,7 @@ router.post('/create-authority', createBusinessZonesAuthority);
 router.get('/get-authorities', getBusinessZonesAuthorities);
 
 // Get one authority by UUID
-router.get('/get-authority-by-uuid/:uuid', getBusinessZonesAuthorityByUUID);
+router.get('/get-authority-by-zone/:id', getBusinessZonesAuthorityByZoneId);
 
 // Update authority by UUID
 router.put('/update-authority/:uuid', updateBusinessZonesAuthority);

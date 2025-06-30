@@ -34,10 +34,9 @@ const columns = [
   
   {
     name: 'BusinessZone',
-    selector: row => row.name,
+    selector: row => <Link to={`/view-businesszone/${row.uuid}`} style={{ textDecoration: 'none' }}>{row.name}</Link>,
     sortable: true,
   },
-  
   
   {
     name: 'Created At',
@@ -77,11 +76,10 @@ const columns = [
 
   const [filterText, setFilterText] = useState('');
  
-
-  const filteredData = businesszones.filter(item =>
+const filteredData = businesszones.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
-   
   );
+  
 
   return (
      <div className='container'>

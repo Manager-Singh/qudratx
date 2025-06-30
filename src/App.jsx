@@ -18,6 +18,7 @@ import EmployeesListing from './views/pages/employees/EmployeesListing'
 import AddEmployee from './views/pages/employees/AddEmployee'
 import AdminLogin from './views/pages/login/AdminLogin'
 import BusinessZone from './views/pages/businesszone/BusinessZone'
+import AddBusinessZone from './views/pages/businesszone/AddBusinessZone'
  
 const App = () => {
   const { isLoading,user } = useSelector((state) => state.auth)
@@ -88,6 +89,7 @@ if (isLoading) {
        <Route path="/add-employees" element={<AddEmployee/>} />
        <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
        <Route path="/business-zone" element={<BusinessZone/>} />
+       <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
           </Route>
          
         </Routes>

@@ -34,9 +34,9 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
   });
 
-//   BusinessZone.associate = (models) => {
-//      BusinessZone.hasMany(models.Authority, { foreignKey: 'zone_id' });
-//   };
+  BusinessZone.associate = (models) => {
+     BusinessZone.hasMany(models.BusinessZonesAuthority, { foreignKey: 'zone_id' });
+  };
 
   return BusinessZone;
 };

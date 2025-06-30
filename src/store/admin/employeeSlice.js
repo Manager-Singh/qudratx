@@ -77,15 +77,15 @@ const employeeSlice = createSlice({
       })
       .addCase(addEmployee.fulfilled, (state, action) => {
         state.isLoading = false
-        state.message = action.payload.message
+        state.employees.push(action.payload.user)
       })
       .addCase(addEmployee.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       }).addCase(getEmployees.pending, (state) => {
     state.isLoading = true
-  })
-  .addCase(getEmployees.fulfilled, (state, action) => {
+     })
+    .addCase(getEmployees.fulfilled, (state, action) => {
     state.isLoading = false
     state.employees = action.payload.data
   })
@@ -131,6 +131,7 @@ const employeeSlice = createSlice({
       })
       .addCase(updateEmployee.fulfilled, (state, action) => {
         state.isLoading = false
+        console.log(action.payload,"action.payload")
         const updated = action.payload.user
         state.employees = state.employees.map(emp =>
           emp.uuid === updated.uuid ? updated : emp

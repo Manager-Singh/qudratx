@@ -200,12 +200,7 @@ const updateEmployee = async (req, res) => {
     res.status(200).json({
       message: 'Employee updated successfully',
       success: true,
-      user: {
-        uuid: employee.uuid,
-        name: employee.name,
-        email: employee.email,
-        role: employee.role,
-      },
+      user:employee,
     })
   } catch (error) {
     console.error('Update employee error:', error)

@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteEmployee, getEmployees } from '../../../store/admin/employeeSlice';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../../utils/ToastProvider'
-
+import { MdEdit } from "react-icons/md";
+import CIcon from '@coreui/icons-react';
+import { cilTrash} from '@coreui/icons';
 // Columns for DataTable
 
 function EmployeesListing() {
@@ -32,12 +34,7 @@ useEffect(()=>{
 },[dispatch])
 
 const columns = [
-  {
-    name: 'ID',
-    selector: row => row.id,
-    sortable: true,
-    width: '80px',
-  },
+  
   {
     name: 'Name',
     selector: row => row.name,
@@ -70,18 +67,19 @@ const columns = [
  {
     name: 'Action',
     cell: row => (
-      <div className='d-flex gap-1'>
-         <button
+      <div className='d-flex gap-2'>
+        
+         <span
         onClick={() => handleDelete(row.uuid)}
-        className="btn btn-danger btn-sm"
+        className='p-0'
       >
-        Delete
-      </button>
+       <CIcon icon={cilTrash} size="lg" />
+      </span>
       <Link
           to={`/edit-employee/${row.uuid}`}
-          className="btn btn-primary btn-sm"
+          
         >
-          Edit
+        <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
         </Link>
       
       </div>

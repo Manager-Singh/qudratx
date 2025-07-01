@@ -31,7 +31,7 @@ export const admin_nav = [
   
   {
     component: CNavTitle,
-    name: 'BusinessZone management',
+    name: 'Service Areas management',
   },
   {
     component: CNavItem,

@@ -92,6 +92,7 @@ const updateBusinessZone = async (req, res) => {
   try {
     const { uuid } = req.params;
     const { name } = req.body;
+    
 
     const zone = await BusinessZone.findOne({ where: { uuid } });
     if (!zone) {

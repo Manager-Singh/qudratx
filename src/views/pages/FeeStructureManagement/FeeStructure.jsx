@@ -58,6 +58,7 @@ function FeeStructure() {
     },
     {
       name: 'Status',
+      selector: row => row.status,
       cell: row => (
         <FaCircle
           color={row.status === 'Active' ? 'green' : 'red'}

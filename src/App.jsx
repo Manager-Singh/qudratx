@@ -17,9 +17,11 @@ import { AppContent } from './components'
 import EmployeesListing from './views/pages/employees/EmployeesListing'
 import AddEmployee from './views/pages/employees/AddEmployee'
 import AdminLogin from './views/pages/login/AdminLogin'
-import BusinessZone from './views/pages/businesszone/BusinessZoneListing'
-import AddBusinessZone from './views/pages/businesszone/AddBusinessZone'
-import ViewBusinessZone from './views/pages/businesszone/ViewBusinessZone'
+import BusinessZone from './views/pages/ServiceAreaManagement/BusinessZoneListing'
+import AddBusinessZone from './views/pages/ServiceAreaManagement/AddBusinessZone'
+import ViewBusinessZone from './views/pages/ServiceAreaManagement/ViewBusinessZone'
+import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
+import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivity'
  
 const App = () => {
   const { isLoading,user } = useSelector((state) => state.auth)
@@ -85,14 +87,16 @@ if (isLoading) {
               </AuthRoute>
             }
           >
-
        <Route path="/employees" element={<EmployeesListing/>} />
        <Route path="/add-employees" element={<AddEmployee/>} />
        <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
        <Route path="/business-zone" element={<BusinessZone/>} />
        <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
-         <Route path ="/view-businesszone/:uuid" element={<ViewBusinessZone/>} />
+       <Route path ="/view-businesszone/:uuid" element={<ViewBusinessZone/>} />
+       <Route path="/fee-structure" element={<FeeStructure/>} />
+         <Route path="/business-activities" element={<BusinessActivity/>} />
+       business-activities
           </Route>
          
         </Routes>

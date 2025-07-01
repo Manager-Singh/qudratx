@@ -96,10 +96,9 @@ if (isLoading) {
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
        <Route path ="/view-businesszone/:uuid" element={<ViewBusinessZone/>} />
        <Route path="/fee-structure" element={<FeeStructure/>} />
-       <Route path="/fee-structure" element={<FeeStructure />} />
-        <Route path="/add-fee" element={<AddFeeStructure />} />
-        <Route path="/edit-fee/:id" element={<AddFeeStructure />} />
-        <Route path="/business-activities" element={<BusinessActivity/>} />
+       <Route path="/add-feestructure" element={<AddFeeStructure />} />
+       <Route path="/edit-feestructure/:id" element={<AddFeeStructure />} />
+       <Route path="/business-activities" element={<BusinessActivity/>} />
        business-activities
           </Route>
          

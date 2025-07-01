@@ -5,14 +5,13 @@ import { FaCircle ,FaTrash,} from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteEmployee, getEmployees } from '../../../store/admin/employeeSlice';
 import { Link } from 'react-router-dom';
-import { useToast } from '../../../utils/ToastProvider'
 import { MdEdit } from "react-icons/md";
 import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
 // Columns for DataTable
 
 function EmployeesListing() {
-const { showToast } = useToast()
+
 const dispatch= useDispatch()
 const {employees,isLoading}=useSelector((state)=>state.employee)
 

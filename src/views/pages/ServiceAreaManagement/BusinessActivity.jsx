@@ -1,8 +1,134 @@
-import React from 'react'
+
+import {  useState } from 'react';
+import { CButton } from '@coreui/react';
+import DataTable from 'react-data-table-component';
+import { Link } from 'react-router-dom';
+import CIcon from '@coreui/icons-react';
+import { cilTrash} from '@coreui/icons';
+import { FaCircle ,FaTrash,} from 'react-icons/fa';
+import { MdEdit } from "react-icons/md";
 
 function BusinessActivity() {
+const [filterText, setFilterText] = useState('');
+const data = [
+  {
+    id: 1,
+    name: "Trading",
+    status: true,
+    created_at: "2025-06-01T10:00:00Z"
+  },
+  {
+    id: 2,
+    name: "Consulting",
+    status: true,
+    created_at: "2025-06-01T10:05:00Z"
+  },
+  {
+    id: 3,
+    name: "IT Services",
+    status: true,
+    created_at: "2025-06-01T10:10:00Z"
+  },
+  {
+    id: 4,
+    name: "Media",
+    status: true,
+    created_at: "2025-06-01T10:15:00Z"
+  },
+  {
+    id: 5,
+    name: "Food & Beverage",
+    status: false,
+    created_at: "2025-06-01T10:20:00Z"
+  }
+];
+
+
+const columns = [
+  
+  {
+    name: 'Business Activities',
+    selector: row => row.name,
+    sortable: true,
+  },
+   {
+      name: 'Login Status',
+      selector: row => row.status,
+      cell: row => (
+        <FaCircle
+          color={row.status ? 'green' : 'red'}
+          title={row.status ? true : false}
+        />
+      ),
+      sortable: true,
+     
+    },
+  
+  {
+    name: 'Created At',
+    selector: row => new Date(row.created_at).toLocaleString(),
+    sortable: true,
+  },
+  
+ {
+    name: 'Action',
+    cell: row => (
+      <div className='d-flex gap-2'>
+        <span
+  color="light"
+  variant="ghost"
+  size="sm"
+  onClick={() => handleDelete(row.uuid)}
+  className="p-0"
+  title="Delete"
+>
+  <CIcon icon={cilTrash} size="lg" />
+</span>
+      <Link
+  to={`/edit-businesszone/${row.uuid}`}
+  style={{ backgroundColor: 'transparent', padding: 0 }}
+  title="Edit"
+>
+  <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
+</Link>
+      
+      </div>
+     
+    ),
+    ignoreRowClick: true,
+     width: '150px',
+  },
+];
+
+    const filteredData = data.filter(item =>
+    item.name.toLowerCase().includes(filterText.toLowerCase()) 
+  );
+  
   return (
-    <div>BusinessActivity</div>
+    <div className='container'>
+      <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
+        <Link to='/add-businesszone'> <CButton className='custom-button'>Add Business Activity </CButton></Link>
+       
+        <input
+          type="text"
+          className="form-control w-25"
+          placeholder="Search by name or email"
+          value={filterText}
+          onChange={e => setFilterText(e.target.value)}
+        />
+      </div>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        pagination
+        // selectableRows
+        highlightOnHover
+        responsive
+        striped
+      />
+      
+    </div>
+   
   )
 }
 

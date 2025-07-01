@@ -21,6 +21,7 @@ import BusinessZone from './views/pages/ServiceAreaManagement/BusinessZoneListin
 import AddBusinessZone from './views/pages/ServiceAreaManagement/AddBusinessZone'
 import ViewBusinessZone from './views/pages/ServiceAreaManagement/ViewBusinessZone'
 import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
+import AddFeeStructure from  './views/pages/FeeStructureManagement/AddFeeStructure'
 import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivity'
  
 const App = () => {
@@ -95,7 +96,10 @@ if (isLoading) {
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
        <Route path ="/view-businesszone/:uuid" element={<ViewBusinessZone/>} />
        <Route path="/fee-structure" element={<FeeStructure/>} />
-         <Route path="/business-activities" element={<BusinessActivity/>} />
+       <Route path="/fee-structure" element={<FeeStructure />} />
+        <Route path="/add-fee" element={<AddFeeStructure />} />
+        <Route path="/edit-fee/:id" element={<AddFeeStructure />} />
+        <Route path="/business-activities" element={<BusinessActivity/>} />
        business-activities
           </Route>
          

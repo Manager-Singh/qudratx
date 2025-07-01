@@ -84,13 +84,12 @@ const columns = [
 >
   <CIcon icon={cilTrash} size="lg" />
 </span>
-      <Link
-  to={`/edit-businesszone/${row.uuid}`}
-  style={{ backgroundColor: 'transparent', padding: 0 }}
-  title="Edit"
->
-  <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
-</Link>
+    <Link
+        to={`/edit-business-activities/${row.uuid}`}
+              
+            >
+            <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
+            </Link>
       
       </div>
      
@@ -107,7 +106,7 @@ const columns = [
   return (
     <div className='container'>
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to='/add-businesszone'> <CButton className='custom-button'>Add Business Activity </CButton></Link>
+        <Link to='/add-business-activities'> <CButton className='custom-button'>Add Business Activity </CButton></Link>
        
         <input
           type="text"

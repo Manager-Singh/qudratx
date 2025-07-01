@@ -23,6 +23,7 @@ import ViewBusinessZone from './views/pages/ServiceAreaManagement/ViewBusinessZo
 import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
 import AddFeeStructure from  './views/pages/FeeStructureManagement/AddFeeStructure'
 import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivity'
+import AddBusinessActivty from './views/pages/ServiceAreaManagement/AddBusinessActivty'
  
 const App = () => {
   const { isLoading,user } = useSelector((state) => state.auth)
@@ -99,7 +100,8 @@ if (isLoading) {
        <Route path="/add-feestructure" element={<AddFeeStructure />} />
        <Route path="/edit-feestructure/:id" element={<AddFeeStructure />} />
        <Route path="/business-activities" element={<BusinessActivity/>} />
-       business-activities
+       <Route path="/add-business-activities" element={<AddBusinessActivty/>} />
+       <Route path="/edit-business-activities/:uuid" element={<AddBusinessActivty/>} />
           </Route>
          
         </Routes>

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { MdEdit } from "react-icons/md";
+import { FaCircle } from 'react-icons/fa';
 
 function FeeStructure() {
   const [feeStructures, setFeeStructures] = useState([]);
@@ -49,13 +50,16 @@ function FeeStructure() {
     },
     {
       name: 'Status',
-      selector: row => (
-        <span className={`badge ${row.status === 'Active' ? 'bg-success' : 'bg-secondary'}`}>
-          {row.status}
-        </span>
+      selector: row=> row.status,
+      cell: row => (
+        <FaCircle
+          color={row.status === 'Active' ? 'green' : 'red'}
+          title={row.status} // shows status on hover
+          style={{ fontSize: '16px' }} // adjust size as needed
+        />
       ),
       sortable: true,
-    },
+    },  
     {
       name: 'Created At',
       selector: row => new Date(row.created_at).toLocaleString(),
@@ -94,7 +98,7 @@ function FeeStructure() {
   return (
     <div className='container'>
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center'>
-        <Link to='/add-fee'>
+        <Link to='/add-feestructure'>
           <CButton className='custom-button'>Add Fee Structure</CButton>
         </Link>
         <input

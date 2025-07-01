@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { CButton, CCol, CRow, CForm, CFormInput, CFormSelect } from '@coreui/react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { AiOutlineClose } from 'react-icons/ai';
 
 // Dummy data store simulating API and Redux state
 let dummyFeeStructures = [
@@ -70,7 +71,16 @@ function AddFeeStructure() {
 
   return (
     <div className="container">
-      <div className="card mt-3">
+      <div className="card mt-3 position-relative">
+        {/* Close icon button */}
+        <button
+          onClick={() => navigate('/fee-structure')}
+          className="btn btn-link position-absolute top-0 end-0 m-2 p-0"
+          style={{ fontSize: '1.5rem' }}
+        >
+          <AiOutlineClose />
+        </button>
+
         <div className="card-body">
           <h4 className="card-title">{isEdit ? 'Edit Fee Structure' : 'Add Fee Structure'}</h4>
           <CForm onSubmit={handleSubmit}>

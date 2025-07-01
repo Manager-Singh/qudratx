@@ -1,39 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
-import { MdEdit } from "react-icons/md";
+import { MdEdit } from 'react-icons/md';
 import { FaCircle } from 'react-icons/fa';
 
 function FeeStructure() {
   const [feeStructures, setFeeStructures] = useState([]);
+  const [filterText, setFilterText] = useState('');
+  const navigate = useNavigate();
 
-  // Dummy data
   const dummyData = [
     {
       uuid: '1',
       name: 'Admission Fee',
       status: 'Active',
+      amount: '1000',
       created_at: '2025-06-15T10:00:00Z',
     },
     {
       uuid: '2',
       name: 'Library Fee',
       status: 'Inactive',
+      amount: '500',
       created_at: '2025-06-12T14:30:00Z',
     },
     {
       uuid: '3',
       name: 'Sports Fee',
       status: 'Active',
+      amount: '750',
       created_at: '2025-06-10T09:15:00Z',
     },
   ];
 
   useEffect(() => {
-    // Simulate API fetch
     setFeeStructures(dummyData);
   }, []);
 
@@ -49,17 +52,21 @@ function FeeStructure() {
       sortable: true,
     },
     {
+      name: 'Amount',
+      selector: row => `₹ ${row.amount}`,
+      sortable: true,
+    },
+    {
       name: 'Status',
-      selector: row=> row.status,
       cell: row => (
         <FaCircle
           color={row.status === 'Active' ? 'green' : 'red'}
-          title={row.status} // shows status on hover
-          style={{ fontSize: '16px' }} // adjust size as needed
+          title={row.status}
+          style={{ fontSize: '16px' }}
         />
       ),
       sortable: true,
-    },  
+    },
     {
       name: 'Created At',
       selector: row => new Date(row.created_at).toLocaleString(),
@@ -76,13 +83,13 @@ function FeeStructure() {
           >
             <CIcon icon={cilTrash} size="lg" />
           </span>
-          <Link
-            to={`/edit-fee/${row.uuid}`}
+          <span
             title="Edit"
-            style={{ backgroundColor: 'transparent', padding: 0 }}
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate(`/edit-feestructure/${row.uuid}`)}
           >
-            <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
-          </Link>
+            <MdEdit size={20} style={{ color: '#333' }} />
+          </span>
         </div>
       ),
       ignoreRowClick: true,
@@ -90,7 +97,6 @@ function FeeStructure() {
     },
   ];
 
-  const [filterText, setFilterText] = useState('');
   const filteredData = feeStructures.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase())
   );
@@ -109,6 +115,7 @@ function FeeStructure() {
           onChange={e => setFilterText(e.target.value)}
         />
       </div>
+
       <DataTable
         columns={columns}
         data={filteredData}

@@ -114,6 +114,10 @@ const updateBusinessZonesAuthority = async (req, res) => {
       authority.zone_id = zone_id;
     }
 
+     if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
     if (name) authority.name = name;
 
     authority.updated_at = new Date();

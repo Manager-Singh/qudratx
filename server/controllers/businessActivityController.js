@@ -1,37 +1,38 @@
-const { BusinessZone } = require('../models');
+const { BusinessActivity } = require('../models');
 const { Op, where } = require('sequelize');
 
 // CREATE
-const createBusinessZone = async (req, res) => {
+const createBusinessActivity = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
-const existingZone= await BusinessZone.findOne({
+const existingActivity= await BusinessActivity.findOne({
   where:{name}
 })
-if (existingZone) {
-  return res.status(400).json({message:"Business zone already exist"})
+
+if (existingActivity) {
+  return res.status(400).json({message:"Business Activity already exist"})
 }
-    const zone = await BusinessZone.create({
+    const activity = await BusinessActivity.create({
       name,
       last_update: new Date(),
     },{ userId: req.user.id });
 
     return res.status(201).json({
-      message: 'Business zone created successfully',
+      message: 'Business activity created successfully',
       success: true,
-      data: zone,
+      data: activity,
     });
   } catch (error) {
-    console.error('Create zone error:', error);
+    console.error('Create activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // READ ALL
-const getBusinessZones = async (req, res) => {
+const getBusinessActivity = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -43,7 +44,7 @@ const getBusinessZones = async (req, res) => {
       name: { [Op.like]: `%${search}%` }
     };
 
-    const { count, rows } = await BusinessZone.findAndCountAll({
+    const { count, rows } = await BusinessActivity.findAndCountAll({
       where,
       limit,
       offset,
@@ -53,7 +54,7 @@ const getBusinessZones = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Business zones fetched successfully',
+      message: 'Business activities fetched successfully',
       page,
       limit,
       totalPages,
@@ -61,98 +62,97 @@ const getBusinessZones = async (req, res) => {
       data: rows
     });
   } catch (error) {
-    console.error('Get zones error:', error);
+    console.error('Get activities error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // GET ONE
-const getBusinessZoneByUUID = async (req, res) => {
+const getBusinessActivityByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const zone = await BusinessZone.findOne({ where: { uuid } });
-    if (!zone) {
-      return res.status(404).json({ message: 'Business zone not found' });
+    const activity = await BusinessActivity.findOne({ where: { uuid } });
+    if (!activity) {
+      return res.status(404).json({ message: 'Business activity not found' });
     }
 
     res.status(200).json({
-      message: 'Business zone fetched successfully',
+      message: 'Business activity fetched successfully',
       success: true,
-      data: zone,
+      data: activity,
     });
   } catch (error) {
-    console.error('Get zone error:', error);
+    console.error('Get activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // UPDATE
-const updateBusinessZone = async (req, res) => {
+const updateBusinessActivity = async (req, res) => {
   try {
     const { uuid } = req.params;
     const { name } = req.body;
-    
 
     if (!name) {
         return res.status(400).json({ message: 'Name is required' });
       }
 
-    const zone = await BusinessZone.findOne({ where: { uuid } });
-    if (!zone) {
-      return res.status(404).json({ message: 'Business zone not found' });
+    const activity = await BusinessActivity.findOne({ where: { uuid } });
+    if (!activity) {
+      return res.status(404).json({ message: 'Business activity not found' });
     }
 
-    if (name) zone.name = name;
-    zone.updated_by = req.user.id;
-    zone.updated_at = new Date();
-    zone.last_update = new Date();
+    if (name) activity.name = name;
+    activity.updated_by = req.user.id;
+    activity.updated_at = new Date();
+    activity.last_update = new Date();
 
-    await zone.save({ userId: req.user.id });
+    await activity.save({ userId: req.user.id });
 
     res.status(200).json({
-      message: 'Business zone updated successfully',
+      message: 'Business activity updated successfully',
       success: true,
-      data: zone
+      data: activity
     });
   } catch (error) {
-    console.error('Update zone error:', error);
+    console.error('Update activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // DELETE
-const deleteBusinessZone = async (req, res) => {
+const deleteBusinessActivity = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const zone = await BusinessZone.findOne({ where: { uuid } });
-    if (!zone) {
-      return res.status(404).json({ message: 'Business zone not found' });
+    const activity = await BusinessActivity.findOne({ where: { uuid } });
+    if (!activity) {
+      return res.status(404).json({ message: 'Business activity not found' });
     }
 
-    await zone.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    await activity.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
 
     res.status(200).json({
-      message: 'Business zone deleted successfully',
+      message: 'Business activity deleted successfully',
       success: true,
-      data: { uuid: zone.uuid, name: zone.name },
+      data: { uuid: activity.uuid, name: activity.name },
     });
   } catch (error) {
-    console.error('Delete zone error:', error);
+    console.error('Delete activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET DELETED ZONES
-const getDeletedBusinessZones = async (req, res) => {
+// GET DELETED ACTIVITIES
+const getDeletedBusinessActivity = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
 
-    const { count, rows } = await BusinessZone.findAndCountAll({
+    const { count, rows } = await BusinessActivity.findAndCountAll({
       where: {
         deleted_at: { [Op.not]: null },
         name: { [Op.like]: `%${search}%` },
@@ -166,7 +166,7 @@ const getDeletedBusinessZones = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Deleted business zones fetched successfully',
+      message: 'Deleted business activities fetched successfully',
       page,
       limit,
       totalPages,
@@ -174,16 +174,16 @@ const getDeletedBusinessZones = async (req, res) => {
       data: rows,
     });
   } catch (error) {
-    console.error('Get deleted zones error:', error);
+    console.error('Get deleted activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 module.exports = {
-  createBusinessZone,
-  getBusinessZones,
-  getBusinessZoneByUUID,
-  updateBusinessZone,
-  deleteBusinessZone,
-  getDeletedBusinessZones,
+  createBusinessActivity,
+  getBusinessActivity,
+  getBusinessActivityByUUID,
+  updateBusinessActivity,
+  deleteBusinessActivity,
+  getDeletedBusinessActivity,
 };

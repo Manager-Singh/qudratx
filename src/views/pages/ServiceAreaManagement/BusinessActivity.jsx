@@ -27,7 +27,7 @@ const columns = [
     sortable: true,
   },
    {
-      name: 'Login Status',
+      name: 'Status',
       selector: row => row.status,
       cell: row => (
         <FaCircle

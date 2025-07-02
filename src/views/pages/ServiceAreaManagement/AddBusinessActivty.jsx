@@ -4,6 +4,7 @@ import { CButton, CCol, CRow, CForm, CFormInput } from '@coreui/react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useNavigate, useParams } from 'react-router-dom'
+import { addBusinessActivity, getBusinessActivityByUuid, updateBusinessActivity } from '../../../store/admin/businessActivitySlice'
 
 function AddBusinessActivty() {
   const [name, setName] = useState('')
@@ -11,68 +12,58 @@ function AddBusinessActivty() {
   const navigate = useNavigate()
   const {uuid} = useParams() // check if we are editing
   const isEdit = uuid
-  console.log(isEdit,"isEdit")
+  
 
-//   const {  businesszone } = useSelector((state) => state.businesszone)
+const {business_activity}=useSelector((state)=>state.business_activity)
 
-//   // On mount, if editing, fetch data
-//   useEffect(() => {
+
+  useEffect(() => {
    
-//     if (isEdit ) {
-//       dispatch(getBusinessZoneByUuid(id))
-//     }
-//   }, [dispatch, id])
+    if (isEdit ) {
+      dispatch(getBusinessActivityByUuid(uuid))
+    }
+  }, [dispatch, uuid])
 
  
-//   // Set form value when data arrives
-//   useEffect(() => {
-//     if (isEdit && businesszone?.uuid === id) {
-//       setName(businesszone.name)
-//     }
-//   }, [businesszone, id])
+  // Set form value when data arrives
+  useEffect(() => {
+    if (isEdit && business_activity?.uuid === uuid) {
+      setName(business_activity.name)
+    }
+  }, [business_activity, uuid])
 
-//   const handleChange = (e) => {
-//     setName(e.target.value)
-//   }
+  const handleChange = (e) => {
+    setName(e.target.value)
+  }
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault()
+  const handleSubmit = (e) => {
+    e.preventDefault()
 
-//     if (!name.trim()) {
-//       setError('Name is required')
-//       return
-//     }
-
-//     const payload = { name }
+    const payload = { name }
   
-//     if (isEdit) {
-//       dispatch(updateBusinessZone( {id, ...payload } )).then((data) => {
-//         console.log(data,"data")
-//         if (data.payload.success) {
-//           navigate('/business-zone')
-//         } else {
-//           setError(data.payload)
-//           setTimeout(() => setError(''), 3000)
-//         }
-//       })
-//     } else {
-//       dispatch(addBusinessZone(payload)).then((data) => {
-//         if (data.payload.success) {
-//           setName('')
-//           navigate('/business-zone')
-//         } else {
-//           setError(data.payload)
-//           setTimeout(() => setError(''), 3000)
-//         }
-//       })
-//     }
-//   }
-const handleSubmit=()=>{
+    if (isEdit) {
+      dispatch(updateBusinessActivity( {uuid, ...payload } )).then((data) => {
+        if (data.payload.success) {
+          navigate('/business-activities')
+        } else {
+          // setError(data.payload)
+          // setTimeout(() => setError(''), 3000)
+        }
+      })
+    } else {
+      dispatch(addBusinessActivity(payload)).then((data) => {
+        if (data.payload.success) {
+          setName('')
+          navigate('/business-activities')
+        } else {
+          // setError(data.payload)
+          // setTimeout(() => setError(''), 3000)
+        }
+      })
+    }
+  }
 
-}
-const handleChange=()=>{
 
-}
   return (
     <div className="container">
       <div className="card mt-3">

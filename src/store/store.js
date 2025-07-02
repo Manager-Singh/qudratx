@@ -4,7 +4,8 @@ import themeReducer from './themeSlice'
 import employeeReducer from './admin/employeeSlice'
 import businessZoneReducer from './admin/businessZoneSlice'
 import businessZonesAuthorityReducer from './admin/zoneAuthoritySlice'
-// import feeStructureReducer from './admin/feeStructureSlice'
+import feeStructureReducer from './admin/feeStructureSlice'
+import BusinessActivityReducer from './admin/businessActivitySlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -12,7 +13,8 @@ const store = configureStore({
     employee:employeeReducer,
     businesszone:businessZoneReducer,
     businessZonesAuthority:businessZonesAuthorityReducer,
-    // feeStructure:  feeStructureReducer
+    business_activity:BusinessActivityReducer,
+    feeStructure:feeStructureReducer
   }, 
 })
 

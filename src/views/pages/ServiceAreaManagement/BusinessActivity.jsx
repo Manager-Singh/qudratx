@@ -1,5 +1,4 @@
-
-import {  useState } from 'react';
+import {  useEffect, useState } from 'react';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
@@ -7,41 +6,17 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
 import { FaCircle ,FaTrash,} from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteBusinessActivity, getBusinessActivity } from '../../../store/admin/businessActivitySlice';
 
 function BusinessActivity() {
 const [filterText, setFilterText] = useState('');
-const data = [
-  {
-    id: 1,
-    name: "Trading",
-    status: true,
-    created_at: "2025-06-01T10:00:00Z"
-  },
-  {
-    id: 2,
-    name: "Consulting",
-    status: true,
-    created_at: "2025-06-01T10:05:00Z"
-  },
-  {
-    id: 3,
-    name: "IT Services",
-    status: true,
-    created_at: "2025-06-01T10:10:00Z"
-  },
-  {
-    id: 4,
-    name: "Media",
-    status: true,
-    created_at: "2025-06-01T10:15:00Z"
-  },
-  {
-    id: 5,
-    name: "Food & Beverage",
-    status: false,
-    created_at: "2025-06-01T10:20:00Z"
-  }
-];
+const dispatch= useDispatch()
+const {business_activities} = useSelector((state)=>state.business_activity)
+
+useEffect(()=>{
+dispatch(getBusinessActivity())
+},[dispatch])
 
 
 const columns = [
@@ -99,9 +74,17 @@ const columns = [
   },
 ];
 
-    const filteredData = data.filter(item =>
+    const filteredData = business_activities.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
+
+  const handleDelete =(uuid)=>{
+  dispatch(deleteBusinessActivity(uuid)).then((data)=>{
+    if (data.payload.success) {
+      dispatch(getBusinessActivity())
+    }
+  })
+  }
   
   return (
     <div className='container'>

@@ -87,7 +87,6 @@ useEffect(() => {
 ];
 const handleDelete= (uuid)=>{
 dispatch(deleteBusinessZonesAuthority(uuid)).then((data)=>{
-  console.log(data,"data")
   if (data.payload.success) {
      const id = businesszone.id
     dispatch(getBusinessZonesAuthorityByZoneId({id}))
@@ -105,7 +104,7 @@ dispatch(addBusinessZonesAuthority({name,zone_id})).then((data)=>{
     setVisible(false)
   }
   else{
-   console.log(data.payload,"error")
+   
   }
 })
 }

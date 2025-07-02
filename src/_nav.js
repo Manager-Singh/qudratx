@@ -53,7 +53,13 @@ export const admin_nav = [
   },
   {
     component: CNavTitle,
-    name: '',
+    name: 'Leads Management',
+  },
+  {
+    component: CNavItem,
+    name: 'Clients',
+    to: '/clients',
+    
   },
   
 ]

@@ -24,6 +24,9 @@ import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
 import AddFeeStructure from  './views/pages/FeeStructureManagement/AddFeeStructure'
 import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivity'
 import AddBusinessActivty from './views/pages/ServiceAreaManagement/AddBusinessActivty'
+import ClientListing from './views/pages/LeadManagement/ClientListing'
+import AddClient from './views/pages/LeadManagement/AddClient'
+
  
 const App = () => {
   const { isLoading,user } = useSelector((state) => state.auth)
@@ -102,6 +105,9 @@ if (isLoading) {
        <Route path="/business-activities" element={<BusinessActivity/>} />
        <Route path="/add-business-activities" element={<AddBusinessActivty/>} />
        <Route path="/edit-business-activities/:uuid" element={<AddBusinessActivty/>} />
+       <Route path="/clients" element={<ClientListing/>} />
+       <Route path="/add-client" element={<AddClient/>} />
+       <Route path="/edit-client" element={<AddClient/>} />
           </Route>
          
         </Routes>

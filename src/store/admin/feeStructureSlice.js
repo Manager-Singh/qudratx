@@ -1,127 +1,141 @@
 // import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 // import { postData, getData, deleteData, putData } from '../../utils/api'
 
-// const API_URL = 'https://sheetdb.io/api/v1/jmukf802divph'
-
-// // Fetch all fee structures
-// export const fetchFeeStructures = createAsyncThunk(
-//   'feeStructure/fetchAll',
-//   async (_, thunkAPI) => {
-//     try {
-//       const response = await getData(API_URL)
-//       return response
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message)
-//     }
+// // Add Fee Structure
+// export const addFeeStructure = createAsyncThunk('admin/create-feestructure', async (data, thunkAPI) => {
+//   try {
+//     const response = await postData('/admin/create-fee-structure', data)
+//     return response
+//   } catch (error) {
+//     console.error('Create fee structure error:', error)
+//     return thunkAPI.rejectWithValue(error.message)
 //   }
-// )
+// })
 
-// // Add new fee structure
-// export const addFeeStructure = createAsyncThunk(
-//   'feeStructure/add',
-//   async (feeData, thunkAPI) => {
-//     try {
-//       // SheetDB expects { data: { ... } }
-//       const response = await postData(API_URL, { data: feeData })
-//       return response.created[0]
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message)
-//     }
+// // Get All Fee Structures
+// export const getFeeStructures = createAsyncThunk('admin/get-feestructures', async (_, thunkAPI) => {
+//   try {
+//     const response = await getData('/admin/get-fee-structures')
+//     return response
+//   } catch (error) {
+//     console.error('Get fee structures error:', error)
+//     return thunkAPI.rejectWithValue(error.message)
 //   }
-// )
+// })
 
-// // Update fee structure by ID
-// export const updateFeeStructure = createAsyncThunk(
-//   'feeStructure/update',
-//   async ({ id, updates }, thunkAPI) => {
-//     try {
-//       const response = await putData(`${API_URL}/${id}`, { data: updates })
-//       return response.updated[0]
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message)
-//     }
+// // Delete Fee Structure
+// export const deleteFeeStructure = createAsyncThunk('admin/delete-feestructure', async (uuid, thunkAPI) => {
+//   try {
+//     const response = await deleteData(`/admin/delete-fee-structure/${uuid}`)
+//     return { uuid, ...response }
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue(error.message)
 //   }
-// )
+// })
 
-// // Delete fee structure by ID
-// export const deleteFeeStructure = createAsyncThunk(
-//   'feeStructure/delete',
-//   async (id, thunkAPI) => {
-//     try {
-//       await deleteData(`${API_URL}/${id}`)
-//       return id
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message)
-//     }
+// // Get Deleted Fee Structures
+// export const fetchDeletedFeeStructures = createAsyncThunk('admin/fetchDeleted-feestructures', async (queryParams = '', thunkAPI) => {
+//   try {
+//     const response = await getData(`/admin/get-deleted-fee-structures${queryParams}`)
+//     return response
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue(error.message)
 //   }
-// )
+// })
+
+// // Update Fee Structure
+// export const updateFeeStructure = createAsyncThunk('admin/update-feestructure', async ({ id, ...rest }, thunkAPI) => {
+//   try {
+//     const uuid = id;
+//     const response = await putData(`/admin/update-fee-structure/${uuid}`, rest)
+//     return response
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue(error.message)
+//   }
+// })
+
+// // Get Fee Structure by UUID
+// export const getFeeStructureByUuid = createAsyncThunk('admin/get-feestructure-by-uuid', async (uuid, thunkAPI) => {
+//   try {
+//     const response = await getData(`/admin/get-fee-structure-by-uuid/${uuid}`)
+//     return response
+//   } catch (error) {
+//     console.error('Get fee structure by UUID error:', error)
+//     return thunkAPI.rejectWithValue(error.message)
+//   }
+// })
 
 // const feeStructureSlice = createSlice({
-//   name: 'feeStructure',
+//   name: 'feestructure',
 //   initialState: {
-//     fees: [],
-//     isLoading: false,
-//     error: null,
+//     feestructures: [],
+//     feestructure: null,
+//     isLoading: true,
 //   },
 //   reducers: {},
 //   extraReducers: (builder) => {
 //     builder
-//       .addCase(fetchFeeStructures.pending, (state) => {
-//         state.isLoading = true
-//         state.error = null
-//       })
-//       .addCase(fetchFeeStructures.fulfilled, (state, action) => {
-//         state.isLoading = false
-//         state.fees = action.payload
-//       })
-//       .addCase(fetchFeeStructures.rejected, (state, action) => {
-//         state.isLoading = false
-//         state.error = action.payload
-//       })
-
 //       .addCase(addFeeStructure.pending, (state) => {
 //         state.isLoading = true
-//         state.error = null
 //       })
 //       .addCase(addFeeStructure.fulfilled, (state, action) => {
 //         state.isLoading = false
-//         state.fees.push(action.payload)
+//         state.feestructures.push(action.payload.data)
 //       })
-//       .addCase(addFeeStructure.rejected, (state, action) => {
+//       .addCase(addFeeStructure.rejected, (state) => {
 //         state.isLoading = false
-//         state.error = action.payload
 //       })
 
-//       .addCase(updateFeeStructure.pending, (state) => {
+//       .addCase(getFeeStructures.pending, (state) => {
 //         state.isLoading = true
-//         state.error = null
 //       })
-//       .addCase(updateFeeStructure.fulfilled, (state, action) => {
+//       .addCase(getFeeStructures.fulfilled, (state, action) => {
 //         state.isLoading = false
-//         const updated = action.payload
-//         const index = state.fees.findIndex((fee) => fee.id === updated.id)
-//         if (index !== -1) {
-//           state.fees[index] = updated
-//         }
+//         state.feestructures = action.payload.data
 //       })
-//       .addCase(updateFeeStructure.rejected, (state, action) => {
+//       .addCase(getFeeStructures.rejected, (state) => {
 //         state.isLoading = false
-//         state.error = action.payload
+//         state.feestructures = []
 //       })
 
 //       .addCase(deleteFeeStructure.pending, (state) => {
 //         state.isLoading = true
-//         state.error = null
 //       })
 //       .addCase(deleteFeeStructure.fulfilled, (state, action) => {
 //         state.isLoading = false
-//         state.fees = state.fees.filter((fee) => fee.id !== action.payload)
+//         state.feestructures = state.feestructures.filter(item => item.uuid !== action.uuid)
 //       })
-//       .addCase(deleteFeeStructure.rejected, (state, action) => {
+//       .addCase(deleteFeeStructure.rejected, (state) => {
 //         state.isLoading = false
-//         state.error = action.payload
 //       })
-//   },
+
+//       .addCase(updateFeeStructure.pending, (state) => {
+//         state.isLoading = true
+//       })
+//       .addCase(updateFeeStructure.fulfilled, (state, action) => {
+//         state.isLoading = false
+//         const updated = action.payload.data
+//         const index = state.feestructures.findIndex(item => item.uuid === updated.uuid)
+//         if (index !== -1) {
+//           state.feestructures[index] = updated
+//         }
+//       })
+//       .addCase(updateFeeStructure.rejected, (state) => {
+//         state.isLoading = false
+//       })
+
+//       .addCase(getFeeStructureByUuid.pending, (state) => {
+//         state.isLoading = true
+//       })
+//       .addCase(getFeeStructureByUuid.fulfilled, (state, action) => {
+//         state.isLoading = false
+//         state.feestructure = action.payload.data
+//       })
+//       .addCase(getFeeStructureByUuid.rejected, (state) => {
+//         state.isLoading = false
+//         state.feestructure = null
+//       })
+//   }
 // })
 
 // export default feeStructureSlice.reducer

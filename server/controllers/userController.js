@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const createEmployee = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, status } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required' });
@@ -23,6 +23,7 @@ const createEmployee = async (req, res) => {
       password: hashedPassword,
       role: 'employee',
       login_status: false,
+      status
     }, {
       userId: req.user.id , 
     });
@@ -52,6 +53,7 @@ const getEmployees = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const search = req.query.search || '';
+    const status = req.query.status; // optional: 'active' or 'inactive'
 
     const where = {
       role: 'employee',
@@ -60,6 +62,13 @@ const getEmployees = async (req, res) => {
         { email: { [Op.like]: `%${search}%` } }
       ]
     };
+
+    // filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
 
     const { count, rows: employees } = await User.findAndCountAll({
       where,
@@ -162,7 +171,7 @@ const getDeletedEmployees = async (req, res) => {
 const updateEmployee = async (req, res) => {
   try {
     const { uuid } = req.params
-    const { name, email, password } = req.body
+    const { name, email, password , status } = req.body
 
     if (!name && !email && !password) {
       return res.status(400).json({ message: 'At least one field must be provided' })
@@ -190,6 +199,7 @@ const updateEmployee = async (req, res) => {
 
     if (name) employee.name = name
     if (email) employee.email = email
+    if (status) employee.status = status
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10)
       employee.password = hashedPassword

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
+    defaultValue: true,
     allowNull: false
     },
     created_at: {

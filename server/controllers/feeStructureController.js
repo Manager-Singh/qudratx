@@ -4,7 +4,7 @@ const { Op, where } = require('sequelize');
 // CREATE
 const createFeeStructure = async (req, res) => {
   try {
-    const { name, amount } = req.body;
+    const { name, amount, status } = req.body;
     if (!name || !amount) {
       return res.status(400).json({ message: 'Name and Amount is required' });
     }
@@ -18,6 +18,7 @@ if (existingFee) {
     const fee = await FeeStructure.create({
       name,
       amount,
+      status,
       last_update: new Date(),
     },{ userId: req.user.id });
 
@@ -39,12 +40,18 @@ const getFeeStructure = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
+    const status = req.query.status; // optional: 'active' or 'inactive'
 
     const where = {
       deleted_at: null,
       name: { [Op.like]: `%${search}%` }
     };
-
+// filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
     const { count, rows } = await FeeStructure.findAndCountAll({
       where,
       limit,
@@ -93,10 +100,10 @@ const getFeeStructureByUUID = async (req, res) => {
 const updateFeeStructure = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name, amount } = req.body;
+    const { name, amount, status } = req.body;
 
-    if (!name) {
-        return res.status(400).json({ message: 'Name is required' });
+    if (!name || !amount) {
+        return res.status(400).json({ message: 'Name and Amount is required' });
       }
 
     const fee = await FeeStructure.findOne({ where: { uuid } });
@@ -104,8 +111,9 @@ const updateFeeStructure = async (req, res) => {
       return res.status(404).json({ message: 'Fee not found' });
     }
 
-    if (name) fee.name = name;
-    if (amount) fee.amount = amount;
+    fee.name = name;
+    fee.amount = amount;
+    if (status) fee.status = status;
     fee.updated_by = req.user.id;
     fee.updated_at = new Date();
     fee.last_update = new Date();
@@ -146,7 +154,7 @@ const deleteFeeStructure = async (req, res) => {
   }
 };
 
-// GET DELETED ACTIVITIES
+// GET DELETED FEE STRUCTURE
 const getDeletedFeeStructure = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

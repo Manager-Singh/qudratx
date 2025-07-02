@@ -41,16 +41,16 @@
 // })
 
 
-export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, name }, thunkAPI) => {
+// export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, name }, thunkAPI) => {
    
-  try {
+//   try {
      
-    const response = await putData(`/admin/update-activity/${uuid}`, {name})
-    return response
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.message)
-  }
-})
+//     const response = await putData(`/admin/update-activity/${uuid}`, {name})
+//     return response
+//   } catch (error) {
+//     return thunkAPI.rejectWithValue(error.message)
+//   }
+// })
 
 // export const getBusinessActivityByUuid = createAsyncThunk('admin/get-businesszone-by-uuid', async (uuid, thunkAPI) => {
 //   try {

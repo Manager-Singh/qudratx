@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 // CREATE
 const createBusinessZonesAuthority = async (req, res) => {
   try {
-    const { name, zone_id } = req.body;
+    const { name, zone_id , status} = req.body;
     if (!name || !zone_id) {
       return res.status(400).json({ message: 'Name and zone_id are required' });
     }
@@ -26,6 +26,7 @@ const createBusinessZonesAuthority = async (req, res) => {
     const authority = await BusinessZonesAuthority.create({
       name,
       zone_id,
+      status,
       last_update: new Date()
     }, { userId: req.user.id });
 
@@ -45,11 +46,18 @@ const createBusinessZonesAuthority = async (req, res) => {
 const getBusinessZonesAuthorities = async (req, res) => {
   try {
     const search = req.query.search || '';
-
+    const status = req.query.status; // optional: 'active' or 'inactive'
     const where = {
       deleted_at: null,
       name: { [Op.like]: `%${search}%` }
     };
+
+    // filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
 
     if (req.query.zone_id) {
       where.zone_id = req.query.zone_id;
@@ -99,7 +107,7 @@ const getBusinessZonesAuthorityByZoneId = async (req, res) => {
 const updateBusinessZonesAuthority = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name, zone_id } = req.body;
+    const { name, zone_id ,status} = req.body;
 
     const authority = await BusinessZonesAuthority.findOne({ where: { uuid, deleted_at: null } });
     if (!authority) {
@@ -118,8 +126,8 @@ const updateBusinessZonesAuthority = async (req, res) => {
       return res.status(400).json({ message: 'Name is required' });
     }
 
-    if (name) authority.name = name;
-
+    authority.name = name;
+    if (status) authority.status = status;
     authority.updated_at = new Date();
     authority.last_update = new Date();
 

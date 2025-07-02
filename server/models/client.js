@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const BusinessActivity = sequelize.define('BusinessActivity', {
+  const Client = sequelize.define('Client', {
     uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -9,6 +9,26 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+     address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+     email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+      phone: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+     company_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+     notes: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     status: {
     type: DataTypes.BOOLEAN,
@@ -33,9 +53,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     },
   }, {
-    tableName: 'business_activity',
+    tableName: 'clients',
     timestamps: false,
     paranoid: true,
   });
-  return BusinessActivity;
+  return Client;
 };

@@ -4,7 +4,7 @@ const { Op, where } = require('sequelize');
 // CREATE
 const createBusinessActivity = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name,status } = req.body;
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
@@ -17,6 +17,7 @@ if (existingActivity) {
 }
     const activity = await BusinessActivity.create({
       name,
+      status,
       last_update: new Date(),
     },{ userId: req.user.id });
 
@@ -38,11 +39,19 @@ const getBusinessActivity = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
-
+    const status = req.query.status; // optional: 'active' or 'inactive'
+    
     const where = {
       deleted_at: null,
       name: { [Op.like]: `%${search}%` }
     };
+
+    // filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
 
     const { count, rows } = await BusinessActivity.findAndCountAll({
       where,
@@ -92,7 +101,7 @@ const getBusinessActivityByUUID = async (req, res) => {
 const updateBusinessActivity = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name } = req.body;
+    const { name,status } = req.body;
 
     if (!name) {
         return res.status(400).json({ message: 'Name is required' });
@@ -103,7 +112,8 @@ const updateBusinessActivity = async (req, res) => {
       return res.status(404).json({ message: 'Business activity not found' });
     }
 
-    if (name) activity.name = name;
+    activity.name = name;
+    if (status) activity.status = status;
     activity.updated_by = req.user.id;
     activity.updated_at = new Date();
     activity.last_update = new Date();

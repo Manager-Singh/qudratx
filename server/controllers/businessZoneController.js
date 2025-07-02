@@ -4,7 +4,7 @@ const { Op, where } = require('sequelize');
 // CREATE
 const createBusinessZone = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name , status} = req.body;
     if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
@@ -16,6 +16,7 @@ if (existingZone) {
 }
     const zone = await BusinessZone.create({
       name,
+      status,
       last_update: new Date(),
     },{ userId: req.user.id });
 
@@ -37,12 +38,17 @@ const getBusinessZones = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
-
+    const status = req.query.status; // optional: 'active' or 'inactive'
     const where = {
       deleted_at: null,
       name: { [Op.like]: `%${search}%` }
     };
-
+// filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
     const { count, rows } = await BusinessZone.findAndCountAll({
       where,
       limit,
@@ -91,7 +97,7 @@ const getBusinessZoneByUUID = async (req, res) => {
 const updateBusinessZone = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name } = req.body;
+    const { name,status } = req.body;
     
 
     if (!name) {
@@ -103,7 +109,8 @@ const updateBusinessZone = async (req, res) => {
       return res.status(404).json({ message: 'Business zone not found' });
     }
 
-    if (name) zone.name = name;
+    zone.name = name;
+    if (status) zone.status = status;
     zone.updated_by = req.user.id;
     zone.updated_at = new Date();
     zone.last_update = new Date();

@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW

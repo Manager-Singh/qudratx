@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const BusinessZone = sequelize.define('BusinessZone', {
+  const FeeStructure = sequelize.define('FeeStructure', {
     uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+      amount: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     status: {
@@ -33,14 +37,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     },
   }, {
-    tableName: 'business_zones',
+    tableName: 'fee_structure',
     timestamps: false,
     paranoid: true,
   });
-
-  BusinessZone.associate = (models) => {
-     BusinessZone.hasMany(models.BusinessZonesAuthority, { foreignKey: 'zone_id' });
-  };
-
-  return BusinessZone;
+  return FeeStructure;
 };

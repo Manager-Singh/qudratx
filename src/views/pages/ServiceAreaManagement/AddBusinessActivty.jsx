@@ -9,8 +9,8 @@ function AddBusinessActivty() {
   const [name, setName] = useState('')
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const {id} = useParams() // check if we are editing
-  const isEdit = id
+  const {uuid} = useParams() // check if we are editing
+  const isEdit = uuid
   console.log(isEdit,"isEdit")
 
 //   const {  businesszone } = useSelector((state) => state.businesszone)

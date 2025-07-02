@@ -31,7 +31,7 @@ export const admin_nav = [
   
   {
     component: CNavTitle,
-    name: 'Service Areas management',
+    name: 'Proposal management',
   },
   {
     component: CNavItem,
@@ -46,15 +46,16 @@ export const admin_nav = [
     
   },
   {
-    component: CNavTitle,
-    name: 'Fee Structure Management',
-  },
-  {
     component: CNavItem,
     name: 'Fee Structure',
     to: '/fee-structure',
     
   },
+  {
+    component: CNavTitle,
+    name: '',
+  },
+  
 ]
 
 

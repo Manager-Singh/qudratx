@@ -1,9 +1,9 @@
 // import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 // import { postData, getData ,deleteData ,putData} from '../../utils/api'
 
-// export const addBusinessZone = createAsyncThunk('admin/create-businesszone', async (data, thunkAPI) => {
+// export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (data, thunkAPI) => {
 //   try {
-//     const response = await postData('/admin/create-zone', data)
+//     const response = await postData('/admin/create-activity', data)
 //     return response
 //   } catch (error) {
 //     console.error('Create businesszone error:', error)
@@ -11,9 +11,9 @@
 //   }
 // })
 
-// export const getBusinessZone = createAsyncThunk('admin/get-businesszone', async (_, thunkAPI) => {
+// export const getBusinessActivity = createAsyncThunk('admin/get-activity', async (_, thunkAPI) => {
 //   try {
-//     const response = await getData('/admin/get-zone')
+//     const response = await getData('/admin/get-activity')
 //     return response
 //   } catch (error) {
 //     console.error('Get businesszone error:', error)
@@ -21,17 +21,17 @@
 //   }
 // })
 
-// export const deleteBusinessZone  = createAsyncThunk('employee/delete-businesszone', async (uuid, thunkAPI) => {
+// export const deleteBusinessActivity  = createAsyncThunk('employee/delete-businesszone', async (uuid, thunkAPI) => {
 //   try {
-//     const response = await deleteData(`/admin/delete-zone/${uuid}`)
+//     const response = await deleteData(`/admin/delete-activity/${uuid}`)
 //     return { uuid, ...response }
 //   } catch (error) {
 //     return thunkAPI.rejectWithValue(error.message)
 //   }
 // })
 
-// // Get Deleted Employees
-// export const fetchDeletedBusinessZone  = createAsyncThunk('admin/fetchDeleted-businesszone', async (queryParams = '', thunkAPI) => {
+
+// export const fetchDeletedBusinessActivity  = createAsyncThunk('admin/fetchDeleted-businesszone', async (queryParams = '', thunkAPI) => {
 //   try {
 //     const response = await getData(`/admin/get-deleted-zone${queryParams}`)
 //     return response
@@ -40,19 +40,19 @@
 //   }
 // })
 
-// // Update Employee (by UUID)
-// export const updateBusinessZone = createAsyncThunk('admin/update-businesszone', async ({ id, name }, thunkAPI) => {
-   
-//   try {
-//      const uuid = id;
-//     const response = await putData(`/admin/update-zone/${uuid}`, {name})
-//     return response
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue(error.message)
-//   }
-// })
 
-// export const getBusinessZoneByUuid = createAsyncThunk('admin/get-businesszone-by-uuid', async (uuid, thunkAPI) => {
+export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, name }, thunkAPI) => {
+   
+  try {
+     
+    const response = await putData(`/admin/update-activity/${uuid}`, {name})
+    return response
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+
+// export const getBusinessActivityByUuid = createAsyncThunk('admin/get-businesszone-by-uuid', async (uuid, thunkAPI) => {
 //   try {
 //     const response = await getData(`/admin/get-zone-by-uuid/${uuid}`)
 //     return response
@@ -63,72 +63,59 @@
 // })
 
 
-// const businessZoneSlice = createSlice({
-//   name: 'businesszone',
+// const businessActivitySlice = createSlice({
+//   name: 'business_activity',
 //   initialState: {
-//     businesszones: [],
-//     businesszone:null,
+//     business_activities: [],
+//     business_activity:null,
 //     isLoading: true,
 //   },
 //   reducers: {},
 //   extraReducers: (builder) => {
 //     builder
-//       .addCase(addBusinessZone.pending, (state) => {
+//       .addCase(addBusinessActivity.pending, (state) => {
 //         state.isLoading = true
 //       })
-//       .addCase(addBusinessZone.fulfilled, (state, action) => {
+//       .addCase(addBusinessActivity.fulfilled, (state, action) => {
 //         state.isLoading = false
 //          state.businesszones.push(action.payload.data)
 //       })
-//       .addCase(addBusinessZone.rejected, (state, action) => {
+//       .addCase(addBusinessActivity.rejected, (state, action) => {
 //         state.isLoading = false
 //       }).addCase(getBusinessZone.pending, (state) => {
 //     state.isLoading = true
 //   })
-//   .addCase(getBusinessZone.fulfilled, (state, action) => {
+//   .addCase(getBusinessActivity.fulfilled, (state, action) => {
 //     state.isLoading = false
 //     state.businesszones = action.payload.data
 //   })
-//       .addCase(getBusinessZone.rejected, (state) => {
+//       .addCase(getBusinessActivity.rejected, (state) => {
 //     state.isLoading = false
 //     state.businesszones = []
 //   })
 
-//       // Get Employees
       
 
-//       // Get Deleted Employees
-//       // .addCase(getDeletedEmployees.pending, (state) => {
-//       //   state.isLoading = true
-//       // })
-//       // .addCase(getDeletedEmployees.fulfilled, (state, action) => {
-//       //   state.isLoading = false
-//       //   state.deletedEmployees = action.payload.data
-//       // })
-//       // .addCase(getDeletedEmployees.rejected, (state, action) => {
-//       //   state.isLoading = false
-//       //   state.deletedEmployees = []
-//       //   state.error = action.payload
-//       // })
+
 
 //       // Delete Employee
-//       .addCase(deleteBusinessZone.pending, (state) => {
+//       .addCase(deleteBusinessActivity.pending, (state) => {
 //         state.isLoading = true
 //       })
-//       .addCase(deleteBusinessZone.fulfilled, (state, action) => {
+//       .addCase(deleteBusinessActivity.fulfilled, (state, action) => {
 //         state.isLoading = false
 //         state.businesszones = state.businesszones.filter(emp => emp.uuid !== action.uuid)
 
 //       })
-//       .addCase(deleteBusinessZone.rejected, (state, action) => {
+//       .addCase(deleteBusinessActivity.rejected, (state, action) => {
 //         state.isLoading = false
 //       })
 
 //       // Update Employee
-//       .addCase(updateBusinessZone.pending, (state) => {
+//       .addCase(updateBusinessActivity.pending, (state) => {
 //         state.isLoading = true
 //       })
-//       .addCase(updateBusinessZone.fulfilled, (state, action) => {
+//       .addCase(updateBusinessActivity.fulfilled, (state, action) => {
 //         state.isLoading = false
        
 //         const updated = action.payload.data
@@ -142,17 +129,17 @@
 //   }
        
 //       })
-//       .addCase(updateBusinessZone.rejected, (state, action) => {
+//       .addCase(updateBusinessActivity.rejected, (state, action) => {
 //         state.isLoading = false
      
-//       }).addCase(getBusinessZoneByUuid.pending, (state) => {
+//       }).addCase(getBusinessActivityByUuid.pending, (state) => {
 //         state.isLoading = true
 //       })
-//       .addCase(getBusinessZoneByUuid.fulfilled, (state, action) => {
+//       .addCase(getBusinessActivityByUuid.fulfilled, (state, action) => {
 //         state.isLoading = false
 //         state.businesszone = action.payload.data
 //       })
-//       .addCase(getBusinessZoneByUuid.rejected, (state, action) => {
+//       .addCase(getBusinessActivityByUuid.rejected, (state, action) => {
 //         state.isLoading = false
 //         state.businesszone = null
        

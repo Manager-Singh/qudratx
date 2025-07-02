@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('admin', 'employee'),
       allowNull: false
     },
+     status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false
+    },
      last_login: {
       type: DataTypes.DATE,
       allowNull: true,

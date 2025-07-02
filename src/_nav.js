@@ -31,12 +31,28 @@ export const admin_nav = [
   
   {
     component: CNavTitle,
-    name: 'BusinessZone management',
+    name: 'Service Areas management',
   },
   {
     component: CNavItem,
     name: 'BusinessZones',
     to: '/business-zone',
+    
+  },
+  {
+    component: CNavItem,
+    name: 'Business Activities',
+    to: '/business-activities',
+    
+  },
+  {
+    component: CNavTitle,
+    name: 'Fee Structure Management',
+  },
+  {
+    component: CNavItem,
+    name: 'Fee Structure',
+    to: '/fee-structure',
     
   },
 ]

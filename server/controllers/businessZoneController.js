@@ -92,6 +92,7 @@ const updateBusinessZone = async (req, res) => {
   try {
     const { uuid } = req.params;
     const { name } = req.body;
+    
 
     if (!name) {
         return res.status(400).json({ message: 'Name is required' });

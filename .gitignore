@@ -29,4 +29,3 @@ yarn-debug.log*
 yarn-error.log*
 
 /server/config/config.json
-config.json

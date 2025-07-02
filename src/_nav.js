@@ -2,36 +2,40 @@ import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
   cilSpeedometer,
-  cilPeople
+  cilPeople,
+  cilDescription,
+  cilGroup
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 
 export const admin_nav = [
-  {
-    component: CNavItem,
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Dashboard',
+  //   to: '/dashboard',
+  //   icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  //   badge: {
+  //     color: 'info',
+  //     text: 'NEW',
+  //   },
+  // },
   {
     component: CNavTitle,
     name: 'Employee management',
+    icon: <CIcon icon={cilPeople} size="xl" className="text-primary" />,  
   },
   {
     component: CNavItem,
     name: 'Employees',
     to: '/employees',
-    icon: <CIcon icon={cilPeople} size="xl" className="text-primary" />,
+    showHyphen: true,
   },
   
   {
     component: CNavTitle,
     name: 'Proposal management',
+    icon: <CIcon icon={cilDescription} size="xl" className="text-primary" />,  
   },
   {
     component: CNavItem,
@@ -54,6 +58,7 @@ export const admin_nav = [
   {
     component: CNavTitle,
     name: 'Leads Management',
+    icon: <CIcon icon={cilGroup} size="xl" className="text-primary" />,  
   },
   {
     component: CNavItem,

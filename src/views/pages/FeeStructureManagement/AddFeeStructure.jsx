@@ -74,7 +74,7 @@ function AddFeeStructure() {
       };
 
       const action = isEdit
-        ? updateFeeStructure({ id, data: payload })
+        ? updateFeeStructure({ id, ...payload })
         : addFeeStructure(payload);
 
       dispatch(action).then((res) => {

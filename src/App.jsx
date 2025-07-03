@@ -26,6 +26,8 @@ import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivi
 import AddBusinessActivty from './views/pages/ServiceAreaManagement/AddBusinessActivty'
 import ClientListing from './views/pages/LeadManagement/ClientListing'
 import AddClient from './views/pages/LeadManagement/AddClient'
+import AllLead from './views/pages/LeadManagement/All Leads/AllLead'
+import ViewLead from './views/pages/LeadManagement/All Leads/ViewLead'
 
  
 const App = () => {
@@ -108,6 +110,9 @@ if (isLoading) {
        <Route path="/clients" element={<ClientListing/>} />
        <Route path="/add-client" element={<AddClient/>} />
        <Route path="/edit-client" element={<AddClient/>} />
+       <Route path="/all-lead" element={<AllLead/>} />
+       <Route path="/view-lead/:uuid" element={<ViewLead />} />
+
           </Route>
          
         </Routes>

@@ -1,75 +1,28 @@
 import {  useEffect, useState } from 'react';
-import { CButton } from '@coreui/react';
+import { CButton,CTooltip } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash} from '@coreui/icons';
-import { FaCircle ,FaTrash,} from 'react-icons/fa';
+import { cilTrash,cilDescription } from '@coreui/icons';
+import { FaCircle } from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
-
+import './client-style.css'
+import { getClient } from '../../../store/admin/clientSlice';
 
 function ClientListing() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 // const {business_activities} = useSelector((state)=>state.business_activity)
+const {clients}= useSelector((state)=>state.client)
 
-// useEffect(()=>{
-// dispatch(getBusinessActivity())
-// },[dispatch])
+useEffect(()=>{
+dispatch(getClient()).then((data)=>{
+  console.log(data,"data")
+})
+},[])
 
-const business_activities = [
-  {
-    uuid: '1a2b3c4d',
-    name: 'Software Development',
-    status: true,
-    address: '123 Tech Park, Bengaluru',
-    email: 'dev@example.com',
-    company_name: 'TechNova Pvt Ltd',
-    notes: 'Handles all custom software projects.',
-    created_at: '2025-06-01T10:00:00Z',
-  },
-  {
-    uuid: '2b3c4d5e',
-    name: 'Digital Marketing',
-    status: false,
-    address: '456 Media Street, Mumbai',
-    email: 'marketing@example.com',
-    company_name: 'MarketMinds Ltd',
-    notes: 'SEO and online campaigns.',
-    created_at: '2025-06-05T14:30:00Z',
-  },
-  {
-    uuid: '3c4d5e6f',
-    name: 'Consulting Services',
-    status: true,
-    address: '789 Strategy Blvd, Delhi',
-    email: 'consult@example.com',
-    company_name: 'StratEdge LLP',
-    notes: 'Business and tech consulting.',
-    created_at: '2025-06-10T09:15:00Z',
-  },
-  {
-    uuid: '4d5e6f7g',
-    name: 'Logistics Management',
-    status: false,
-    address: '321 Cargo Road, Chennai',
-    email: 'logistics@example.com',
-    company_name: 'TransLogix Inc',
-    notes: 'Warehouse and shipping management.',
-    created_at: '2025-06-12T11:45:00Z',
-  },
-  {
-    uuid: '5e6f7g8h',
-    name: 'HR Solutions',
-    status: true,
-    address: '654 People Ave, Pune',
-    email: 'hr@example.com',
-    company_name: 'PeoplePros HR',
-    notes: 'Recruitment and employee training.',
-    created_at: '2025-06-15T08:20:00Z',
-  },
-];
+
 const columns = [
   {
     name: 'Name',
@@ -116,6 +69,12 @@ const columns = [
     name: 'Action',
     cell: row => (
       <div className='d-flex gap-2'>
+        <CTooltip content="Generate Lead" placement="top">
+      <button className="icon-button">
+        <CIcon icon={cilDescription} size="lg" />
+      </button>
+    </CTooltip>
+       
         <span
           color="light"
           variant="ghost"
@@ -136,7 +95,7 @@ const columns = [
   },
 ];
 
-   const filteredData = business_activities.filter(item =>
+   const filteredData = clients.filter(item =>
   item.name.toLowerCase().includes(filterText.toLowerCase()) ||
   item.email?.toLowerCase().includes(filterText.toLowerCase()) ||
   item.address?.toLowerCase().includes(filterText.toLowerCase()) ||

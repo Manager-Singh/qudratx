@@ -8,20 +8,26 @@ import { Link } from 'react-router-dom';
 import { MdEdit } from "react-icons/md";
 import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
+import { ToastExample } from '../../../components/toast/Toast'
 // Columns for DataTable
 
 function EmployeesListing() {
-
+ const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
 const dispatch= useDispatch()
-const {employees,isLoading}=useSelector((state)=>state.employee)
+const {employees}=useSelector((state)=>state.employee)
+
+const showToast = (status, message) => {
+    setToastData({ show: true, status, message });
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000);
+  };
 
 function handleDelete(uuid){
 
 dispatch(deleteEmployee(uuid)).then((data)=>{
-  console.log(data,"deleted data ")
   if(data.payload.success){
+      showToast('Success', data.payload.message, 'success')
     dispatch(getEmployees())
-    console.log("employee fetch successfully")
+  
   }
 })
 }
@@ -99,6 +105,12 @@ const columns = [
 
   return (
     <div className='container'>
+
+     {toastData.show && (
+         <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+          <ToastExample status={toastData.status} message={toastData.message} />
+          </div>
+          )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
         <Link to='/add-employees'> <CButton className='custom-button'>Add Employee</CButton></Link>
        

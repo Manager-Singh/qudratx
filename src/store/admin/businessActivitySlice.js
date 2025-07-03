@@ -6,7 +6,7 @@ export const addBusinessActivity = createAsyncThunk('admin/create-activity', asy
     const response = await postData('/admin/create-activity', data)
     return response
   } catch (error) {
-    console.error('Create businesszone error:', error)
+    console.error('Create  error:', error)
     return thunkAPI.rejectWithValue(error.message)
   }
 })
@@ -16,7 +16,7 @@ export const getBusinessActivity = createAsyncThunk('admin/get-activity', async 
     const response = await getData('/admin/get-activity')
     return response
   } catch (error) {
-    console.error('Get businesszone error:', error)
+    console.error('Get error:', error)
     return thunkAPI.rejectWithValue(error.message)
   }
 })
@@ -56,7 +56,7 @@ export const getBusinessActivityByUuid = createAsyncThunk('admin//get-activity-b
     const response = await getData(`/admin/get-activity-by-uuid/${uuid}`)
     return response
   } catch (error) {
-    console.error('Get employees error:', error)
+    console.error('Get error:', error)
     return thunkAPI.rejectWithValue(error.message)
   }
 })

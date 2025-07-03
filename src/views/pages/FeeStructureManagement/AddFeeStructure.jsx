@@ -153,8 +153,8 @@ function AddFeeStructure() {
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
+                  <option value={1}>Active</option>
+                  <option value={0}>Inactive</option>
                 </CFormSelect>
               </CCol>
 

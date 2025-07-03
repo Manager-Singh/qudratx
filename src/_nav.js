@@ -66,6 +66,11 @@ export const admin_nav = [
     to: '/clients',
     
   },
+  {
+    component: CNavItem,
+    name: 'All Leads',
+    to: '/all-lead',
+  },
   
 ]
 

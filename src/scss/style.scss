@@ -53,10 +53,21 @@ body {
   margin-left: 40px !important;
   font-size: 15px;
 }
-.custom-button{
-    background-color:#2F1051;
-    color:#fff;
-  }
+.custom-button {
+  background-color: transparent;
+  color: #2f1051;
+  border: 1px solid #2f1051;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+
+.custom-button:hover {
+  // background-color: #ff7711;
+  color: #ff7711;
+  border-color: #ff7711;
+}
 .sidebar-header {
   .nav-underline-border {
     --cui-nav-underline-border-link-padding-x: 1rem;
@@ -97,4 +108,13 @@ body {
   .footer {
     --cui-footer-bg: var(--cui-body-bg);
   }
+}
+
+// custom progress bar background color
+.progress-bar{
+  background-color:#ff7711 !important;
+}
+
+.orange-color{
+  background-color:#ff7711  ;
 }

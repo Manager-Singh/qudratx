@@ -41,10 +41,9 @@ export const deleteBusinessActivity  = createAsyncThunk('employee/delete-activit
 // })
 
 
-export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, name }, thunkAPI) => {
-  
+export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, formData}, thunkAPI) => {
   try {
-    const response = await putData(`/admin/update-activity/${uuid}`, {name})
+    const response = await putData(`/admin/update-activity/${uuid}`, formData)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)

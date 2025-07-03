@@ -25,7 +25,7 @@ function handleDelete(uuid){
 
 dispatch(deleteEmployee(uuid)).then((data)=>{
   if(data.payload.success){
-      showToast('Success', data.payload.message, 'success')
+      showToast('success', data.payload.message, 'success')
     dispatch(getEmployees())
   
   }

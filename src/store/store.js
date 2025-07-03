@@ -6,6 +6,7 @@ import businessZoneReducer from './admin/businessZoneSlice'
 import businessZonesAuthorityReducer from './admin/zoneAuthoritySlice'
 import feeStructureReducer from './admin/feeStructureSlice'
 import BusinessActivityReducer from './admin/businessActivitySlice'
+import clientSliceReducer from './admin/clientSlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -14,7 +15,8 @@ const store = configureStore({
     businesszone:businessZoneReducer,
     businessZonesAuthority:businessZonesAuthorityReducer,
     business_activity:BusinessActivityReducer,
-    feeStructure:feeStructureReducer
+    feeStructure:feeStructureReducer,
+    client:clientSliceReducer
   }, 
 })
 

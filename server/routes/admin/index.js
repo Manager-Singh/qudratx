@@ -6,6 +6,7 @@ const BusinessZoneAuhtority = require('./businessZoneAuthority')
 const BusinessActivity = require('./businessActivity')
 const FeeStructure = require('./feeStructure')
 const Client = require('./client')
+const Lead = require('./lead')
 const {isAdmin} = require('../../middlewares/roleCheck')
 const authenticateJWT = require('../../middlewares/auth')
 
@@ -15,6 +16,7 @@ router.use('/admin',authenticateJWT,isAdmin,BusinessZoneAuhtority)
 router.use('/admin',authenticateJWT,isAdmin,BusinessActivity)
 router.use('/admin',authenticateJWT,isAdmin,FeeStructure)
 router.use('/admin',authenticateJWT,isAdmin,Client)
+router.use('/admin',authenticateJWT,isAdmin,Lead)
 
 module.exports = router;
 

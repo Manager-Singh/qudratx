@@ -1,35 +1,45 @@
 module.exports = (sequelize, DataTypes) => {
-  const Client = sequelize.define('Client', {
+  const Lead = sequelize.define('Lead', {
     uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       unique: true,
     },
-    name: {
+    client_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    origin: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-     address: {
+     created_status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-     email: {
+     lead_status: {
       type: DataTypes.STRING,
+    defaultValue: 'Waiting to Send Proposal',
       allowNull: false,
     },
-      phone: {
+      assigned_to: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-     company_name: {
-      type: DataTypes.STRING,
+    assigned_by: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
-     notes: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
+    approval_status:{
+        type: DataTypes.STRING,
+        defaultValue: 'unapproved',
+        allowNull: false,
+      },
     status: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
@@ -53,12 +63,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     },
   }, {
-    tableName: 'clients',
+    tableName: 'leads',
     timestamps: false,
     paranoid: true,
   });
-  Client.associate = (models) => {
-  Client.hasMany(models.Lead, { foreignKey: 'client_id' });
+  Lead.associate = (models) => {
+  Lead.belongsTo(models.Client, { foreignKey: 'client_id' });
 };
-  return Client;
+  return Lead;
 };

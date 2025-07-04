@@ -10,7 +10,7 @@ function AddBusinessZone() {
   name:'',
   status:1,
   })
-  const [error, setError] = useState('')
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const {id} = useParams() // check if we are editing
@@ -58,8 +58,9 @@ function AddBusinessZone() {
         if (data.payload.success) {
           navigate('/business-zone')
         } else {
-          setError(data.payload)
-          setTimeout(() => setError(''), 3000)
+         
+        showToast('error', data.payload )
+           
         }
       })
     } else {

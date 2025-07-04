@@ -40,46 +40,56 @@ function BusinessZone() {
     }
   }, [dispatch]);
 
-  const columns = [
-    {
-      name: 'BusinessZone',
-      selector: row => (
-        <Link to={`/view-businesszone/${row.uuid}`} style={{ textDecoration: 'none' }}>
-          {row.name}
+const columns = [
+  {
+    name: 'BusinessZone',
+    selector: row => (
+      <Link to={`/view-businesszone/${row.uuid}`} style={{ textDecoration: 'none' }}>
+        {row.name}
+      </Link>
+    ),
+    sortable: true,
+  },
+  {
+    name: 'Status',
+    selector: row => (
+      <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+        {row.status == 1 ? 'Active' : 'Inactive'}
+      </span>
+    ),
+    sortable: true,
+  },
+  {
+    name: 'Created At',
+    selector: row => new Date(row.created_at).toLocaleString(),
+    sortable: true,
+  },
+  {
+    name: 'Action',
+    cell: row => (
+      <div className='d-flex gap-2'>
+        <span
+          onClick={() => handleDelete(row.uuid)}
+          className="p-0"
+          title="Delete"
+          style={{ cursor: 'pointer' }}
+        >
+          <CIcon icon={cilTrash} size="lg" />
+        </span>
+        <Link
+          to={`/edit-businesszone/${row.uuid}`}
+          title="Edit"
+          style={{ padding: 0 }}
+        >
+          <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
         </Link>
-      ),
-      sortable: true,
-    },
-    {
-      name: 'Created At',
-      selector: row => new Date(row.created_at).toLocaleString(),
-      sortable: true,
-    },
-    {
-      name: 'Action',
-      cell: row => (
-        <div className='d-flex gap-2'>
-          <span
-            onClick={() => handleDelete(row.uuid)}
-            className="p-0"
-            title="Delete"
-            style={{ cursor: 'pointer' }}
-          >
-            <CIcon icon={cilTrash} size="lg" />
-          </span>
-          <Link
-            to={`/edit-businesszone/${row.uuid}`}
-            title="Edit"
-            style={{ padding: 0 }}
-          >
-            <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
-          </Link>
-        </div>
-      ),
-      ignoreRowClick: true,
-      width: '150px',
-    },
-  ];
+      </div>
+    ),
+    ignoreRowClick: true,
+    width: '150px',
+  },
+];
+
 
   const [filterText, setFilterText] = useState('');
   const filteredData = businesszones.filter(item =>

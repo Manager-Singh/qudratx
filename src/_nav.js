@@ -51,6 +51,12 @@ export const admin_nav = [
   },
   {
     component: CNavItem,
+    name: 'Packages',
+    to: '/packages',
+    
+  },
+  {
+    component: CNavItem,
     name: 'Fee Structure',
     to: '/fee-structure',
     

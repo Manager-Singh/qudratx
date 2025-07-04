@@ -113,7 +113,7 @@ const updateBusinessActivity = async (req, res) => {
     }
 
     activity.name = name;
-    if (status) activity.status = status;
+    activity.status = status;
     activity.updated_by = req.user.id;
     activity.updated_at = new Date();
     activity.last_update = new Date();

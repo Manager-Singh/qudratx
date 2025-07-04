@@ -41,11 +41,11 @@ export const fetchDeletedBusinessZone  = createAsyncThunk('admin/fetchDeleted-bu
 })
 
 // Update Employee (by UUID)
-export const updateBusinessZone = createAsyncThunk('admin/update-businesszone', async ({ id, name }, thunkAPI) => {
+export const updateBusinessZone = createAsyncThunk('admin/update-businesszone', async ({ id, formData }, thunkAPI) => {
    
   try {
      const uuid = id;
-    const response = await putData(`/admin/update-zone/${uuid}`, {name})
+    const response = await putData(`/admin/update-zone/${uuid}`, formData)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)

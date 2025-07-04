@@ -42,10 +42,10 @@ export const fetchDeletedClient = createAsyncThunk('admin/fetchDeleted-client', 
 })
 
 
-export const updateClient = createAsyncThunk('admin/update-client', async ({ uuid, name }, thunkAPI) => {
+export const updateClient = createAsyncThunk('admin/update-client', async ({ uuid, formdata }, thunkAPI) => {
   
   try {
-    const response = await putData(`/admin/update-client-detail/${uuid}`, {name})
+    const response = await putData(`/admin/update-client-detail/${uuid}`, formdata)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)

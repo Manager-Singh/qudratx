@@ -8,11 +8,17 @@ import { FaCircle ,FaTrash,} from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteBusinessActivity, getBusinessActivity } from '../../../store/admin/businessActivitySlice';
+import { ToastExample } from '../../../components/toast/Toast'
 
 function BusinessActivity() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 const {business_activities} = useSelector((state)=>state.business_activity)
+ const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+ const showToast = (status, message) => {
+    setToastData({ show: true, status, message })
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+  }
 
 useEffect(()=>{
 dispatch(getBusinessActivity())
@@ -81,6 +87,7 @@ const columns = [
   const handleDelete =(uuid)=>{
   dispatch(deleteBusinessActivity(uuid)).then((data)=>{
     if (data.payload.success) {
+      showToast('success', data.payload.message )
       dispatch(getBusinessActivity())
     }
   })
@@ -88,6 +95,11 @@ const columns = [
   
   return (
     <div className='container'>
+      {toastData.show && (
+              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <ToastExample status={toastData.status} message={toastData.message} />
+              </div>
+            )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
         <Link to='/add-business-activities'> <CButton className='custom-button'>Add Business Activity </CButton></Link>
        

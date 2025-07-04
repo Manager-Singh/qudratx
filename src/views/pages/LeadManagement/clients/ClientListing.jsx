@@ -8,20 +8,22 @@ import { FaCircle } from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import './client-style.css'
-import { getClient } from '../../../store/admin/clientSlice';
+import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
+import { ToastExample } from '../../../../components/toast/Toast'
 
 function ClientListing() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
-// const {business_activities} = useSelector((state)=>state.business_activity)
 const {clients}= useSelector((state)=>state.client)
-
+  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
 useEffect(()=>{
-dispatch(getClient()).then((data)=>{
-  console.log(data,"data")
-})
+dispatch(getClient())
 },[])
 
+const showToast = (status, message) => {
+    setToastData({ show: true, status, message })
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+  }
 
 const columns = [
   {
@@ -48,6 +50,11 @@ const columns = [
   {
     name: 'Email',
     selector: row => row.email,
+    sortable: true,
+  },
+    {
+    name: 'phone',
+    selector: row => row.phone,
     sortable: true,
   },
   {
@@ -103,16 +110,22 @@ const columns = [
   item.notes?.toLowerCase().includes(filterText.toLowerCase())
 );
 
-//   const handleDelete =(uuid)=>{
-//   dispatch(deleteBusinessActivity(uuid)).then((data)=>{
-//     if (data.payload.success) {
-//       dispatch(getBusinessActivity())
-//     }
-//   })
-//   }
+  const handleDelete =(uuid)=>{
+  dispatch(deleteClient(uuid)).then((data)=>{
+    if (data.payload.success) {
+       showToast('success', data.payload.message,'success')     
+      dispatch(getClient())
+    }
+  })
+  }
   
   return (
     <div className='container'>
+       {toastData.show && (
+              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <ToastExample status={toastData.status} message={toastData.message} />
+              </div>
+            )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
         <Link to='/add-client'> <CButton className='custom-button'>Add Client</CButton></Link>
        

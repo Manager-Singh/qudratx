@@ -11,10 +11,10 @@ import {
   CFormSelect,
   CSpinner,
 } from '@coreui/react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { addClient, updateClient, getClientByUuid } from '../../../store/admin/clientSlice'
-import { ToastExample } from '../../../components/toast/Toast'
+import { addClient, updateClient, getClientByUuid } from '../../../../store/admin/clientSlice'
+import { ToastExample } from '../../../../components/toast/Toast'
 
 function AddClient() {
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -40,20 +40,39 @@ function AddClient() {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
+const {client}= useSelector((state)=>state.client)
 
-  useEffect(() => {
-    if (isEdit) {
-      setLoading(true)
-      dispatch(getClientByUuid(uuid)).then((res) => {
-        if (res.payload) {
-          setFormdata(res.payload)
-        } else {
-          showToast('Error', 'Failed to fetch client data')
-        }
-        setLoading(false)
-      })
-    }
-  }, [uuid])
+useEffect(() => {
+  if (isEdit) {
+    setLoading(true)
+    dispatch(getClientByUuid(uuid)).then((res) => {
+      if (res.payload?.success ) {
+        
+      } else {
+        
+      }
+      setLoading(false)
+    }).catch((err) => {
+      showToast('error', err.message || 'Fetch error')
+      setLoading(false)
+    })
+  }
+}, [uuid])
+
+useEffect(() => {
+  if (isEdit && client) {
+    setFormdata({
+      name: client.name || '',
+      email: client.email || '',
+      status: client.status ?? 1,
+      phone: client.phone || '',
+      company_name: client.company_name || '',
+      address: client.address || '',
+      notes: client.notes || '',
+    })
+  }
+}, [client])
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -74,7 +93,7 @@ function AddClient() {
       dispatch(action)
         .then((res) => {
           if (res.payload?.success) {
-            showToast('Success', res.payload.message)
+            showToast('success', res.payload.message,'success')      
             if (!isEdit) {
               setFormdata({
                 name: '',
@@ -90,12 +109,12 @@ function AddClient() {
           } else {
             const errMsg =
               res.payload || res.error?.message || 'Operation failed'
-            showToast('Error', errMsg)
+            showToast('error', errMsg)
           }
         })
         .catch((err) => {
           const errorMessage = err?.message || 'Something went wrong'
-          showToast('Error', errorMessage)
+          showToast('error', errorMessage)
         })
     }
 

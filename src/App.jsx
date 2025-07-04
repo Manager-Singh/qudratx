@@ -24,8 +24,8 @@ import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
 import AddFeeStructure from  './views/pages/FeeStructureManagement/AddFeeStructure'
 import BusinessActivity from './views/pages/ServiceAreaManagement/BusinessActivity'
 import AddBusinessActivty from './views/pages/ServiceAreaManagement/AddBusinessActivty'
-import ClientListing from './views/pages/LeadManagement/ClientListing'
-import AddClient from './views/pages/LeadManagement/AddClient'
+import ClientListing from './views/pages/LeadManagement/clients/ClientListing'
+import AddClient from './views/pages/LeadManagement/clients/AddClient'
 import AllLead from './views/pages/LeadManagement/All Leads/AllLead'
 import ViewLead from './views/pages/LeadManagement/All Leads/ViewLead'
 
@@ -109,7 +109,7 @@ if (isLoading) {
        <Route path="/edit-business-activities/:uuid" element={<AddBusinessActivty/>} />
        <Route path="/clients" element={<ClientListing/>} />
        <Route path="/add-client" element={<AddClient/>} />
-       <Route path="/edit-client" element={<AddClient/>} />
+       <Route path="/edit-client/:uuid" element={<AddClient/>} />
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
 

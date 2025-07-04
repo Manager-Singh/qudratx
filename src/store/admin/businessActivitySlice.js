@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { postData, getData ,deleteData ,putData} from '../../utils/api'
 
 export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (data, thunkAPI) => {
+ 
   try {
     const response = await postData('/admin/create-activity', data)
     return response
@@ -43,6 +44,7 @@ export const deleteBusinessActivity  = createAsyncThunk('employee/delete-activit
 
 export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, formData}, thunkAPI) => {
   try {
+    
     const response = await putData(`/admin/update-activity/${uuid}`, formData)
     return response
   } catch (error) {

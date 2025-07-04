@@ -9,14 +9,16 @@ import { MdEdit } from "react-icons/md";
 import DataTable from 'react-data-table-component';
 import { getBusinessZoneByUuid } from '../../../store/admin/businessZoneSlice'
 import AddAuthorityPopUp from './components/AddAuthorityPopUp'
-
+import { ToastExample } from '../../../components/toast/Toast'
 
 
 
 function ViewBusinessZone() {
     const {uuid} = useParams()
-    
-  const [name,setName]= useState('')
+    const [formData ,setFormData]= useState({
+      name:'',
+      status:1
+    })
   const dispatch = useDispatch()
   const [filterText, setFilterText] = useState('');
   const {authorities}= useSelector((state)=>state.businessZonesAuthority)
@@ -24,7 +26,11 @@ function ViewBusinessZone() {
   const [visible,setVisible] = useState(false)
   const [isEdit,setIsEdit] = useState(false)
   const [selectedAuthority,setSelectedAuthority] = useState(null)
-  
+   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+ const showToast = (status, message) => {
+    setToastData({ show: true, status, message })
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+  }
 
 useEffect(()=>{
   dispatch(getBusinessZoneByUuid(uuid))
@@ -44,6 +50,15 @@ useEffect(() => {
   {
     name: 'Authority Zones',
     selector: row => row.name,
+    sortable: true,
+  },
+   {
+    name: 'Status',
+    selector: row => (
+      <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+        {row.status == 1 ? 'Active' : 'Inactive'}
+      </span>
+    ),
     sortable: true,
   },
   
@@ -70,7 +85,10 @@ useEffect(() => {
       <div onClick={() => {
     setIsEdit(true);
     setSelectedAuthority(row); // capture the full row
-    setName(row.name); // preload the name into input
+    setFormData({
+      name:row.name,
+      status:row.status
+    })
     setVisible(true);
   }}
   style={{ backgroundColor: 'transparent', padding: 0 }}
@@ -89,6 +107,7 @@ const handleDelete= (uuid)=>{
 dispatch(deleteBusinessZonesAuthority(uuid)).then((data)=>{
   if (data.payload.success) {
      const id = businesszone.id
+      showToast('success', data.payload.message )
     dispatch(getBusinessZonesAuthorityByZoneId({id}))
   }
 })
@@ -97,37 +116,53 @@ dispatch(deleteBusinessZonesAuthority(uuid)).then((data)=>{
 const handleAddAuthority = (e) =>{
 e.preventDefault()
 const zone_id = businesszone.id
-dispatch(addBusinessZonesAuthority({name,zone_id})).then((data)=>{
+const newFormdata = new FormData()
+  newFormdata.append('name', formData.name)
+  newFormdata.append('status', formData.status)
+  newFormdata.append('zone_id', zone_id)
+dispatch(addBusinessZonesAuthority(newFormdata)).then((data)=>{
  
   if (data.payload.success) {
-    setName('')
+    setFormData({
+      name:'',
+      status:1
+    })
+     showToast('success', data.payload.message )
     setVisible(false)
   }
   else{
    
+     showToast('error', data.payload )
+
   }
 })
 }
 const handleEditAuthority = (e) =>{
-
+  e.preventDefault()
+  const newFormdata = new FormData()
+  newFormdata.append('name', formData.name)
+  newFormdata.append('status', formData.status)
+  newFormdata.append('zone_id', businesszone.id)
   const updatedData = {
     uuid: selectedAuthority.uuid,
-    data: {
-      name,
-      zone_id: businesszone.id,
-    }
+    data:newFormdata
   }
-
 dispatch(updateBusinessZonesAuthority(updatedData)).then((data)=>{
  
   if (data.payload.success) {
-       setName('')
+     setFormData({
+      name:'',
+      status:1
+    })
+     showToast('success', data.payload.message )
        setVisible(false)
     
+  }else{
+     showToast('error', data.payload )
   }
 })
 
-e.preventDefault()
+
 }
 
 
@@ -137,6 +172,11 @@ const filteredData = authorities.filter(item =>
   );
   return (
   <div className='container'>
+    {toastData.show && (
+              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <ToastExample status={toastData.status} message={toastData.message} />
+              </div>
+            )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
        
        <div className=' d-flex justify-content-between w-75 px-3 '> 
@@ -161,7 +201,7 @@ const filteredData = authorities.filter(item =>
         responsive
         striped
       />
-      <AddAuthorityPopUp visible={visible} setVisible={setVisible} handleSubmit={!isEdit ? handleAddAuthority :handleEditAuthority} name={name} setName={setName} isEdit={isEdit} setIsEdit={setIsEdit} 
+      <AddAuthorityPopUp visible={visible} setVisible={setVisible} handleSubmit={!isEdit ? handleAddAuthority :handleEditAuthority} formData={formData} setFormData={setFormData} isEdit={isEdit} setIsEdit={setIsEdit} 
   setSelectedAuthority={setSelectedAuthority}/>
  
    

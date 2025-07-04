@@ -4,9 +4,10 @@ import { getData, postData, putData, deleteData } from '../../utils/api'
 // CREATE
 export const addBusinessZonesAuthority = createAsyncThunk(
   'authority/add',
-  async (payload, thunkAPI) => {
+  async (data, thunkAPI) => {
+    
     try {
-      const response = await postData('/admin/create-authority', payload)
+      const response = await postData('/admin/create-authority', data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
@@ -44,6 +45,7 @@ export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
 export const updateBusinessZonesAuthority = createAsyncThunk(
   'authority/update',
   async ({ uuid, data }, thunkAPI) => {
+    console.log(data,"data")
     try {
       const response = await putData(`/admin/update-authority/${uuid}`, data)
       return response

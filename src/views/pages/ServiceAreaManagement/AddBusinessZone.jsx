@@ -54,7 +54,6 @@ function AddBusinessZone() {
   
     if (isEdit) {
       dispatch(updateBusinessZone( {id, formData } )).then((data) => {
-        console.log(data,"data")
         if (data.payload.success) {
           navigate('/business-zone')
         } else {
@@ -114,7 +113,7 @@ function AddBusinessZone() {
                   value={formData.status}
                   onChange={handleChange}
                 >
-                  {formData.status === 1 ? (
+                  {formData.status == 1 ? (
                   <>
              <option value={1}>Active</option>
              <option value={0}>Inactive</option>

@@ -32,18 +32,15 @@ const columns = [
     selector: row => row.name,
     sortable: true,
   },
-   {
-      name: 'Status',
-      selector: row => row.status,
-      cell: row => (
-        <FaCircle
-          color={row.status ? 'green' : 'red'}
-          title={row.status ? true : false}
-        />
-      ),
-      sortable: true,
-     
-    },
+    {
+    name: 'Status',
+    selector: row => (
+      <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+        {row.status == 1 ? 'Active' : 'Inactive'}
+      </span>
+    ),
+    sortable: true,
+  },
   
   {
     name: 'Created At',

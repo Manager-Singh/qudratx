@@ -69,7 +69,6 @@ const handleChange = (e) => {
       e.stopPropagation()
     } else {
    
-console.log(formData,"formdata")
       const action = isEdit
         ? updateBusinessActivity({ uuid,formData})
         : addBusinessActivity(formData)
@@ -77,7 +76,12 @@ console.log(formData,"formdata")
       dispatch(action).then((res) => {
         if (res.payload?.success) {
           showToast('success', res.payload.message || 'Saved successfully')
-          if (!isEdit) setName('')
+          if (!isEdit){
+            setFormData({
+    name:'',
+    status:1,
+  })
+          } 
           setTimeout(() => navigate('/business-activities'), 1500)
         } else {
           showToast('error', res.payload|| 'Failed to save')
@@ -128,7 +132,7 @@ console.log(formData,"formdata")
                                 value={formData.status}
                                 onChange={handleChange}
                               >
-                                {formData.status === 1 ? (
+                                {formData.status == 1 ? (
                                 <>
                            <option value={1}>Active</option>
                            <option value={0}>Inactive</option>

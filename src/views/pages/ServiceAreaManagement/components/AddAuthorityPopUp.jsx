@@ -1,4 +1,3 @@
-
 import {
   CModal,
   CModalHeader,
@@ -8,42 +7,112 @@ import {
   CButton,
   CForm,
   CFormInput,
+  CCol,
+  CFormLabel,
+  CFormSelect,
+  CFormFeedback,
 } from '@coreui/react'
+import { useState } from 'react'
 
-function AddAuthorityPopUp({ visible, setVisible, handleSubmit, name, setName, isEdit = false  ,setIsEdit,setSelectedAuthority}) {
+function AddAuthorityPopUp({
+  visible,
+  setVisible,
+  handleSubmit,
+  formData,
+  setFormData,
+  isEdit = false,
+  setIsEdit,
+  setSelectedAuthority,
+}) {
+  const [validated, setValidated] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleModalClose = () => {
+    setVisible(false)
+    setIsEdit(false)
+    setFormData({ name: '', status: 1 })
+    setSelectedAuthority(null)
+    setValidated(false)
+  }
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.stopPropagation()
+    } else {
+      handleSubmit(e)
+    }
+    setValidated(true)
+  }
+
   return (
     <div className="text-center mt-5">
-      <CModal visible={visible} isEdit={isEdit} onClose={() => {setVisible(false)
-        setIsEdit(false)
-        setName('')
-        setSelectedAuthority(null)
-      }} alignment="center">
+      <CModal visible={visible} onClose={handleModalClose} alignment="center">
         <CModalHeader>
-          <CModalTitle>{isEdit ? 'Edit Business Zone Authority' : 'Add Business Zone Authority'}</CModalTitle>
+          <CModalTitle>
+            {isEdit ? 'Edit Business Zone Authority' : 'Add Business Zone Authority'}
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <CForm onSubmit={handleSubmit}>
-            <CFormInput
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter Authority name..."
-              required
-            />
-          </CForm>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() =>{ setVisible(false)
-               setIsEdit(false)
-               setName('')
-                setSelectedAuthority(null)
-          }}>
-            Cancel
-          </CButton>
-          <CButton color="primary" onClick={handleSubmit}>
-            {isEdit ? 'Update' : 'Submit'}
-          </CButton>
-        </CModalFooter>
+        <CForm noValidate validated={validated} onSubmit={handleFormSubmit}>
+          <CModalBody>
+            <CCol xs={12} className="mb-3">
+              <CFormLabel htmlFor="name">
+                Name<span className="text-danger">*</span>
+              </CFormLabel>
+              <CFormInput
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter Authority name..."
+                required
+              />
+              <CFormFeedback invalid>Please enter a name.</CFormFeedback>
+            </CCol>
+
+            <CCol xs={12}>
+                                          <CFormLabel htmlFor="status">Status</CFormLabel>
+                                          <CFormSelect
+                                            id="status"
+                                            name="status"
+                                            value={formData.status}
+                                            onChange={handleChange}
+                                          >
+                                            {formData.status === 1 ? (
+                                            <>
+                                       <option value={1}>Active</option>
+                                       <option value={0}>Inactive</option>
+                                           </>
+                                     ) : (
+                                          <>
+                                     <option value={0}>Inactive</option>
+                                     <option value={1}>Active</option>
+                                        </>
+                                                   )}
+                                            
+                                          </CFormSelect>
+                                        </CCol>
+            
+          </CModalBody>
+
+          <CModalFooter>
+            <CButton color="secondary" onClick={handleModalClose}>
+              Cancel
+            </CButton>
+            <CButton color="primary" type="submit">
+              {isEdit ? 'Update' : 'Submit'}
+            </CButton>
+          </CModalFooter>
+        </CForm>
       </CModal>
     </div>
   )

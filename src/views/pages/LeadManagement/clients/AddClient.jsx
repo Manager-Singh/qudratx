@@ -105,7 +105,9 @@ useEffect(() => {
                 notes: '',
               })
             }
-            setTimeout(() => navigate('/clients'), 1500)
+            // setTimeout(() => navigate('/clients'), 1500)
+             setTimeout(() => navigate('/add-lead'), 1500)
+            /*navigate('/add-lead'); */
           } else {
             const errMsg =
               res.payload || res.error?.message || 'Operation failed'

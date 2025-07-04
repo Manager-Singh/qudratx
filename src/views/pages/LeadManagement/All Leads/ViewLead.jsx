@@ -148,45 +148,41 @@
         )}
 
         {/* Lead Details */}
-        <CButton class="custom-button"  className="mb-3" onClick={() => navigate('/all-lead')}>
-            ← Back to All Leads
-        </CButton>
-        <CCard className="mb-4 mt-5 shadow-sm">
-        <CCardHeader>
-            <CCardTitle className="h5 mb-0">Lead Details</CCardTitle>
-        </CCardHeader>
-        <CCardBody>
-            <CTable bordered hover responsive>
-            <CTableBody>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Name</CTableHeaderCell>
-                <CTableDataCell>{lead.name}</CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Email</CTableHeaderCell>
-                <CTableDataCell>{lead.email}</CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Address</CTableHeaderCell>
-                <CTableDataCell>{lead.address}</CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Company</CTableHeaderCell>
-                <CTableDataCell>{lead.company_name}</CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Notes</CTableHeaderCell>
-                <CTableDataCell>{lead.notes}</CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                <CTableHeaderCell scope="row">Created At</CTableHeaderCell>
-                <CTableDataCell>
-                    {new Date(lead.created_at).toLocaleString()}
-                </CTableDataCell>
-                </CTableRow>
-            </CTableBody>
-            </CTable>
-        </CCardBody>
+        <CCard className="mb-4 mt-4 shadow-sm border-0">
+            <CCardHeader className="bg-light">
+                <CCardTitle className="h5 mb-0 fw-bold text-primary">Lead Details</CCardTitle>
+            </CCardHeader>
+
+            <CCardBody className="p-4">
+                <CTable bordered hover responsive className="align-middle table-striped">
+                    <CTableBody>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Name</CTableHeaderCell>
+                        <CTableDataCell>{lead.name}</CTableDataCell>
+                        </CTableRow>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Email</CTableHeaderCell>
+                        <CTableDataCell>{lead.email}</CTableDataCell>
+                        </CTableRow>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Address</CTableHeaderCell>
+                        <CTableDataCell>{lead.address}</CTableDataCell>
+                        </CTableRow>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Company</CTableHeaderCell>
+                        <CTableDataCell>{lead.company_name}</CTableDataCell>
+                        </CTableRow>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Notes</CTableHeaderCell>
+                        <CTableDataCell>{lead.notes}</CTableDataCell>
+                        </CTableRow>
+                        <CTableRow>
+                        <CTableHeaderCell className="fw-semibold">Created At</CTableHeaderCell>
+                        <CTableDataCell>{new Date(lead.created_at).toLocaleString()}</CTableDataCell>
+                        </CTableRow>
+                    </CTableBody>
+                </CTable>
+            </CCardBody>
         </CCard>
 
         {/* Show Proposal Form */}
@@ -325,23 +321,23 @@
         )}
     
         {/* Navigation */}
-        <div className="d-flex justify-content-between mt-4">
-        {step > 1 && (
-            <CButton class="custom-button" onClick={handleBack}>
-                ← Back
-            </CButton>
-            )}
-            {step < totalSteps ? (
-            <CButton class="custom-button"  onClick={handleNext}>
-                Next →
-            </CButton>
-            ) : (
-            <CButton class="custom-button"  onClick={handleSubmitProposal}>
-                Submit Proposal
-            </CButton>
-            )}
+            <div className="d-flex justify-content-between mt-4">
+                {step > 1 && (
+                    <CButton class="custom-button" onClick={handleBack}>
+                        ← Back
+                    </CButton>
+                    )}
+                    {step < totalSteps ? (
+                    <CButton class="custom-button"  onClick={handleNext}>
+                        Next →
+                    </CButton>
+                    ) : (
+                    <CButton class="custom-button"  onClick={handleSubmitProposal}>
+                        Submit Proposal
+                    </CButton>
+                    )}
 
-        </div>
+            </div>
         </div>
         )}
         </div>

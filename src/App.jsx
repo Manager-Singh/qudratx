@@ -28,6 +28,7 @@ import ClientListing from './views/pages/LeadManagement/clients/ClientListing'
 import AddClient from './views/pages/LeadManagement/clients/AddClient'
 import AllLead from './views/pages/LeadManagement/All Leads/AllLead'
 import ViewLead from './views/pages/LeadManagement/All Leads/ViewLead'
+import AddLead from './views/pages/LeadManagement/All Leads/AddLead'
 
  
 const App = () => {
@@ -112,6 +113,7 @@ if (isLoading) {
        <Route path="/edit-client/:uuid" element={<AddClient/>} />
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
+       <Route path="/add-lead" element={<AddLead />} />
 
           </Route>
          

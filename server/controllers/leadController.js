@@ -57,16 +57,15 @@ const createLeadDetail = async (req, res) => {
 
 const assignLead = async (req, res) => {
   try {
-    const { uuid } = req.params;
-    const { assigned_to } = req.body;
+    const { lead_id, assigned_to } = req.body;
 
     // Validate input
-    if (!uuid || !assigned_to) {
-      return res.status(400).json({ message: 'assigned_to is required' });
+    if (!lead_id || !assigned_to) {
+      return res.status(400).json({ message: 'lead id and assigned_to are required' });
     }
 
     // Find the lead
-    const lead = await Lead.findOne({ where: { uuid: uuid, deleted_at: null } });
+    const lead = await Lead.findOne({ where: { id: lead_id, deleted_at: null } });
 
     if (!lead) {
       return res.status(404).json({ message: 'Lead not found' });

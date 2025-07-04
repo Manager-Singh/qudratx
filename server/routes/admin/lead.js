@@ -9,7 +9,7 @@ const { createLeadDetail,
   getDeletedLeadDetail} = require('../../controllers/leadController');
 
 router.post('/create-lead',createLeadDetail)
-router.put('/assign-lead/:uuid',assignLead)
+router.put('/assign-lead',assignLead)
 router.get('/get-lead-detail',getLeadDetail)
 router.get('/get-lead-detail-by-uuid/:uuid',getLeadDetailByUUID)
 router.put('/update-lead-detail/:uuid',updateLeadDetail)

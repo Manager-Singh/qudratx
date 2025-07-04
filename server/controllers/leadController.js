@@ -19,9 +19,18 @@ const createLeadDetail = async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
+    // Get last lead to generate lead_number
+    const lastLead = await Lead.findOne({
+      order: [['id', 'DESC']]
+    });
+
+    const nextNumber = lastLead ? lastLead.id + 1 : 1;
+    const lead_number = `LEAD_${nextNumber.toString().padStart(4, '0')}`; // e.g., LEAD_0001
+
     // Create Lead
     const lead = await Lead.create({
       client_id: client.id,
+      lead_number,
       origin: 'CRM',
       created_status: req.user.role,
       approval_status: req.user.role === 'admin' ? 'approved' : 'unapproved',

@@ -127,7 +127,7 @@ const updateBusinessZonesAuthority = async (req, res) => {
     }
 
     authority.name = name;
-    if (status) authority.status = status;
+    authority.status = status;
     authority.updated_at = new Date();
     authority.last_update = new Date();
 

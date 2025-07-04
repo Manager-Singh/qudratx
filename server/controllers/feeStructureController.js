@@ -113,7 +113,7 @@ const updateFeeStructure = async (req, res) => {
 
     fee.name = name;
     fee.amount = amount;
-    if (status) fee.status = status;
+    fee.status = status;
     fee.updated_by = req.user.id;
     fee.updated_at = new Date();
     fee.last_update = new Date();

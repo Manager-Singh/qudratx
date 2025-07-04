@@ -199,7 +199,7 @@ const updateEmployee = async (req, res) => {
 
     if (name) employee.name = name
     if (email) employee.email = email
-    if (status) employee.status = status
+    employee.status = status
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10)
       employee.password = hashedPassword

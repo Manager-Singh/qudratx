@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    lead_number: {
+  type: DataTypes.STRING,
+  allowNull: true,
+  unique: true
+},
     origin: {
       type: DataTypes.STRING,
       allowNull: false,

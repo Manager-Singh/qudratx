@@ -110,7 +110,7 @@ const updateBusinessZone = async (req, res) => {
     }
 
     zone.name = name;
-    if (status) zone.status = status;
+    zone.status = status;
     zone.updated_by = req.user.id;
     zone.updated_at = new Date();
     zone.last_update = new Date();

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createLeadDetail,
+  assignLead,
   getLeadDetail,
   getLeadDetailByUUID,
   updateLeadDetail,
@@ -8,6 +9,7 @@ const { createLeadDetail,
   getDeletedLeadDetail} = require('../../controllers/leadController');
 
 router.post('/create-lead',createLeadDetail)
+router.put('/assign-lead/:uuid',assignLead)
 router.get('/get-lead-detail',getLeadDetail)
 router.get('/get-lead-detail-by-uuid/:uuid',getLeadDetailByUUID)
 router.put('/update-lead-detail/:uuid',updateLeadDetail)

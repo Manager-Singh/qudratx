@@ -24,8 +24,7 @@ const createLeadDetail = async (req, res) => {
       client_id: client.id,
       origin: 'CRM',
       created_status: req.user.role,
-      assigned_to: client.id,
-      assigned_by: req.user.id,
+      approval_status: req.user.role === 'admin' ? 'approved' : 'unapproved',
       created_by: req.user.id,
       last_update: new Date(),
       created_at: new Date(),
@@ -52,6 +51,56 @@ const createLeadDetail = async (req, res) => {
 
   } catch (error) {
     console.error('Create lead error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const assignLead = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+    const { assigned_to } = req.body;
+
+    // Validate input
+    if (!uuid || !assigned_to) {
+      return res.status(400).json({ message: 'assigned_to is required' });
+    }
+
+    // Find the lead
+    const lead = await Lead.findOne({ where: { uuid: uuid, deleted_at: null } });
+
+    if (!lead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
+
+    // Update assignment
+    lead.assigned_to = assigned_to;
+    lead.assigned_by = req.user.id;
+    lead.updated_by = req.user.id;
+    lead.updated_at = new Date();
+    lead.last_update = new Date();
+
+    await lead.save();
+
+    // Reload the lead with its associated client
+    const fullLead = await Lead.findOne({
+      where: { id: lead.id },
+      include: [
+        {
+          model: Client,
+          as: 'Client', // optional alias, use only if you defined one
+          attributes: { exclude: ['deleted_at'] } // filter sensitive fields
+        }
+      ]
+    });
+
+    return res.status(200).json({
+      message: 'Lead assigned successfully',
+      success: true,
+      data: fullLead
+    });
+
+  } catch (error) {
+    console.error('Assign lead error:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -242,6 +291,7 @@ const getDeletedLeadDetail = async (req, res) => {
 
 module.exports = {
   createLeadDetail,
+  assignLead,
   getLeadDetail,
   getLeadDetailByUUID,
   updateLeadDetail,

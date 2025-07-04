@@ -1,182 +1,351 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { CButton, CFormSelect } from "@coreui/react";
-import { getBusinessZone } from '../../../../store/admin/businessZoneSlice';
-import { getBusinessActivity } from '../../../../store/admin/businessActivitySlice';
+    import React, { useState, useEffect } from "react";
+    import { useParams, useNavigate } from "react-router-dom";
+    import { useDispatch, useSelector } from "react-redux";
+    import { CButton,    
+        CCard,
+        CCardHeader,
+        CCardBody,
+        CTable,
+        CTableBody,
+        CTableRow,
+        CTableHeaderCell,
+        CTableDataCell,
+        CCardTitle ,
+        CFormSelect,
+        CProgress } from "@coreui/react";
+    import { ToastExample } from "../../../../components/toast/Toast";
 
-const dummyLeads = [
-  {
-    uuid: '1a2b3c4d', name: 'Software Development',
-    address: '123 Tech Park, Bengaluru', email: 'dev@example.com',
-    company_name: 'TechNova Pvt Ltd', notes: 'Handles all custom software projects.',
-    created_at: '2025-06-01T10:00:00Z',
-  },
-  // ... more leads
-];
+    import { getBusinessZone } from "../../../../store/admin/businessZoneSlice";
+    import { getBusinessActivity } from "../../../../store/admin/businessActivitySlice";
+    import { getBusinessZonesAuthorityByZoneId } from "../../../../store/admin/zoneAuthoritySlice";
 
-const dummyLicensePackages = [
-  { id: 1, name: "Basic Package", content: "Includes basic license features." },
-  { id: 2, name: "Standard Package", content: "Includes standard features with support." },
-  { id: 3, name: "Premium Package", content: "Full access, premium support, and customization." }
-];
+    const dummyLeads = [
+    {
+        uuid: '1a2b3c4d',
+        name: 'Software Development',
+        address: '123 Tech Park, Bengaluru',
+        email: 'dev@example.com',
+        company_name: 'TechNova Pvt Ltd',
+        notes: 'Handles all custom software projects.',
+        created_at: '2025-06-01T10:00:00Z',
+    },
+    ];
 
-const ViewLead = () => {
-  const { uuid } = useParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+    const dummyLicensePackages = [
+    { id: 1, name: "Basic Package", content: "Includes basic license features." },
+    { id: 2, name: "Standard Package", content: "Includes standard features with support." },
+    { id: 3, name: "Premium Package", content: "Full access, premium support, and customization." }
+    ];
 
-  const { businesszones } = useSelector(state => state.businesszone);
-  const { business_activities } = useSelector(state => state.business_activity);
+    const ViewLead = () => {
+    const { uuid } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-  const [lead, setLead] = useState(null);
-  const [showProposalForm, setShowProposalForm] = useState(false);
-  const [step, setStep] = useState(1);
+    const { businesszones } = useSelector((state) => state.businesszone);
+    const { business_activities } = useSelector((state) => state.business_activity);
+    const { authorities } = useSelector((state) => state.businessZonesAuthority);
 
-  const [formData, setFormData] = useState({
-    businessZone: '',
-    authority: '',
-    businessActivity: '',
-    licensePackage: '',
-    customPackage: '',
-  });
+    const [lead, setLead] = useState(null);
+    const [showProposalForm, setShowProposalForm] = useState(false);
+    const [step, setStep] = useState(1);
 
-  useEffect(() => {
-    const foundLead = dummyLeads.find((item) => item.uuid === uuid);
-    setLead(foundLead);
-    dispatch(getBusinessZone());
-    dispatch(getBusinessActivity());
-  }, [uuid, dispatch]);
+    const steps = ["Business Zone", "Authority", "Activity", "Package"];
+    const totalSteps = steps.length;
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const goNext = () => step < totalSteps && setStep(step + 1);
+    const goBack = () => step > 1 && setStep(step - 1);
 
-  const handleNext = () => setStep(prev => prev + 1);
-  const handleBack = () => setStep(prev => prev - 1);
+    const [formData, setFormData] = useState({
+        businessZone: '',
+        authority: '',
+        businessActivity: '',
+        licensePackage: '',
+        customPackage: '',
+    });
 
-  if (!lead) return <div className="p-4">Loading lead details...</div>;
+    const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
 
-  return (
-    <div className="container mt-4">
-      <CButton color="secondary" className="mb-3" onClick={() => navigate('/all-lead')}>
-        ← Back to All Leads
-      </CButton>
+    useEffect(() => {
+        const foundLead = dummyLeads.find((item) => item.uuid === uuid);
+        setLead(foundLead);
+        dispatch(getBusinessZone());
+        dispatch(getBusinessActivity());
+    }, [uuid, dispatch]);
 
-      <h3 className="mb-4">Lead Details</h3>
-      <table className="table table-bordered">
-        <tbody>
-          <tr><th>Name</th><td>{lead.name}</td></tr>
-          <tr><th>Email</th><td>{lead.email}</td></tr>
-          <tr><th>Address</th><td>{lead.address}</td></tr>
-          <tr><th>Company</th><td>{lead.company_name}</td></tr>
-          <tr><th>Notes</th><td>{lead.notes}</td></tr>
-          <tr><th>Created At</th><td>{new Date(lead.created_at).toLocaleString()}</td></tr>
-        </tbody>
-      </table>
+    useEffect(() => {
+        if (formData.businessZone) {
+        dispatch(getBusinessZonesAuthorityByZoneId({ id: formData.businessZone }));
+        }
+    }, [formData.businessZone, dispatch]);
 
-      <CButton color="primary" onClick={() => setShowProposalForm(!showProposalForm)}>
-        {showProposalForm ? 'Hide Proposal Form' : 'Create Proposal'}
-      </CButton>
+    const showToast = (status, message) => {
+        setToastData({ show: true, status, message });
+        setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000);
+    };
 
-      {showProposalForm && (
-        <div className="mt-4 border rounded p-4 bg-light">
-          <h5>Proposal Form - Step {step}</h5>
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        ...(name === 'businessZone' ? { authority: '' } : {}),
+        }));
+    };
 
-          {step === 1 && (
-            <>
-              <label>Select Business Zone:</label>
-              <CFormSelect
+    const handleNext = () => {
+        switch (step) {
+        case 1:
+            if (!formData.businessZone) return showToast('error', 'Please select a business zone');
+            break;
+        case 2:
+            if (!formData.authority) return showToast('error', 'Please select an authority');
+            break;
+        case 3:
+            if (!formData.businessActivity) return showToast('error', 'Please select a business activity');
+            break;
+        default:
+            break;
+        }
+        setStep((prev) => prev + 1);
+    };
+
+    const handleBack = () => setStep((prev) => prev - 1);
+
+    const handleSubmitProposal = () => {
+        if (
+        !formData.businessZone ||
+        !formData.authority ||
+        !formData.businessActivity ||
+        !formData.licensePackage
+        ) {
+        return showToast('error', 'Please complete all required fields before submitting.');
+        }
+
+        // Replace with actual API submit logic
+        showToast('success', 'Proposal submitted successfully!');
+        setShowProposalForm(false);
+        setStep(1);
+        setFormData({
+        businessZone: '',
+        authority: '',
+        businessActivity: '',
+        licensePackage: '',
+        customPackage: '',
+        });
+    };
+
+    if (!lead) return <div className="p-4">Loading lead details...</div>;
+    console.log('Progress value:', (step / totalSteps) * 100);
+    return (
+        <div className="container mt-4">
+
+        {/* Toast Notification */}
+        {toastData.show && (
+            <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+            <ToastExample status={toastData.status} message={toastData.message} />
+            </div>
+        )}
+
+        {/* Lead Details */}
+        <CButton class="custom-button"  className="mb-3" onClick={() => navigate('/all-lead')}>
+            ← Back to All Leads
+        </CButton>
+        <CCard className="mb-4 mt-5 shadow-sm">
+        <CCardHeader>
+            <CCardTitle className="h5 mb-0">Lead Details</CCardTitle>
+        </CCardHeader>
+        <CCardBody>
+            <CTable bordered hover responsive>
+            <CTableBody>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Name</CTableHeaderCell>
+                <CTableDataCell>{lead.name}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Email</CTableHeaderCell>
+                <CTableDataCell>{lead.email}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Address</CTableHeaderCell>
+                <CTableDataCell>{lead.address}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Company</CTableHeaderCell>
+                <CTableDataCell>{lead.company_name}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Notes</CTableHeaderCell>
+                <CTableDataCell>{lead.notes}</CTableDataCell>
+                </CTableRow>
+                <CTableRow>
+                <CTableHeaderCell scope="row">Created At</CTableHeaderCell>
+                <CTableDataCell>
+                    {new Date(lead.created_at).toLocaleString()}
+                </CTableDataCell>
+                </CTableRow>
+            </CTableBody>
+            </CTable>
+        </CCardBody>
+        </CCard>
+
+        {/* Show Proposal Form */}
+        <CButton class="custom-button"  onClick={() => setShowProposalForm(!showProposalForm)}>
+            {showProposalForm ? 'Hide Proposal Form' : 'Create Proposal'}
+        </CButton>
+
+        {showProposalForm && (
+        <div className="mt-4 border rounded p-4 bg-white shadow-sm">
+        <h5 className="mb-4">Create Proposal</h5>
+    
+        {/* Step Indicator */}
+        <CProgress
+            value={(step / totalSteps) * 100}
+            className="mb-4"
+            // color="primary"
+            // variant="striped"
+            // animated
+            // style={{ height: "10px" }}
+        />
+        <div className="d-flex justify-content-between mb-4 text-center">
+            {steps.map((label, idx) => {
+            const currentStep = idx + 1;
+            const isActive = step === currentStep;
+            return (
+                <div key={idx} className="flex-fill">
+                <div
+                    className={`mx-auto rounded-circle d-flex align-items-center justify-content-center ${
+                    isActive ? " orange-color text-white" : "bg-light text-muted"
+                    }`}
+                    style={{
+                    width: "40px",
+                    height: "40px",
+                    marginBottom: "8px",
+                    fontWeight: "bold",
+                    }}
+                >
+                    {currentStep}
+                </div>
+                <div style={{ fontSize: "0.9rem" }}>{label}</div>
+                </div>
+            );
+            })}
+        </div>
+    
+        {/* Step Content */}
+        {step === 1 && (
+            <div className="mb-3">
+            <label className="form-label">Select Business Zone <span className="text-danger">*</span></label>
+            <CFormSelect
                 name="businessZone"
                 value={formData.businessZone}
                 onChange={handleChange}
-              >
+                required
+            >
                 <option value="">-- Select Zone --</option>
-                {businesszones.map(zone => (
-                  <option key={zone.uuid} value={zone.uuid}>{zone.name}</option>
+                {businesszones.map((zone) => (
+                <option key={zone.id} value={zone.id}>{zone.name}</option>
                 ))}
-              </CFormSelect>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <label>Select Specific Authority (based on Business Zone):</label>
-              <CFormSelect
+            </CFormSelect>
+            </div>
+        )}
+    
+        {step === 2 && (
+            <div className="mb-3">
+            <label className="form-label">Select Specific Authority <span className="text-danger">*</span></label>
+            <CFormSelect
                 name="authority"
                 value={formData.authority}
                 onChange={handleChange}
-              >
+                required
+            >
                 <option value="">-- Select Authority --</option>
-                {/* Dummy authorities for now */}
-                <option value="authority-1">Authority 1</option>
-                <option value="authority-2">Authority 2</option>
-              </CFormSelect>
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <label>Select Business Activity:</label>
-              <div className="d-flex flex-column">
-                {business_activities.map(activity => (
-                  <label key={activity.uuid}>
-                    <input
-                      type="radio"
-                      name="businessActivity"
-                      value={activity.uuid}
-                      checked={formData.businessActivity === activity.uuid}
-                      onChange={handleChange}
-                    />{' '}
-                    {activity.name}
-                  </label>
+                {authorities.map((auth) => (
+                <option key={auth.id} value={auth.id}>{auth.name}</option>
                 ))}
-              </div>
-            </>
-          )}
-
-          {step === 4 && (
-            <>
-              <label>Select License Package:</label>
-              <div className="d-flex flex-column mb-3">
-                {dummyLicensePackages.map(pkg => (
-                  <label key={pkg.id}>
+            </CFormSelect>
+            </div>
+        )}
+    
+        {step === 3 && (
+            <div className="mb-3">
+            <label className="form-label">Select Business Activity <span className="text-danger">*</span></label>
+            <div className="d-flex flex-column gap-2">
+                {business_activities.map((activity) => (
+                <div className="form-check" key={activity.id}>
                     <input
-                      type="radio"
-                      name="licensePackage"
-                      value={pkg.id}
-                      checked={formData.licensePackage === String(pkg.id)}
-                      onChange={handleChange}
-                    />{' '}
-                    {pkg.name} - <small>{pkg.content}</small>
-                  </label>
+                    className="form-check-input"
+                    type="radio"
+                    name="businessActivity"
+                    value={activity.id}
+                    checked={formData.businessActivity === String(activity.id)}
+                    onChange={handleChange}
+                    />
+                    <label className="form-check-label">{activity.name}</label>
+                </div>
                 ))}
-              </div>
-              <label>Custom Package (Optional):</label>
-              <textarea
+            </div>
+            </div>
+        )}
+    
+        {step === 4 && (
+            <>
+            <div className="mb-3">
+                <label className="form-label">Select License Package <span className="text-danger">*</span></label>
+                <div className="d-flex flex-column gap-2">
+                {dummyLicensePackages.map((pkg) => (
+                    <div className="form-check" key={pkg.id}>
+                    <input
+                        className="form-check-input"
+                        type="radio"
+                        name="licensePackage"
+                        value={String(pkg.id)}
+                        checked={formData.licensePackage === String(pkg.id)}
+                        onChange={handleChange}
+                    />
+                    <label className="form-check-label">
+                        <strong>{pkg.name}</strong> - <small>{pkg.content}</small>
+                    </label>
+                    </div>
+                ))}
+                </div>
+            </div>
+    
+            <div className="mb-3">
+                <label className="form-label">Custom Package (Optional)</label>
+                <textarea
                 name="customPackage"
                 className="form-control"
                 value={formData.customPackage}
                 onChange={handleChange}
                 placeholder="Enter custom package details if any..."
-              ></textarea>
+                ></textarea>
+            </div>
             </>
-          )}
-
-          <div className="d-flex justify-content-between mt-3">
-            {step > 1 && <CButton color="secondary" onClick={handleBack}>Back</CButton>}
-            {step < 4 ? (
-              <CButton color="primary" onClick={handleNext}>Next</CButton>
-            ) : (
-              <CButton color="success" onClick={() => alert('Proposal Submitted!')}>
-                Submit Proposal
-              </CButton>
+        )}
+    
+        {/* Navigation */}
+        <div className="d-flex justify-content-between mt-4">
+        {step > 1 && (
+            <CButton class="custom-button" onClick={handleBack}>
+                ← Back
+            </CButton>
             )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+            {step < totalSteps ? (
+            <CButton class="custom-button"  onClick={handleNext}>
+                Next →
+            </CButton>
+            ) : (
+            <CButton class="custom-button"  onClick={handleSubmitProposal}>
+                Submit Proposal
+            </CButton>
+            )}
 
-export default ViewLead;
+        </div>
+        </div>
+        )}
+        </div>
+    );
+    };
+
+    export default ViewLead;

@@ -70,8 +70,8 @@ function AddFeeStructure() {
       const payload = {
         name,
         amount: Number(amount),
-        status,
-      };
+        status: Number(status), // '1' -> 1, '0' -> 0
+      };         
 
       const action = isEdit
         ? updateFeeStructure({ id, ...payload })
@@ -153,8 +153,8 @@ function AddFeeStructure() {
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
-                  <option value={1}>Active</option>
-                  <option value={0}>Inactive</option>
+                  <option value="1">Active</option>
+                  <option value="2">Inactive</option>
                 </CFormSelect>
               </CCol>
 

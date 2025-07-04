@@ -29,7 +29,7 @@ export const admin_nav = [
     component: CNavItem,
     name: 'Employees',
     to: '/employees',
-    showHyphen: true,
+    // showHyphen: true,
   },
   
   {

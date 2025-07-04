@@ -114,7 +114,6 @@ const assignLead = async (req, res) => {
 };
 
 
-// READ ALL
 const getLeadDetail = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -123,29 +122,39 @@ const getLeadDetail = async (req, res) => {
     const search = req.query.search || '';
     const status = req.query.status; // optional: 'active' or 'inactive'
 
-    const where = {
+    const leadWhere = {
       deleted_at: null,
-      email: { [Op.like]: `%${search}%` }
     };
 
-    // filter by status if provided
     if (status === 'active') {
-      where.status = true;
+      leadWhere.status = true;
     } else if (status === 'inactive') {
-      where.status = false;
+      leadWhere.status = false;
     }
 
-    const { count, rows } = await Client.findAndCountAll({
-      where,
+    const { count, rows } = await Lead.findAndCountAll({
+      where: leadWhere,
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: Client,
+          as: 'Client', // use the correct alias defined in association
+          where: {
+            email: { [Op.like]: `%${search}%` },
+            deleted_at: null
+          },
+          required: true, // this is important to apply filtering in JOIN
+          attributes: { exclude: ['deleted_at'] }
+        }
+      ]
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Client details fetched successfully',
+      message: 'Lead details fetched successfully',
       page,
       limit,
       totalPages,
@@ -153,10 +162,11 @@ const getLeadDetail = async (req, res) => {
       data: rows
     });
   } catch (error) {
-    console.error('Get clients error:', error);
+    console.error('Get leads error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // GET ONE
 const getLeadDetailByUUID = async (req, res) => {
@@ -244,20 +254,20 @@ const deleteLeadDetail = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const client = await Client.findOne({ where: { uuid } });
-    if (!client) {
-      return res.status(404).json({ message: 'client not found' });
+    const lead = await Lead.findOne({ where: { uuid } });
+    if (!lead) {
+      return res.status(404).json({ message: 'lead not found' });
     }
 
-    await client.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    await lead.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
 
     res.status(200).json({
-      message: 'Client deleted successfully',
+      message: 'lead deleted successfully',
       success: true,
-      data: { uuid: client.uuid, name: client.email },
+      data: { uuid: lead.uuid},
     });
   } catch (error) {
-    console.error('Delete Client error:', error);
+    console.error('Delete lead error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -270,7 +280,7 @@ const getDeletedLeadDetail = async (req, res) => {
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
 
-    const { count, rows } = await Client.findAndCountAll({
+    const { count, rows } = await Lead.findAndCountAll({
       where: {
         deleted_at: { [Op.not]: null },
         email: { [Op.like]: `%${search}%` },

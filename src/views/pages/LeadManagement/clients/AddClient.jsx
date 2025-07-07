@@ -16,7 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { addClient, updateClient, getClientByUuid } from '../../../../store/admin/clientSlice'
 import { ToastExample } from '../../../../components/toast/Toast'
 
-function AddClient() {
+function AddClient(props) {
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [validated, setValidated] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -105,9 +105,13 @@ useEffect(() => {
                 notes: '',
               })
             }
-            // setTimeout(() => navigate('/clients'), 1500)
-             setTimeout(() => navigate('/add-lead'), 1500)
-            /*navigate('/add-lead'); */
+            
+            if(!props.onSubmit){
+              setTimeout(() => navigate('/clients'), 1500)
+            }else{
+              props.onSubmit(res.payload.data) // or wherever the new client info is in your response
+            }
+          
           } else {
             const errMsg =
               res.payload || res.error?.message || 'Operation failed'

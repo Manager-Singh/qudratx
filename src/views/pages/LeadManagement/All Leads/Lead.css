@@ -1,0 +1,170 @@
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 60% !important; 
+    }
+}
+
+.modal-dialog{
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* .modal-content {
+    position: relative;
+    display: flex
+;
+    flex-direction: column;
+    width: 60%; */
+
+    /* viewlead css */
+    /* Container styles */
+.proposal-form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgb(0 0 0 / 0.05);
+    padding: 1.5rem 2rem;
+  }
+  
+  /* Progress bar */
+  .progress-bar-custom {
+    height: 8px !important;
+    border-radius: 4px !important;
+  }
+  
+  /* Step indicator */
+  .step-indicator .step-circle {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 8px;
+    font-weight: 700;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  
+  .step-indicator .step-circle.active {
+    background-color: #ff6600;
+    color: white;
+  }
+  
+  .step-indicator .step-label {
+    font-size: 0.9rem;
+    color: #333333;
+    user-select: none;
+  }
+  
+  /* Custom selects */
+  .form-select-custom {
+    box-shadow: 0 0 6px rgb(0 0 0 / 0.08);
+    border-radius: 6px;
+    min-height: 45px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-select-custom:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 8px rgba(255, 102, 0, 0.5);
+    outline: none;
+  }
+  
+  /* Business activities step 3 */
+  .business-activities {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .activity-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  
+  .activity-option input[type="radio"] {
+    margin-right: 12px;
+    cursor: pointer;
+  }
+  
+  .activity-option .activity-name {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .activity-option:hover {
+    background-color: #fff7e6;
+    border-color: #ff6600;
+  }
+  
+  .activity-option.selected {
+    border-color: #ff6600;
+    background-color: #fff7e6;
+    font-weight: 600;
+  }
+  
+  /* License packages step 4 */
+  .license-packages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .license-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  
+  .license-option input[type="radio"] {
+    margin-right: 12px;
+    cursor: pointer;
+  }
+  
+  .license-option:hover {
+    background-color: #fff7e6;
+    border-color: #ff6600;
+  }
+  
+  .license-option.selected {
+    border-color: #ff6600;
+    background-color: #fff7e6;
+    font-weight: 600;
+  }
+  
+  /* Custom textarea */
+  .custom-package-textarea {
+    box-shadow: 0 0 6px rgb(0 0 0 / 0.08);
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+    resize: vertical;
+  }
+  
+  .custom-package-textarea:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 8px rgba(255, 102, 0, 0.5);
+    outline: none;
+  }
+    
+  .button-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  

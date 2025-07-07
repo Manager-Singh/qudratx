@@ -1,7 +1,7 @@
 import {  useEffect, useState } from 'react';
 import { CButton,CTooltip } from '@coreui/react';
 import DataTable from 'react-data-table-component';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash,cilDescription } from '@coreui/icons';
 import { FaCircle } from 'react-icons/fa';
@@ -10,12 +10,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import './client-style.css'
 import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
 import { ToastExample } from '../../../../components/toast/Toast'
-
+import { CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react'
 function ClientListing() {
+const [visible, setVisible] = useState(false)
+const navigate = useNavigate()
+const [uuid,setuuid]= useState('')
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 const {clients}= useSelector((state)=>state.client)
-  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
 useEffect(()=>{
 dispatch(getClient())
 },[])
@@ -77,7 +80,11 @@ const columns = [
     cell: row => (
       <div className='d-flex gap-2'>
         <CTooltip content="Generate Lead" placement="top">
-      <button className="icon-button">
+      <button className="icon-button"onClick={() => {
+  setVisible(true)
+  setuuid(row.uuid)
+}}
+>
         <CIcon icon={cilDescription} size="lg" />
       </button>
     </CTooltip>
@@ -118,6 +125,12 @@ const columns = [
     }
   })
   }
+
+  const handleConfirm = ()=>{
+    setVisible(false)
+    navigate(`/view-lead/${uuid}`)
+  }
+  
   
   return (
     <div className='container'>
@@ -147,6 +160,22 @@ const columns = [
         striped
       />
       
+     
+ <CModal visible={visible} onClose={() => {setVisible(false); setuuid('')}}    >
+        <CModalHeader>Confirm</CModalHeader>
+        <CModalBody>Are you sure you want to create a lead?</CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Cancel
+          </CButton>
+          <CButton color="primary" onClick={handleConfirm}>
+            Yes, Create
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    
+    
+     
     </div>
    
   )

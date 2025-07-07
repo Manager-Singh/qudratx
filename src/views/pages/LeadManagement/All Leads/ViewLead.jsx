@@ -150,23 +150,23 @@ const ViewLead = () => {
             <CTableBody>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Name</CTableHeaderCell>
-                <CTableDataCell>{lead.name}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.name}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Email</CTableHeaderCell>
-                <CTableDataCell>{lead.email}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.email}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Address</CTableHeaderCell>
-                <CTableDataCell>{lead.address}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.address}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Company</CTableHeaderCell>
-                <CTableDataCell>{lead.company_name}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.company_name}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Notes</CTableHeaderCell>
-                <CTableDataCell>{lead.notes}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.notes ? lead.Client?.notes : '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Created At</CTableHeaderCell>
@@ -178,7 +178,7 @@ const ViewLead = () => {
       </CCard>
 
       {/* Show Proposal Form */}
-      <CButton class="custom-button" onClick={() => setShowProposalForm(!showProposalForm)}>
+      <CButton className="custom-button" onClick={() => setShowProposalForm(!showProposalForm)}>
         {showProposalForm ? 'Hide Proposal Form' : 'Create Proposal'}
       </CButton>
 

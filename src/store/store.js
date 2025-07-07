@@ -8,6 +8,8 @@ import feeStructureReducer from './admin/feeStructureSlice'
 import BusinessActivityReducer from './admin/businessActivitySlice'
 import clientSliceReducer from './admin/clientSlice'
 import leadReducer from './admin/leadSlice'
+import packageReducer from './admin/packageSlice'
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -18,7 +20,9 @@ const store = configureStore({
     business_activity:BusinessActivityReducer,
     feeStructure:feeStructureReducer,
     client:clientSliceReducer,
-    lead:leadReducer
+    lead:leadReducer,
+    package:packageReducer
+
   }, 
 })
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -37,6 +37,8 @@ const ViewLead = () => {
   const { businesszones } = useSelector((state) => state.businesszone)
   const { business_activities } = useSelector((state) => state.business_activity)
   const { authorities } = useSelector((state) => state.businessZonesAuthority)
+  const proposalFormRef = useRef(null)
+
 
   const { lead, isLoading } = useSelector((state) => state.lead)
   const [showProposalForm, setShowProposalForm] = useState(false)
@@ -71,6 +73,13 @@ const ViewLead = () => {
       dispatch(getBusinessZonesAuthorityByZoneId({ id: formData.businessZone }))
     }
   }, [formData.businessZone, dispatch])
+
+  useEffect(() => {
+    if (showProposalForm && proposalFormRef.current) {
+      proposalFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [showProposalForm])
+  
 
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
@@ -238,7 +247,7 @@ const ViewLead = () => {
       </CButton>
 
       {showProposalForm && (
-        <div className="proposal-form mt-4 border rounded p-4 bg-white shadow-sm">
+        <div ref={proposalFormRef} className="proposal-form mt-4 border rounded p-4 bg-white shadow-sm">
           <h5 className="mb-4">Create Proposal</h5>
 
           {/* Step Indicator */}

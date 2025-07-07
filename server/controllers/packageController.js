@@ -4,7 +4,7 @@ const { Op, where } = require('sequelize');
 // CREATE
 const createPackage = async (req, res) => {
   try {
-    const { name,description, total_amount, status } = req.body;
+    const { name,description, total_amount, status, subtotal,discount,fee_structure, tax } = req.body;
     if (!name || !total_amount) {
       return res.status(400).json({ message: 'Name and Total Amount are required' });
     }
@@ -20,6 +20,10 @@ if (existingPackage) {
       description,
       total_amount,
       status,
+      subtotal,
+      discount,
+      fee_structure,
+      tax,
       last_update: new Date(),
     },{ userId: req.user.id });
 

@@ -173,18 +173,24 @@ const getLeadDetailByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const client = await Client.findOne({ where: { uuid } });
-    if (!client) {
-      return res.status(404).json({ message: 'client not found' });
+    const lead = await Lead.findOne({ where: { uuid },include: [
+        {
+          model: Client,
+          as: 'Client', // optional alias, use only if you defined one
+          attributes: { exclude: ['deleted_at'] } // filter sensitive fields
+        }
+      ] });
+    if (!lead) {
+      return res.status(404).json({ message: 'lead not found' });
     }
 
     res.status(200).json({
-      message: 'client fetched successfully',
+      message: 'lead fetched successfully',
       success: true,
-      data: client,
+      data: lead,
     });
   } catch (error) {
-    console.error('Get client error:', error);
+    console.error('Get lead error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

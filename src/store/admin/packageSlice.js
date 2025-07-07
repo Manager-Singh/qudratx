@@ -42,10 +42,10 @@ export const deletePackage  = createAsyncThunk('admin/delete-package', async (uu
 // })
 
 
-export const updatePackage = createAsyncThunk('admin/update-package', async ({ uuid, formData}, thunkAPI) => {
+export const updatePackage = createAsyncThunk('admin/update-package', async ({ uuid, payload}, thunkAPI) => {
   try {
     
-    const response = await putData(`/admin/update-package/${uuid}`, formData)
+    const response = await putData(`/admin/update-package/${uuid}`, payload)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)

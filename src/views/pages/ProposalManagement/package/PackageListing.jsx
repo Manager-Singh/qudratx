@@ -9,7 +9,7 @@ import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { FaEye } from 'react-icons/fa';
-import { getPackages } from '../../../../store/admin/packageSlice';
+import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -81,10 +81,10 @@ const columns = [
   );
 
   const handleDelete =(uuid)=>{
-  dispatch(deleteBusinessActivity(uuid)).then((data)=>{
+  dispatch(deletePackage(uuid)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
-      dispatch(getBusinessActivity())
+      dispatch(getPackages())
     }
   })
   }

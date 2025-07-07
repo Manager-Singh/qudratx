@@ -31,7 +31,8 @@ import ViewLead from './views/pages/LeadManagement/All Leads/ViewLead'
 import AddLead from './views/pages/LeadManagement/All Leads/AddLead'
 import PackageListing from './views/pages/ProposalManagement/package/PackageListing'
 import AddPackage from './views/pages/ProposalManagement/package/AddPackage'
-// import ViewPackageDetail from './views/pages/ProposalManagement/package/ViewPackageDetail'
+import ViewPackageDetail from './views/pages/ProposalManagement/package/ViewPackageDetail'
+
 
  
 const App = () => {
@@ -120,7 +121,7 @@ if (isLoading) {
         <Route path="/packages" element={<PackageListing/>} />
          <Route path="/add-package" element={<AddPackage/>} />
          <Route path="/edit-package/:uuid" element={<AddPackage/>} />
-          {/* <Route path="/view-package/:uuid" element={<ViewPackageDetail/> }/> */}
+          <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
           </Route>
          
         </Routes>

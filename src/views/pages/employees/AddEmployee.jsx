@@ -74,14 +74,21 @@ function AddEmployee() {
         .then((res) => {
           if (res.payload?.success) {
             showToast('success', res.payload.message)
-            if (!isEdit) setFormData({ name: '', email: '', password: '', status: 1 })
+           
             dispatch(getEmployees())
-            setTimeout(() => navigate('/employees'), 1500)
-          } else {
-            showToast('error', res.payload || 'Failed to save')
-          }
+          
+      setTimeout(() => {
+        navigate('/employees')
+        if (!isEdit) {
+          setFormData({ name: '', email: '', password: '', status: 1 })
+        }
+      }, 1500)
+    }else{
+   showToast('success', res.payload)
+    }
         })
         .catch((err) => {
+          
           showToast('error', err.message || 'Unexpected error')
         })
     }

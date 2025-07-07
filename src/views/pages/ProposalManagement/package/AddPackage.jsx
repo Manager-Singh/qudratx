@@ -23,13 +23,9 @@ function AddPackage() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { feestructures } = useSelector((state) => state.feeStructure)
-const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
- const showToast = (status, message) => {
-    setToastData({ show: true, status, message })
-    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
-  }
-  const TAX_RATE = 0.18
 
+  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+  const [fetchedPackage, setFetchedPackage] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -43,31 +39,29 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
   })
 
   const [validated, setValidated] = useState(false)
+  const TAX_RATE = 0.18
 
-  // Load available fee structures
+  const showToast = (status, message) => {
+    setToastData({ show: true, status, message })
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+  }
+
+  // Fetch available fee structures
   useEffect(() => {
     dispatch(getFeeStructures())
   }, [dispatch])
 
-  // If editing, load package data
+  // Fetch package if editing
   useEffect(() => {
     if (uuid) {
       dispatch(getPackageByUUID(uuid)).then((res) => {
-        const pkg = res.payload
+        const pkg = res.payload.data
         if (pkg) {
-          const updatedFees = {}
-          pkg.feeDetails.forEach((fee) => {
-            updatedFees[fee.id] = {
-              enabled: true,
-              amount: fee.amount,
-              name: fee.name,
-            }
-          })
+          setFetchedPackage(pkg)
           setFormData((prev) => ({
             ...prev,
             name: pkg.name,
             description: pkg.description,
-            fee_structure: updatedFees,
             isDiscountEnabled: !!pkg.discount,
             discount: pkg.discount || 0,
             tax: pkg.tax || 0,
@@ -78,26 +72,36 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
         }
       })
     }
-  }, [uuid])
+  }, [uuid, dispatch])
 
-  // Merge new fee structures
+  // Merge fee structures from backend and frontend when both are available
   useEffect(() => {
     if (feestructures.length > 0) {
       setFormData((prev) => {
-        const updatedFees = { ...prev.fee_structure }
+        const updatedFees = {}
+
         feestructures.forEach((item) => {
-          if (!updatedFees[item.id]) {
-            updatedFees[item.id] = {
-              enabled: false,
-              amount: item.amount || 0,
-              name: item.name,
-            }
+          let matched = null
+
+         
+if (fetchedPackage && fetchedPackage.fee_structure) {
+  const amount = fetchedPackage.fee_structure[item.name]
+  if (typeof amount !== 'undefined') {
+    matched = { name: item.name, amount }
+  }
+}
+
+          updatedFees[item.id] = {
+            enabled: !!matched,
+            amount: matched ? matched.amount : item.amount || 0,
+            name: item.name,
           }
         })
+
         return { ...prev, fee_structure: updatedFees }
       })
     }
-  }, [feestructures])
+  }, [feestructures, fetchedPackage])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -164,9 +168,8 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
       const action = uuid ? updatePackage({ uuid, payload }) : addPackage(payload)
       dispatch(action).then((data) => {
         if (data.payload.success) {
-           showToast('success', data.payload.message )
-            setTimeout(()=>{navigate('/packages')},1500)
-          
+          showToast('success', data.payload.message)
+          setTimeout(() => navigate('/packages'), 1500)
         }
       })
     }
@@ -177,10 +180,10 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
   return (
     <CContainer className="mt-4">
       {toastData.show && (
-                    <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
-                      <ToastExample status={toastData.status} message={toastData.message} />
-                    </div>
-                  )}
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+          <ToastExample status={toastData.status} message={toastData.message} />
+        </div>
+      )}
       <CForm noValidate validated={validated} onSubmit={handleSubmit} className="container">
         <CRow className="g-3 align-items-end">
           <CCol md={12}>
@@ -290,9 +293,7 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
           </CCol>
 
           <CCol xs={12}>
-            <CButton type="submit" color="primary">
-              Submit
-            </CButton>
+            <CButton type="submit" color="primary">Submit</CButton>
           </CCol>
         </CRow>
       </CForm>

@@ -10,10 +10,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { FaEye } from 'react-icons/fa';
 import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
+import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
+// handle model of delete 
+ const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+ const [selectedUUID, setSelectedUUID] = useState(null);
 
  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
  const showToast = (status, message) => {
@@ -25,7 +29,28 @@ useEffect(()=>{
 dispatch(getPackages())
 },[dispatch])
 
+const confirmDelete = (uuid) => {
+    setSelectedUUID(uuid);
+    setDeleteModalVisible(true);
+  };
 
+  const handleConfirmDelete = () => {
+    if (selectedUUID) {
+      dispatch(deletePackage(selectedUUID)).then((data)=>{
+    if (data.payload.success) {
+      showToast('success', data.payload.message )
+      dispatch(getPackages())
+    }
+  })
+    }
+    setDeleteModalVisible(false);
+    setSelectedUUID(null);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
+    setSelectedUUID(null);
+  };
 const columns = [
   {
     name: 'Name',
@@ -59,13 +84,20 @@ const columns = [
             <FaEye size={20} style={{ cursor: 'pointer', color: '#333' }}/>
           </Link>
         <span
-          onClick={() => handleDelete(row.uuid)}
+          onClick={() => confirmDelete(row.uuid)}
           className="p-0"
           title="Delete"
           style={{ cursor: 'pointer' }}
         >
           <CIcon icon={cilTrash} size="lg" />
         </span>
+         <ConfirmDeleteModal
+          visible={deleteModalVisible}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          title="Confirm Delete"
+          message="Are you sure you want to delete this package?"
+        />
         <Link to={`/edit-package/${row.uuid}`}>
           <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
         </Link>
@@ -81,12 +113,7 @@ const columns = [
   );
 
   const handleDelete =(uuid)=>{
-  dispatch(deletePackage(uuid)).then((data)=>{
-    if (data.payload.success) {
-      showToast('success', data.payload.message )
-      dispatch(getPackages())
-    }
-  })
+ 
   }
   
   return (

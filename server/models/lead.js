@@ -74,6 +74,9 @@ module.exports = (sequelize, DataTypes) => {
   });
   Lead.associate = (models) => {
   Lead.belongsTo(models.Client, { foreignKey: 'client_id' });
+  Lead.belongsTo(models.User, { as: 'assignedBy', foreignKey: 'assigned_by' });
+  Lead.belongsTo(models.User, { as: 'assignedTo', foreignKey: 'assigned_to' });
+  Lead.belongsTo(models.User, { as: 'createdBy', foreignKey: 'created_by' });
 };
   return Lead;
 };

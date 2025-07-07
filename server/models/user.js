@@ -53,5 +53,11 @@ module.exports = (sequelize, DataTypes) => {
     return await bcrypt.compare(password, this.password);
   };
 
+  User.associate = (models) => {
+    User.hasMany(models.Lead, { foreignKey: 'assigned_by', as: 'assignedLeads' });
+    User.hasMany(models.Lead, { foreignKey: 'assigned_to', as: 'receivedLeads' });
+    User.hasMany(models.Lead, { foreignKey: 'created_by', as: 'createdLeads' });
+  };
+
   return User;
 };

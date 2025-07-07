@@ -1,4 +1,4 @@
-const { Lead, Client  } = require('../models');
+const { Lead, Client, User  } = require('../models');
 const { Op, where } = require('sequelize');
 const jwt = require('jsonwebtoken');
 
@@ -147,6 +147,21 @@ const getLeadDetail = async (req, res) => {
           },
           required: true, // this is important to apply filtering in JOIN
           attributes: { exclude: ['deleted_at'] }
+        },
+        {
+          model: User,
+          as: 'assignedBy',
+          attributes: ['id', 'name', 'email'] // customize fields
+        },
+        {
+          model: User,
+          as: 'assignedTo',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'name', 'email']
         }
       ]
     });
@@ -178,6 +193,21 @@ const getLeadDetailByUUID = async (req, res) => {
           model: Client,
           as: 'Client', // optional alias, use only if you defined one
           attributes: { exclude: ['deleted_at'] } // filter sensitive fields
+        },
+        {
+          model: User,
+          as: 'assignedBy',
+          attributes: ['id', 'name', 'email'] // customize fields
+        },
+        {
+          model: User,
+          as: 'assignedTo',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: User,
+          as: 'createdBy',
+          attributes: ['id', 'name', 'email']
         }
       ] });
     if (!lead) {

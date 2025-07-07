@@ -14,6 +14,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    fee_structure: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    subtotal: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    discount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    tax: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
       total_amount: {
       type: DataTypes.INTEGER,
       allowNull: false,

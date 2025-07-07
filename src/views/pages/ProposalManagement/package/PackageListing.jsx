@@ -4,11 +4,12 @@ import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash} from '@coreui/icons';
-import { FaCircle ,FaTrash,} from 'react-icons/fa';
+import { cilTrash } from '@coreui/icons';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastExample } from '../../../../components/toast/Toast'
+import { FaEye } from 'react-icons/fa';
+import { getPackages } from '../../../../store/admin/packageSlice';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -19,52 +20,10 @@ const dispatch= useDispatch()
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
-
-// useEffect(()=>{
-// dispatch(getBusinessActivity())
-// },[dispatch])
-const data = [
-  {
-    uuid: '1a2b3c4d',
-    name: 'Retail Sales',
-    description: 'Selling consumer goods in stores.',
-    status: 1,
-    total_amount: 120000,
-    created_at: '2024-11-15T10:30:00Z',
-  },
-  {
-    uuid: '2b3c4d5e',
-    name: 'Online Services',
-    description: 'Providing services through digital platforms.',
-    status: 0,
-    total_amount: 75000,
-    created_at: '2025-01-10T14:15:00Z',
-  },
-  {
-    uuid: '3c4d5e6f',
-    name: 'Consulting',
-    description: 'Business strategy and operations advice.',
-    status: 1,
-    total_amount: 98000,
-    created_at: '2025-03-05T09:00:00Z',
-  },
-  {
-    uuid: '4d5e6f7g',
-    name: 'Logistics',
-    description: 'Transport and supply chain solutions.',
-    status: 1,
-    total_amount: 200000,
-    created_at: '2024-12-20T17:45:00Z',
-  },
-  {
-    uuid: '5e6f7g8h',
-    name: 'Marketing',
-    description: 'Branding and outreach campaigns.',
-    status: 0,
-    total_amount: 45000,
-    created_at: '2025-02-12T11:20:00Z',
-  },
-]
+const {packages} = useSelector((state)=>state.package)
+useEffect(()=>{
+dispatch(getPackages())
+},[dispatch])
 
 
 const columns = [
@@ -96,6 +55,9 @@ const columns = [
     name: 'Action',
     cell: row => (
       <div className='d-flex gap-2'>
+        <Link to={`/view-package/${row.uuid}`} title="View package">
+            <FaEye size={20} style={{ cursor: 'pointer', color: '#333' }}/>
+          </Link>
         <span
           onClick={() => handleDelete(row.uuid)}
           className="p-0"
@@ -104,7 +66,7 @@ const columns = [
         >
           <CIcon icon={cilTrash} size="lg" />
         </span>
-        <Link to={`/edit-business-activities/${row.uuid}`}>
+        <Link to={`/edit-package/${row.uuid}`}>
           <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
         </Link>
       </div>
@@ -114,7 +76,7 @@ const columns = [
   },
 ]
 
-    const filteredData = data.filter(item =>
+    const filteredData = packages.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
 

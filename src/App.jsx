@@ -31,7 +31,7 @@ import ViewLead from './views/pages/LeadManagement/All Leads/ViewLead'
 import AddLead from './views/pages/LeadManagement/All Leads/AddLead'
 import PackageListing from './views/pages/ProposalManagement/package/PackageListing'
 import AddPackage from './views/pages/ProposalManagement/package/AddPackage'
-import ViewPackageDetail from './views/pages/ProposalManagement/package/ViewPackageDetail'
+// import ViewPackageDetail from './views/pages/ProposalManagement/package/ViewPackageDetail'
 
  
 const App = () => {
@@ -64,7 +64,7 @@ const App = () => {
     if (!isColorModeSet()) {
       setColorMode(storedTheme)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) 
 
 if (isLoading) {
   return <div>Loading...</div>
@@ -119,8 +119,8 @@ if (isLoading) {
        <Route path="/add-lead" element={<AddLead />} />
         <Route path="/packages" element={<PackageListing/>} />
          <Route path="/add-package" element={<AddPackage/>} />
-         <Route path="/edit-package" element={<AddPackage/>} />
-          <Route path="/view-package" element={<ViewPackageDetail/> }/>
+         <Route path="/edit-package/:uuid" element={<AddPackage/>} />
+          {/* <Route path="/view-package/:uuid" element={<ViewPackageDetail/> }/> */}
           </Route>
          
         </Routes>

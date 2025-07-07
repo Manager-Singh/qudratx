@@ -58,13 +58,10 @@ function FeeStructure() {
     },
     {
       name: 'Status',
-      selector: (row) => row.status,
-      cell: (row) => (
-        <FaCircle
-         color={row.status === true ? 'green' : 'red'}
-          title={row.status}
-          style={{ fontSize: '16px' }}
-        />
+      selector: row => (
+        <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+          {row.status == 1 ? 'Active' : 'Inactive'}
+        </span>
       ),
       sortable: true,
     },

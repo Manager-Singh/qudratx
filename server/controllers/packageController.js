@@ -5,15 +5,15 @@ const { Op, where } = require('sequelize');
 const createPackage = async (req, res) => {
   try {
     const { name,description, total_amount, status, subtotal,discount,fee_structure, tax } = req.body;
-    if (!name || !total_amount) {
-      return res.status(400).json({ message: 'Name and Total Amount are required' });
+    if (!name || !total_amount || !subtotal || !fee_structure) {
+      return res.status(400).json({ message: 'Name, Fee structure, Subtotal and Total Amount are required' });
     }
 const existingPackage= await Package.findOne({
   where:{name}
 })
 
 if (existingPackage) {
-  return res.status(400).json({message:"Package  already exist"})
+  return res.status(400).json({message:"Package already exist"})
 }
     const package = await Package.create({
       name,
@@ -67,7 +67,7 @@ const getPackage = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'fee structures fetched successfully',
+      message: 'packages fetched successfully',
       page,
       limit,
       totalPages,
@@ -91,7 +91,7 @@ const getPackageByUUID = async (req, res) => {
     }
 
     res.status(200).json({
-      message: 'Fee fetched successfully',
+      message: 'Package fetched successfully',
       success: true,
       data: package,
     });
@@ -105,11 +105,11 @@ const getPackageByUUID = async (req, res) => {
 const updatePackage = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name, description, total_amount, status } = req.body;
+     const { name,description, total_amount, status, subtotal,discount,fee_structure, tax } = req.body;
 
-    if (!name || !total_amount) {
-        return res.status(400).json({ message: 'Name and Total Amount are required' });
-      }
+    if (!name || !total_amount || !subtotal || !fee_structure) {
+      return res.status(400).json({ message: 'Name, Fee structure, Subtotal and Total Amount are required' });
+    }
 
     const package = await Package.findOne({ where: { uuid } });
     if (!package) {
@@ -120,6 +120,8 @@ const updatePackage = async (req, res) => {
     package.dscription = description;
     package.total_amount = total_amount;
     package.status = status;
+    package.subtotal = subtotal;
+    package.fee_structure = fee_structure;
     package.updated_by = req.user.id;
     package.updated_at = new Date();
     package.last_update = new Date();
@@ -144,7 +146,7 @@ const deletePackage = async (req, res) => {
 
     const package = await Package.findOne({ where: { uuid } });
     if (!package) {
-      return res.status(404).json({ message: 'Fee not found' });
+      return res.status(404).json({ message: 'Package not found' });
     }
 
     await package.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`

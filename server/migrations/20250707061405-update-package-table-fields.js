@@ -4,12 +4,12 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
      await queryInterface.addColumn('packages', 'fee_structure', {
-      type: Sequelize.TEXT,
-      allowNull: true,
+      type: Sequelize.JSON,
+      allowNull: false,
     });
       await queryInterface.addColumn('packages', 'subtotal', {
       type: Sequelize.INTEGER,
-      allowNull: true,
+      allowNull: false,
     });
     await queryInterface.addColumn('packages', 'discount', {
       type: Sequelize.INTEGER,

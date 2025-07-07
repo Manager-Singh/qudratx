@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLead, deleteLead } from '../../../../store/admin/leadSlice'; // Adjust path as needed
+import { getLead, deleteLead } from '../../../../store/admin/leadSlice';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
+import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 
 function AllLead() {
   const dispatch = useDispatch();
   const { leads, isLoading } = useSelector(state => state.lead);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedUUID, setSelectedUUID] = useState(null);
 
   const [filterText, setFilterText] = useState('');
 
@@ -26,11 +29,25 @@ function AllLead() {
     item.lead_status?.toLowerCase().includes(filterText.toLowerCase()) ||
     item.approval_status?.toLowerCase().includes(filterText.toLowerCase())
   );
+  
+  const confirmDelete = (uuid) => {
+    setSelectedUUID(uuid);
+    setDeleteModalVisible(true);
+  };
 
-  const handleDelete = (uuid) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      dispatch(deleteLead(uuid));
+  const handleConfirmDelete = () => {
+    if (selectedUUID) {
+      dispatch(deleteLead(selectedUUID)).then(()=>{
+        dispatch(getLead());
+      });
     }
+    setDeleteModalVisible(false);
+    setSelectedUUID(null);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalVisible(false);
+    setSelectedUUID(null);
   };
 
   const columns = [
@@ -83,36 +100,44 @@ function AllLead() {
     },
     {
       name: 'Status',
-      selector: row => row.status === 1 ? 'Active' : 'Inactive',
+      selector: row => (
+        <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+          {row.status == 1 ? 'Active' : 'Inactive'}
+        </span>
+      ),
       sortable: true,
     },
     {
       name: 'Created At',
       selector: row => row.created_at ? new Date(row.created_at).toLocaleString() : '-',
       sortable: true,
-    },
-    {
-      name:"UUID",
-      selector:row => row . uuid,
+      grow:3,
     },
     {
       name: 'Action',
       cell: row => (
         <div className="d-flex gap-2">
           <Link to={`/view-lead/${row.uuid}`} title="View Lead">
-            <FaEye style={{ cursor: 'pointer', color: '#0d6efd' }} />
+            <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} />
           </Link>
           <span
-            onClick={() => handleDelete(row.uuid)}
+            onClick={() => confirmDelete(row.uuid)} // <-- Trigger modal
             title="Delete Lead"
             style={{ cursor: 'pointer' }}
           >
             <CIcon icon={cilTrash} size="lg" />
-          </span>
+        </span>
+        <ConfirmDeleteModal
+          visible={deleteModalVisible}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          title="Confirm Delete"
+          message="Are you sure you want to delete this lead?"
+        />
         </div>
       ),
       ignoreRowClick: true,
-      width: '150px',
+      width: '100px',
     },
   ];
 

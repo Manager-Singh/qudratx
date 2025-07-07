@@ -64,14 +64,25 @@
     }
     })
 
+    // assigned lead
+    export const assignLead = createAsyncThunk('admin/assign-lead', async(data, thunkAPI) => {
+        try{
+            const response = await putData('/admin/assign-lead', data)
+            return response
+        } catch(error){
+            return thunkAPI.rejectWithValue(error.message)
+        }
+    })
+
     const leadSlice = createSlice({
     name: 'lead',
     initialState: {
         leads: [],
         lead: null,
         deletedLeads: [],
+        assignLead: null,
         isLoading: false,
-        isAdding: false, // NEW
+        isAdding: false, 
         isUpdating: false,
         isDeleting: false,
       },      
@@ -155,6 +166,19 @@
         .addCase(fetchDeletedLead.rejected, (state) => {
             state.isLoading = false
             state.deletedLeads = []
+        })
+
+        // assign lead
+        .addCase(assignLead.pending, (state) => {
+            state.isLoading = true
+        })
+        .addCase(assignLead.fulfilled, (state, action) => {
+            state.isLoading = false
+            state.assignLead = action.payload.data
+        })
+        .addCase(assignLead.rejected, (state) => {
+            state.isLoading = false
+            state.assignLead = null
         })
     },
     })

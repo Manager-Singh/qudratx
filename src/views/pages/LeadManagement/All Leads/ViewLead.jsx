@@ -141,41 +141,96 @@ const ViewLead = () => {
 
       {/* Lead Details */}
       <CCard className="mb-4 mt-4 shadow-sm border-0">
-        <CCardHeader className="bg-light">
+        <CCardHeader className="bg-light d-flex justify-content-between align-items-center">
           <CCardTitle className="h5 mb-0 fw-bold text-primary">Lead Details</CCardTitle>
+          <span className="badge bg-info text-dark">{lead?.lead_number || '-'}</span>
         </CCardHeader>
 
         <CCardBody className="p-4">
-          <CTable bordered hover responsive className="align-middle table-striped">
+          <CTable bordered responsive className="align-middle table-striped">
             <CTableBody>
+              {/* Client Info */}
               <CTableRow>
-                <CTableHeaderCell className="fw-semibold">Name</CTableHeaderCell>
-                <CTableDataCell>{lead.Client?.name}</CTableDataCell>
+                <CTableHeaderCell className="fw-semibold">Client Name</CTableHeaderCell>
+                <CTableDataCell>{lead.Client?.name || '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Email</CTableHeaderCell>
-                <CTableDataCell>{lead.Client?.email}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.email || '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Address</CTableHeaderCell>
-                <CTableDataCell>{lead.Client?.address}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.address || '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Company</CTableHeaderCell>
-                <CTableDataCell>{lead.Client?.company_name}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.company_name || '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Notes</CTableHeaderCell>
-                <CTableDataCell>{lead.Client?.notes ? lead.Client?.notes : '-'}</CTableDataCell>
+                <CTableDataCell>{lead.Client?.notes || '-'}</CTableDataCell>
+              </CTableRow>
+
+              {/* Lead Info */}
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Origin</CTableHeaderCell>
+                <CTableDataCell>{lead.origin || '-'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Created Status</CTableHeaderCell>
+                <CTableDataCell>{lead.created_status || '-'}</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Lead Status</CTableHeaderCell>
+                <CTableDataCell>
+                  <span className="badge bg-warning text-dark">{lead.lead_status || '-'}</span>
+                </CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Approval Status</CTableHeaderCell>
+                <CTableDataCell>
+                  <span className={`badge ${lead.approval_status === 'approved' ? 'bg-success' : 'bg-secondary'}`}>
+                    {lead.approval_status}
+                  </span>
+                </CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Assigned To</CTableHeaderCell>
+                <CTableDataCell>{lead.assigned_to || '—'}</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Assigned By</CTableHeaderCell>
+                <CTableDataCell>{lead.assigned_by || '—'}</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Created By</CTableHeaderCell>
+                <CTableDataCell>{lead.created_by || '—'}</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Updated By</CTableHeaderCell>
+                <CTableDataCell>{lead.updated_by || '—'}</CTableDataCell>
+              </CTableRow>
+
+              {/* Created At */}
+              <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Created At</CTableHeaderCell>
-                <CTableDataCell>{new Date(lead.created_at).toLocaleString()}</CTableDataCell>
+                <CTableDataCell>{lead.created_at ? new Date(lead.created_at).toLocaleString() : '-'}</CTableDataCell>
+              </CTableRow>
+
+              {/* Status */}
+              <CTableRow>
+                <CTableHeaderCell className="fw-semibold">Status</CTableHeaderCell>
+                <CTableDataCell>
+                  <span className={`badge ${lead.status ? 'bg-success' : 'bg-danger'}`}>
+                    {lead.status ? 'Active' : 'Inactive'}
+                  </span>
+                </CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
         </CCardBody>
       </CCard>
+
 
       {/* Show Proposal Form */}
       <CButton className="custom-button" onClick={() => setShowProposalForm(!showProposalForm)}>

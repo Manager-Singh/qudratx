@@ -18,7 +18,7 @@ import {
 import { ToastExample } from '../../../../components/toast/Toast'
 
 import { getBusinessZone } from '../../../../store/admin/businessZoneSlice'
-import { getBusinessActivity } from '../../../../store/admin/businessActivitySlice'
+import { getBusinessCategories } from '../../../../store/admin/businessCategorySlice'
 import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneAuthoritySlice'
 import { getLeadByUuid } from '../../../../store/admin/leadSlice'
 import './Lead.css'
@@ -64,7 +64,7 @@ const ViewLead = () => {
     if (uuid) {
       dispatch(getLeadByUuid(uuid))
       dispatch(getBusinessZone())
-      dispatch(getBusinessActivity())
+      dispatch(getBusinessCategories())
     }
   }, [uuid, dispatch])
 

@@ -102,12 +102,12 @@ const AppSidebar = () => {
       to: '/dashboard',
     },
      {
-        component: CNavItem,
+        component: 'CNavItem',
         name: 'Free Zone',
         to: '#',
       },
       {
-        component: CNavItem,
+        component: 'CNavItem',
         name: 'Mainland',
         to: '#',
       },

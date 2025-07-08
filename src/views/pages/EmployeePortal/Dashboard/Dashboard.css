@@ -1,0 +1,33 @@
+/* dashboard card background color */
+
+.card-background{
+    background: #2f1051;
+    color: #fff;
+  }
+  
+  /* dashboards cards */
+  #welcome{
+    height:110px ;
+  }
+  #proposal{
+    height:125px ;
+  }
+  #lead{
+    height:125px ;
+  }
+  #notes{
+    height:400px ;
+  }
+
+  .card-number{
+    font-size: 70px;
+    margin-bottom:10px ;
+  }
+
+  .card-title{
+    margin-top: 10px;
+  }
+
+.card-body-custom-padding{
+    padding: 0 !important;
+}

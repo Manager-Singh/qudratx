@@ -28,7 +28,7 @@ if (existingCat) {
     });
   } catch (error) {
     console.error('Create Subcategory error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -72,7 +72,7 @@ const getSubCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Get subcategories error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -128,7 +128,7 @@ const updateSubCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Update subcat error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -151,7 +151,7 @@ const deleteSubCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete subcat error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -186,7 +186,7 @@ const getDeletedSubCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Get deleted subcat error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

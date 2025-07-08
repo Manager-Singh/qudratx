@@ -6,6 +6,7 @@ export const loginUser = createAsyncThunk('auth/loginUser', async (credentials, 
   try {
     const response = await postData('/login', credentials)
     localStorage.setItem('token', response.token)
+    localStorage.setItem('user', JSON.stringify(response.user)) 
     return response
   } catch (error) {
     console.error(error,"error")
@@ -32,6 +33,13 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null
       localStorage.removeItem('token')
+      localStorage.removeItem('user') // remove user on logout too
+    },
+    setUserFromStorage: (state) => {
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        state.user = JSON.parse(storedUser)
+      }
     },
   },
   extraReducers: (builder) => {
@@ -55,5 +63,5 @@ const authSlice = createSlice({
   },
 })
 
-export const { logout } = authSlice.actions
+export const { logout, setUserFromStorage } = authSlice.actions
 export default authSlice.reducer

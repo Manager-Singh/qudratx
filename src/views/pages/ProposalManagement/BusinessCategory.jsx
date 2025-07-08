@@ -6,7 +6,7 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteBusinessActivity, getBusinessActivity } from '../../../store/admin/businessActivitySlice';
+import { deleteBusinessCategory, getBusinessCategories } from '../../../store/admin/businessActivitySlice';
 import { ToastExample } from '../../../components/toast/Toast'
 
 function BusinessCategory() {
@@ -20,7 +20,7 @@ const {business_activities} = useSelector((state)=>state.business_activity)
   }
 
 useEffect(()=>{
-dispatch(getBusinessActivity())
+dispatch(getBusinessCategories())
 },[dispatch])
 
 
@@ -85,7 +85,7 @@ const columns = [
   );
 
   const handleDelete =(uuid)=>{
-  dispatch(deleteBusinessActivity(uuid)).then((data)=>{
+  dispatch(deleteBusinessCategory(uuid)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
       dispatch(getBusinessActivity())

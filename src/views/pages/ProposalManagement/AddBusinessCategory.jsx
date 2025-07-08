@@ -76,13 +76,16 @@ const handleChange = (e) => {
       dispatch(action).then((res) => {
         if (res.payload?.success) {
           showToast('success', res.payload.message || 'Saved successfully')
-          if (!isEdit){
-            setFormData({
-    name:'',
-    status:1,
-  })
-          } 
-          setTimeout(() => navigate('/business-activities'), 1500)
+         
+          setTimeout(() => {
+  navigate('/business-category');
+  if (!isEdit) {
+    setFormData({
+      name: '',
+      status: 1,
+    });
+  }
+}, 1500);
         } else {
           showToast('error', res.payload|| 'Failed to save')
         }

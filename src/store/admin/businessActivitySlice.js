@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { postData, getData ,deleteData ,putData} from '../../utils/api'
 
-export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (data, thunkAPI) => {
+export const addBusinessActivity = createAsyncThunk('admin/create-category', async (data, thunkAPI) => {
  
   try {
-    const response = await postData('/admin/create-activity', data)
+    const response = await postData('/admin/create-category', data)
     return response
   } catch (error) {
     console.error('Create  error:', error)
@@ -12,9 +12,9 @@ export const addBusinessActivity = createAsyncThunk('admin/create-activity', asy
   }
 })
 
-export const getBusinessActivity = createAsyncThunk('admin/get-activity', async (_, thunkAPI) => {
+export const getBusinessCategories = createAsyncThunk('admin/get-category', async (_, thunkAPI) => {
   try {
-    const response = await getData('/admin/get-activity')
+    const response = await getData('/admin/get-category')
     return response
   } catch (error) {
     console.error('Get error:', error)
@@ -22,9 +22,9 @@ export const getBusinessActivity = createAsyncThunk('admin/get-activity', async 
   }
 })
 
-export const deleteBusinessActivity  = createAsyncThunk('employee/delete-activity', async (uuid, thunkAPI) => {
+export const deleteBusinessCategory = createAsyncThunk('employee/delete-category', async (uuid, thunkAPI) => {
   try {
-    const response = await deleteData(`/admin/delete-activity/${uuid}`)
+    const response = await deleteData(`/admin/delete-category/${uuid}`)
     return { uuid, ...response }
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)
@@ -42,19 +42,19 @@ export const deleteBusinessActivity  = createAsyncThunk('employee/delete-activit
 // })
 
 
-export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, formData}, thunkAPI) => {
+export const updateBusinessActivity = createAsyncThunk('admin/update-category', async ({ uuid, formData}, thunkAPI) => {
   try {
     
-    const response = await putData(`/admin/update-activity/${uuid}`, formData)
+    const response = await putData(`/admin/update-category/${uuid}`, formData)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)
   }
 })
 
-export const getBusinessActivityByUuid = createAsyncThunk('admin//get-activity-by-uuid', async (uuid, thunkAPI) => {
+export const getBusinessActivityByUuid = createAsyncThunk('admin/get-category-by-uuid', async (uuid, thunkAPI) => {
   try {
-    const response = await getData(`/admin/get-activity-by-uuid/${uuid}`)
+    const response = await getData(`/admin/get-category-by-uuid/${uuid}`)
     return response
   } catch (error) {
     console.error('Get error:', error)
@@ -82,14 +82,14 @@ const businessActivitySlice = createSlice({
       })
       .addCase(addBusinessActivity.rejected, (state, action) => {
         state.isLoading = false
-      }).addCase(getBusinessActivity.pending, (state) => {
+      }).addCase(getBusinessCategories.pending, (state) => {
         state.isLoading = true
   })
-  .addCase(getBusinessActivity.fulfilled, (state, action) => {
+  .addCase(getBusinessCategories.fulfilled, (state, action) => {
     state.isLoading = false
     state.business_activities = action.payload.data
   })
-      .addCase(getBusinessActivity.rejected, (state) => {
+      .addCase(getBusinessCategories.rejected, (state) => {
     state.isLoading = false
     state.business_activities = []
   })
@@ -97,15 +97,15 @@ const businessActivitySlice = createSlice({
       
 
       // Delete Employee
-      .addCase(deleteBusinessActivity.pending, (state) => {
+      .addCase(deleteBusinessCategory.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(deleteBusinessActivity.fulfilled, (state, action) => {
+      .addCase(deleteBusinessCategory.fulfilled, (state, action) => {
         state.isLoading = false
         state.business_activities = state.business_activities.filter(item => item.uuid !== action.uuid)
 
       })
-      .addCase(deleteBusinessActivity.rejected, (state, action) => {
+      .addCase(deleteBusinessCategory.rejected, (state, action) => {
         state.isLoading = false
       })
 

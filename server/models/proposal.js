@@ -1,34 +1,42 @@
 module.exports = (sequelize, DataTypes) => {
-  const Client = sequelize.define('Client', {
+  const Proposal = sequelize.define('Proposal', {
     uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       unique: true,
     },
-    name: {
+    lead_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    business_zone_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+    },
+    business_zone_authority_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    business_activity_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    package_detail: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    fee_breakdown: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-     address: {
+    notes: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-     email: {
-      type: DataTypes.STRING,
+    total: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-     company_name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-     notes: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     status: {
     type: DataTypes.BOOLEAN,
@@ -53,12 +61,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     },
   }, {
-    tableName: 'clients',
+    tableName: 'proposals',
     timestamps: false,
     paranoid: true,
   });
-  Client.associate = (models) => {
-  Client.hasMany(models.Lead, { foreignKey: 'client_id' });
-};
-  return Client;
+ 
+  return Proposal;
 };

@@ -11,10 +11,11 @@ import './client-style.css'
 import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react'
+import { addLead } from '../../../../store/admin/leadSlice';
 function ClientListing() {
 const [visible, setVisible] = useState(false)
 const navigate = useNavigate()
-const [uuid,setuuid]= useState('')
+const [id,setid]= useState('')
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 const {clients}= useSelector((state)=>state.client)
@@ -82,7 +83,7 @@ const columns = [
         <CTooltip content="Generate Lead" placement="top">
       <button className="icon-button"onClick={() => {
   setVisible(true)
-  setuuid(row.uuid)
+  setid(row.id)
 }}
 >
         <CIcon icon={cilDescription} size="lg" />
@@ -128,7 +129,13 @@ const columns = [
 
   const handleConfirm = ()=>{
     setVisible(false)
-    navigate(`/view-lead/${uuid}`)
+    dispatch(addLead({ client_id:id})).then((data)=>{
+      if (data.payload.success){
+       const uuid = data.payload.data.uuid
+        navigate(`/view-lead/${uuid}`)
+      }
+    })
+    
   }
   
   
@@ -161,7 +168,7 @@ const columns = [
       />
       
      
- <CModal visible={visible} onClose={() => {setVisible(false); setuuid('')}}    >
+ <CModal visible={visible} onClose={() => {setVisible(false); setid('')}}    >
         <CModalHeader>Confirm</CModalHeader>
         <CModalBody>Are you sure you want to create a lead?</CModalBody>
         <CModalFooter>

@@ -18,7 +18,7 @@ import {
 } from '../../../store/admin/businessActivitySlice'
 import { ToastExample } from '../../../components/toast/Toast'
 
-function AddBusinessActivty() {
+function AddBusinessCategory() {
   
   const [validated, setValidated] = useState(false)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -160,4 +160,4 @@ const handleChange = (e) => {
   )
 }
 
-export default AddBusinessActivty
+export default AddBusinessCategory

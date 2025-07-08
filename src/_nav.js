@@ -9,6 +9,7 @@ import {
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 
+
 export const admin_nav = [
   // {
   //   component: CNavItem,
@@ -39,9 +40,13 @@ export const admin_nav = [
   },
   {
     component: CNavItem,
-    name: 'BusinessZones',
-    to: '/business-zone',
-    
+    name: 'Free Zone',
+    to: '/',
+  },
+  {
+    component: CNavItem,
+    name: 'Mainland',
+    to: '#',
   },
   {
     component: CNavItem,
@@ -82,21 +87,31 @@ export const admin_nav = [
 
 
 export const employee_nav = [
-  {
-    component: CNavItem,
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    badge: {
-      color: 'info',
-      text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Dashboard',
+  //   to: '/dashboard',
+  //   icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  //   badge: {
+  //     color: 'info',
+  //     text: 'NEW',
+  //   },
+  // },
   
   
   {
     component: CNavTitle,
-    name: 'Proposal management',
+    name: 'Business Zones',
+  },
+  {
+    component: CNavItem,
+    name: 'Free Zone',
+    to: '#',
+  },
+  {
+    component: CNavItem,
+    name: 'Mainland',
+    to: '#',
   },
 ]
 

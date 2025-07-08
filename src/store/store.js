@@ -5,7 +5,7 @@ import employeeReducer from './admin/employeeSlice'
 import businessZoneReducer from './admin/businessZoneSlice'
 import businessZonesAuthorityReducer from './admin/zoneAuthoritySlice'
 import feeStructureReducer from './admin/feeStructureSlice'
-import BusinessActivityReducer from './admin/businessActivitySlice'
+import BusinessCategoryReducer from './admin/businessCategorySlice'
 import clientSliceReducer from './admin/clientSlice'
 import leadReducer from './admin/leadSlice'
 import packageReducer from './admin/packageSlice'
@@ -17,7 +17,7 @@ const store = configureStore({
     employee:employeeReducer,
     businesszone:businessZoneReducer,
     businessZonesAuthority:businessZonesAuthorityReducer,
-    business_activity:BusinessActivityReducer,
+    business_category:BusinessCategoryReducer,
     feeStructure:feeStructureReducer,
     client:clientSliceReducer,
     lead:leadReducer,

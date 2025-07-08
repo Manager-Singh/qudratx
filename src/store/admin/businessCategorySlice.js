@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { postData, getData ,deleteData ,putData} from '../../utils/api'
 
-export const addBusinessActivity = createAsyncThunk('admin/create-category', async (data, thunkAPI) => {
+export const addBusinessCategory = createAsyncThunk('admin/create-category', async (data, thunkAPI) => {
  
   try {
     const response = await postData('/admin/create-category', data)
@@ -42,7 +42,7 @@ export const deleteBusinessCategory = createAsyncThunk('employee/delete-category
 // })
 
 
-export const updateBusinessActivity = createAsyncThunk('admin/update-category', async ({ uuid, formData}, thunkAPI) => {
+export const updateBusinessCategory = createAsyncThunk('admin/update-category', async ({ uuid, formData}, thunkAPI) => {
   try {
     
     const response = await putData(`/admin/update-category/${uuid}`, formData)
@@ -52,7 +52,7 @@ export const updateBusinessActivity = createAsyncThunk('admin/update-category', 
   }
 })
 
-export const getBusinessActivityByUuid = createAsyncThunk('admin/get-category-by-uuid', async (uuid, thunkAPI) => {
+export const getBusinessCategoryByUuid = createAsyncThunk('admin/get-category-by-uuid', async (uuid, thunkAPI) => {
   try {
     const response = await getData(`/admin/get-category-by-uuid/${uuid}`)
     return response
@@ -63,35 +63,35 @@ export const getBusinessActivityByUuid = createAsyncThunk('admin/get-category-by
 })
 
 
-const businessActivitySlice = createSlice({
-  name: 'business_activity',
+const businessCategorySlice = createSlice({
+  name: 'business_category',
   initialState: {
-    business_activities: [],
-    business_activity:null,
+    business_categories: [],
+    business_category:null,
     isLoading: true,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(addBusinessActivity.pending, (state) => {
+      .addCase(addBusinessCategory.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(addBusinessActivity.fulfilled, (state, action) => {
+      .addCase(addBusinessCategory.fulfilled, (state, action) => {
         state.isLoading = false
-         state.business_activities.push(action.payload.data)
+         state.business_categories.push(action.payload.data)
       })
-      .addCase(addBusinessActivity.rejected, (state, action) => {
+      .addCase(addBusinessCategory.rejected, (state, action) => {
         state.isLoading = false
       }).addCase(getBusinessCategories.pending, (state) => {
         state.isLoading = true
   })
   .addCase(getBusinessCategories.fulfilled, (state, action) => {
     state.isLoading = false
-    state.business_activities = action.payload.data
+    state.business_categories = action.payload.data
   })
       .addCase(getBusinessCategories.rejected, (state) => {
     state.isLoading = false
-    state.business_activities = []
+    state.business_categories = []
   })
 
       
@@ -102,7 +102,7 @@ const businessActivitySlice = createSlice({
       })
       .addCase(deleteBusinessCategory.fulfilled, (state, action) => {
         state.isLoading = false
-        state.business_activities = state.business_activities.filter(item => item.uuid !== action.uuid)
+        state.business_categories = state.business_categories.filter(item => item.uuid !== action.uuid)
 
       })
       .addCase(deleteBusinessCategory.rejected, (state, action) => {
@@ -110,39 +110,39 @@ const businessActivitySlice = createSlice({
       })
 
       // Update Employee
-      .addCase(updateBusinessActivity.pending, (state) => {
+      .addCase(updateBusinessCategory.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(updateBusinessActivity.fulfilled, (state, action) => {
+      .addCase(updateBusinessCategory.fulfilled, (state, action) => {
         state.isLoading = false
        
         const updated = action.payload.data
-          const index = state.business_activities.findIndex(
+          const index = state.business_categories.findIndex(
          (activity) => activity.uuid === updated.uuid
   );
 
   if (index !== -1) {
     // Replace the old entry with the updated one
-    state.business_activities[index] = updated;
+    state.business_categories[index] = updated;
   }
        
       })
-      .addCase(updateBusinessActivity.rejected, (state, action) => {
+      .addCase(updateBusinessCategory.rejected, (state, action) => {
         state.isLoading = false
      
-      }).addCase(getBusinessActivityByUuid.pending, (state) => {
+      }).addCase(getBusinessCategoryByUuid.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(getBusinessActivityByUuid.fulfilled, (state, action) => {
+      .addCase(getBusinessCategoryByUuid.fulfilled, (state, action) => {
         state.isLoading = false
-        state.business_activity = action.payload.data
+        state.business_category = action.payload.data
       })
-      .addCase(getBusinessActivityByUuid.rejected, (state, action) => {
+      .addCase(getBusinessCategoryByUuid.rejected, (state, action) => {
         state.isLoading = false
-        state.business_activity = null
+        state.business_category = null
        
       })
   },
 })
 
-export default businessActivitySlice.reducer
+export default businessCategorySlice.reducer

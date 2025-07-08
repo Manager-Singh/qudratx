@@ -6,13 +6,13 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteBusinessCategory, getBusinessCategories } from '../../../store/admin/businessActivitySlice';
+import { deleteBusinessCategory, getBusinessCategories } from '../../../store/admin/businessCategorySlice';
 import { ToastExample } from '../../../components/toast/Toast'
 
 function BusinessCategory() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
-const {business_activities} = useSelector((state)=>state.business_activity)
+const {business_categories} = useSelector((state)=>state.business_category)
  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
  const showToast = (status, message) => {
     setToastData({ show: true, status, message })
@@ -80,7 +80,7 @@ const columns = [
   },
 ];
 
-    const filteredData = business_activities.filter(item =>
+    const filteredData = business_categories.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
 
@@ -88,7 +88,7 @@ const columns = [
   dispatch(deleteBusinessCategory(uuid)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
-      dispatch(getBusinessActivity())
+      dispatch(getBusinessCategories())
     }
   })
   }

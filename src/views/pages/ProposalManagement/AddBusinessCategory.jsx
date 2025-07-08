@@ -12,10 +12,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  addBusinessActivity,
-  getBusinessActivityByUuid,
-  updateBusinessActivity,
-} from '../../../store/admin/businessActivitySlice'
+  addBusinessCategory,
+  getBusinessCategoryByUuid,
+  updateBusinessCategory,
+} from '../../../store/admin/businessCategorySlice'
 import { ToastExample } from '../../../components/toast/Toast'
 
 function AddBusinessCategory() {
@@ -31,22 +31,22 @@ function AddBusinessCategory() {
   const { uuid } = useParams()
   const isEdit = Boolean(uuid)
 
-  const { business_activity } = useSelector((state) => state.business_activity)
+  const { business_category } = useSelector((state) => state.business_category)
 
   useEffect(() => {
     if (isEdit) {
-      dispatch(getBusinessActivityByUuid(uuid))
+      dispatch(getBusinessCategoryByUuid(uuid))
     }
   }, [dispatch, uuid])
 
   useEffect(() => {
-    if (isEdit && business_activity?.uuid === uuid) {
+    if (isEdit && business_category?.uuid === uuid) {
       setFormData({
-        name: business_activity.name,
-        status:business_activity.status
+        name: business_category.name,
+        status:business_category.status
       })
     }
-  }, [business_activity, uuid])
+  }, [business_category, uuid])
 
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
@@ -70,8 +70,8 @@ const handleChange = (e) => {
     } else {
    
       const action = isEdit
-        ? updateBusinessActivity({ uuid,formData})
-        : addBusinessActivity(formData)
+        ? updateBusinessCategory({ uuid,formData})
+        : addBusinessCategory(formData)
 
       dispatch(action).then((res) => {
         if (res.payload?.success) {

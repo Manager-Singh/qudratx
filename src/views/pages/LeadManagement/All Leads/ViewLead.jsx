@@ -205,15 +205,15 @@ const ViewLead = () => {
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Assigned To</CTableHeaderCell>
-                <CTableDataCell>{lead.assigned_to || '—'}</CTableDataCell>
+                <CTableDataCell>{lead.assignedTo?.name || '—'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Assigned By</CTableHeaderCell>
-                <CTableDataCell>{lead.assigned_by || '—'}</CTableDataCell>
+                <CTableDataCell>{lead.assignedBy?.name || '—'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Created By</CTableHeaderCell>
-                <CTableDataCell>{lead.created_by || '—'}</CTableDataCell>
+                <CTableDataCell>{lead.createdBy?.name || '—'}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell className="fw-semibold">Updated By</CTableHeaderCell>

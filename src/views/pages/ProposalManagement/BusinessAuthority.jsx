@@ -34,7 +34,7 @@ function BusinessAuthority() {
 
 useEffect(()=>{
   dispatch(getBusinessZoneByUuid(uuid))
-},[])
+},[uuid])
 
 useEffect(() => {
   if (businesszone ) {

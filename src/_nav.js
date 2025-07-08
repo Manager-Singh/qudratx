@@ -9,6 +9,7 @@ import {
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 
+
 export const admin_nav = [
   // {
   //   component: CNavItem,
@@ -39,9 +40,13 @@ export const admin_nav = [
   },
   {
     component: CNavItem,
-    name: 'BusinessZones',
-    to: '/business-zone',
-    
+    name: 'Free Zone',
+    to: '/',
+  },
+  {
+    component: CNavItem,
+    name: 'Mainland',
+    to: '#',
   },
   {
     component: CNavItem,

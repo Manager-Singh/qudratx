@@ -28,7 +28,11 @@ const columns = [
   
   {
     name: 'Business Category',
-    selector: row => row.name,
+    selector: row => (
+          <Link to={`/business-activity`} style={{ textDecoration: 'none' }}>
+            {row.name}
+          </Link>
+        ),
     sortable: true,
   },
     {

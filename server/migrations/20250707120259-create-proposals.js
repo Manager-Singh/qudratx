@@ -18,23 +18,23 @@ module.exports = {
   },
   lead_id: {
     type: Sequelize.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
   business_zone_id: {
     type: Sequelize.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
   business_zone_authority_id: {
     type: Sequelize.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
   business_activity_id: {
     type: Sequelize.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
   package_detail: {
     type: Sequelize.JSON, // use Sequelize.TEXT if JSON not supported
-    allowNull: true,
+    allowNull: false,
   },
   fee_breakdown: {
     type: Sequelize.TEXT,

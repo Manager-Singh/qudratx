@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Client = sequelize.define('Client', {
+  const Category = sequelize.define('Category', {
     uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -9,26 +9,6 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-     address: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-     email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-     company_name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-     notes: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     status: {
     type: DataTypes.BOOLEAN,
@@ -53,12 +33,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     },
   }, {
-    tableName: 'clients',
+    tableName: 'categories',
     timestamps: false,
     paranoid: true,
   });
-  Client.associate = (models) => {
-  Client.hasMany(models.Lead, { foreignKey: 'client_id' });
-};
-  return Client;
+  return Category;
 };

@@ -8,6 +8,8 @@ const FeeStructure = require('./feeStructure')
 const Client = require('./client')
 const Lead = require('./lead')
 const Package = require('./package')
+const Category = require('./category')
+const SubCategory = require('./subcategory')
 const {isAdmin} = require('../../middlewares/roleCheck')
 const authenticateJWT = require('../../middlewares/auth')
 
@@ -19,6 +21,8 @@ router.use('/admin',authenticateJWT,isAdmin,FeeStructure)
 router.use('/admin',authenticateJWT,isAdmin,Client)
 router.use('/admin',authenticateJWT,isAdmin,Lead)
 router.use('/admin',authenticateJWT,isAdmin,Package)
+router.use('/admin',authenticateJWT,isAdmin,Category)
+router.use('/admin',authenticateJWT,isAdmin,SubCategory)
 
 module.exports = router;
 

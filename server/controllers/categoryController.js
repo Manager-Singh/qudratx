@@ -1,101 +1,38 @@
-const { BusinessActivity } = require('../models');
+const { Category } = require('../models');
 const { Op, where } = require('sequelize');
 
 // CREATE
-const createBusinessActivity = async (req, res) => {
+const createCategory = async (req, res) => {
   try {
-    const {
-      activity_master_number,
-      zone,
-      activity_code,
-      activity_name,
-      activity_name_arabic,
+    const { name , status} = req.body;
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+const existingCat = await Category.findOne({
+  where:{name}
+})
+if (existingCat) {
+  return res.status(400).json({message:"Category already exist"})
+}
+    const category = await Category.create({
+      name,
       status,
-      minimum_share_capital,
-      license_type,
-      is_not_allowed_for_coworking_esr,
-      is_special,
-      activity_price,
-      activity_group,
-      description,
-      qualification_requirement,
-      documents_required,
-      category,
-      additional_approval,
-      sub_category,
-      group_id,
-      sub_code,
-      sub_activity_name,
-      sub_name_arabic,
-      third_party,
-      when,
-      esr,
-      notes
-    } = req.body;
-
-    // Validate required field
-    if (!activity_name) {
-      return res.status(400).json({ message: 'Activity Name is required' });
-    }
-
-    // Check if activity already exists
-    const existingActivity = await BusinessActivity.findOne({
-      where: { activity_name }
-    });
-
-    if (existingActivity) {
-      return res.status(400).json({ message: 'Business Activity already exists' });
-    }
-
-    // Create activity
-    const activity = await BusinessActivity.create({
-      activity_master_number,
-      zone,
-      activity_code,
-      activity_name,
-      activity_name_arabic,
-      status: status !== undefined ? status : true,
-      minimum_share_capital,
-      license_type,
-      is_not_allowed_for_coworking_esr,
-      is_special,
-      activity_price,
-      activity_group,
-      description,
-      qualification_requirement,
-      documents_required,
-      category,
-      additional_approval,
-      sub_category,
-      group_id,
-      sub_code,
-      sub_activity_name,
-      sub_name_arabic,
-      third_party,
-      when,
-      esr,
-      notes,
       last_update: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-      created_by: req.user?.id || null,
-      updated_by: req.user?.id || null
-    });
+    },{ userId: req.user.id });
 
     return res.status(201).json({
-      message: 'Business activity created successfully',
+      message: 'Category created successfully',
       success: true,
-      data: activity,
+      data: category,
     });
-
   } catch (error) {
-    console.error('Create activity error:', error);
+    console.error('Create category error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // READ ALL
-const getBusinessActivity = async (req, res) => {
+const getCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -139,7 +76,7 @@ const getBusinessActivity = async (req, res) => {
 };
 
 // GET ONE
-const getBusinessActivityByUUID = async (req, res) => {
+const getCategoryByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
@@ -160,7 +97,7 @@ const getBusinessActivityByUUID = async (req, res) => {
 };
 
 // UPDATE
-const updateBusinessActivity = async (req, res) => {
+const updateCategory = async (req, res) => {
   try {
     const { uuid } = req.params;
     const { name,status } = req.body;
@@ -194,7 +131,7 @@ const updateBusinessActivity = async (req, res) => {
 };
 
 // DELETE
-const deleteBusinessActivity = async (req, res) => {
+const deleteCategory = async (req, res) => {
   try {
     const { uuid } = req.params;
 
@@ -217,14 +154,14 @@ const deleteBusinessActivity = async (req, res) => {
 };
 
 // GET DELETED ACTIVITIES
-const getDeletedBusinessActivity = async (req, res) => {
+const getDeletedCategory = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
 
-    const { count, rows } = await BusinessActivity.findAndCountAll({
+    const { count, rows } = await Category.findAndCountAll({
       where: {
         deleted_at: { [Op.not]: null },
         name: { [Op.like]: `%${search}%` },
@@ -252,10 +189,10 @@ const getDeletedBusinessActivity = async (req, res) => {
 };
 
 module.exports = {
-  createBusinessActivity,
-  getBusinessActivity,
-  getBusinessActivityByUUID,
-  updateBusinessActivity,
-  deleteBusinessActivity,
-  getDeletedBusinessActivity,
+  createCategory,
+  getCategory,
+  getCategoryByUUID,
+  updateCategory,
+  deleteCategory,
+  getDeletedCategory,
 };

@@ -70,7 +70,7 @@ const assignLead = async (req, res) => {
 
     // Validate input
     if (!lead_id || !assigned_to) {
-      return res.status(400).json({ message: 'lead id and assigned_to are required' });
+      return res.status(400).json({ message: 'lead id and assigned to are required' });
     }
 
     // Find the lead

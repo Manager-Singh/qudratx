@@ -50,7 +50,7 @@ useEffect(() => {
   {
     name: 'Authority Zones',
     selector: row => (
-      <Link to={`/business-category`} style={{ textDecoration: 'none' }}>
+      <Link to={`/business-activity`} style={{ textDecoration: 'none' }}>
         {row.name}
       </Link>
     ),

@@ -29,7 +29,7 @@ const columns = [
   {
     name: 'Business Category',
     selector: row => (
-          <Link to={`/business-activity`} style={{ textDecoration: 'none' }}>
+          <Link to={`/business-subcategory/${row.uuid}`} style={{ textDecoration: 'none' }}>
             {row.name}
           </Link>
         ),

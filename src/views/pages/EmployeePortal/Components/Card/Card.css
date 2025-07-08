@@ -1,16 +1,39 @@
+Container that holds multiple cards
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start; /* makes each card height independent */
+  justify-content: space-around;
+}
+
+
+/* Individual card styling */
 .custom-card {
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    width: 372px;
-    max-width: 100%;
-    background: #2f1051;
-    color: #fff;
-  }
-  
-  .custom-card:hover {
-    transform: translateY(-5px);
-  }
-  
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  width: 372px;
+  max-width: 100%;
+  height: auto; /* grow with content */
+  background: #2f1051;
+  color: #fff;
+}
+
+/* Hover effect */
+.custom-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Optional text alignment helpers */
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
 

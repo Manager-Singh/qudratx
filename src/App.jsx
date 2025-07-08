@@ -34,6 +34,7 @@ import BusinessAuthority from './views/pages/ProposalManagement/BusinessAuthorit
 import AddBusinessCategory from './views/pages/ProposalManagement/AddBusinessCategory'
 import BusinessActivity from './views/pages/ProposalManagement/businessActivity/BusinessActivity'
 import AddBusinessActivity from './views/pages/ProposalManagement/businessActivity/AddBusinessActivity'
+import Dashboard from './views/pages/EmployeePortal/Dashboard/Dashboard'
 
 
  
@@ -123,11 +124,14 @@ if (isLoading) {
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
        <Route path="/add-lead" element={<AddLead />} />
-        <Route path="/packages" element={<PackageListing/>} />
-         <Route path="/add-package" element={<AddPackage/>} />
-         <Route path="/edit-package/:uuid" element={<AddPackage/>} />
-          <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
-          </Route>
+       <Route path="/packages" element={<PackageListing/>} />
+       <Route path="/add-package" element={<AddPackage/>} />
+       <Route path="/edit-package/:uuid" element={<AddPackage/>} />
+       <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
+
+       {/* Employee portal routes */}
+       <Route path="/dashboard" element={<Dashboard/>}/>
+        </Route>
          
         </Routes>
       </Suspense>

@@ -23,8 +23,10 @@ const EmployeeLogin = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('employee1@example.com')
+  const [password, setPassword] = useState('employee123')
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,7 +37,7 @@ const EmployeeLogin = () => {
       if (result.payload.success) {
          localStorage.setItem('token',result.payload.token)
          dispatch(verifyUser())
-         navigate('/')
+         navigate('/dashboard')
       } else {
         alert('Login failed')
       }

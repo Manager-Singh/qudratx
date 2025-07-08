@@ -14,7 +14,7 @@ import {
 } from '@coreui/react'
 import { useState } from 'react'
 
-function AddAuthorityPopUp({
+function AddSubCategoryPopup({
   visible,
   setVisible,
   handleSubmit,
@@ -22,7 +22,7 @@ function AddAuthorityPopUp({
   setFormData,
   isEdit = false,
   setIsEdit,
-  setSelectedAuthority,
+  setSelectedSubCategory,
 }) {
   const [validated, setValidated] = useState(false)
 
@@ -38,7 +38,7 @@ function AddAuthorityPopUp({
     setVisible(false)
     setIsEdit(false)
     setFormData({ name: '', status: 1 })
-    setSelectedAuthority(null)
+    setSelectedSubCategory(null)
     setValidated(false)
   }
 
@@ -58,7 +58,7 @@ function AddAuthorityPopUp({
       <CModal visible={visible} onClose={handleModalClose} alignment="center">
         <CModalHeader>
           <CModalTitle>
-            {isEdit ? 'Edit Business Zone Authority' : 'Add Business Zone Authority'}
+            {isEdit ? 'Edit Subcategory' : 'Add Subcategory'}
           </CModalTitle>
         </CModalHeader>
         <CForm noValidate validated={validated} onSubmit={handleFormSubmit}>
@@ -73,35 +73,33 @@ function AddAuthorityPopUp({
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter Authority name..."
+                placeholder="Enter subcategory name..."
                 required
               />
               <CFormFeedback invalid>Please enter a name.</CFormFeedback>
             </CCol>
 
             <CCol xs={12}>
-                <CFormLabel htmlFor="status">Status</CFormLabel>
-                  <CFormSelect
-                   id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    >
-                      {formData.status === 1 ? (
-                      <>
-                      <option value={1}>Active</option>
-                      <option value={0}>Inactive</option>
-                          </>
-                           ) : (
-                          <>
+              <CFormLabel htmlFor="status">Status</CFormLabel>
+              <CFormSelect
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                {formData.status === 1 ? (
+                  <>
+                    <option value={1}>Active</option>
+                    <option value={0}>Inactive</option>
+                  </>
+                ) : (
+                  <>
                     <option value={0}>Inactive</option>
                     <option value={1}>Active</option>
-                       </>
-                                  )}
-                           
-                         </CFormSelect>
-                       </CCol>
-            
+                  </>
+                )}
+              </CFormSelect>
+            </CCol>
           </CModalBody>
 
           <CModalFooter>
@@ -118,4 +116,4 @@ function AddAuthorityPopUp({
   )
 }
 
-export default AddAuthorityPopUp
+export default AddSubCategoryPopup

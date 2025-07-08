@@ -104,7 +104,7 @@ const handleChange = (e) => {
 
       <div className="card mt-3">
         <div className="card-body">
-          <h4 className="card-title">{isEdit ? 'Edit Business Activity' : 'Add Business Activity'}</h4>
+          <h4 className="card-title">{isEdit ? 'Edit Business Category' : 'Add Business Category'}</h4>
 
           <CForm noValidate validated={validated} onSubmit={handleSubmit}>
             <CRow className="g-3 m-3">

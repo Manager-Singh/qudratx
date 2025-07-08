@@ -12,7 +12,7 @@ import CIcon from '@coreui/icons-react'
 import { AppSidebarNav } from './AppSidebarNav'
 import logo from 'src/assets/brand/logo.png'
 import { Link } from 'react-router-dom'
-
+import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 // Import icons for titles
 import {
   cilPeople,
@@ -39,57 +39,57 @@ const AppSidebar = () => {
   // Generate dynamic zone links
   const zoneNavItems = useMemo(() => {
     return (businesszones || []).map((zone) => ({
-      component: 'CNavItem',
+      component: CNavItem,
       name: zone.name,
       to: `/business-authority/${zone.uuid}`,
-      showHyphen: true, // for hyphen indent
+      showhyphen: true, // for hyphen indent
     }))
   }, [businesszones])
 
   const adminNav = [
     {
-      component: 'CNavTitle',
+      component: CNavTitle,
       name: 'Employee management',
       icon: <CIcon icon={cilPeople} size="xl" className="text-primary" />,
     },
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'Employees',
       to: '/employees',
     },
     {
-      component: 'CNavTitle',
+      component: CNavTitle,
       name: 'Proposal management',
       icon: <CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
     ...zoneNavItems,
     {
-      component: 'CNavItem',
-      name: 'Business Activities',
-      to: '/business-activities',
+      component: CNavItem,
+      name: 'Business Categories',
+      to: '/business-category',
     },
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'Packages',
       to: '/packages',
     },
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'Fee Structure',
       to: '/fee-structure',
     },
     {
-      component: 'CNavTitle',
+      component: CNavTitle,
       name: 'Leads Management',
       icon: <CIcon icon={cilGroup} size="xl" className="text-primary" />,
     },
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'Clients',
       to: '/clients',
     },
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'All Leads',
       to: '/all-lead',
     },
@@ -97,17 +97,17 @@ const AppSidebar = () => {
 
   const employeeNav = [
     {
-      component: 'CNavItem',
+      component: CNavItem,
       name: 'Dashboard',
       to: '/dashboard',
     },
      {
-        component: 'CNavItem',
+        component: CNavItem,
         name: 'Free Zone',
         to: '#',
       },
       {
-        component: 'CNavItem',
+        component: CNavItem,
         name: 'Mainland',
         to: '#',
       },

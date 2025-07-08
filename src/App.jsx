@@ -35,6 +35,7 @@ import AddBusinessCategory from './views/pages/ProposalManagement/AddBusinessCat
 import BusinessActivity from './views/pages/ProposalManagement/businessActivity/BusinessActivity'
 import AddBusinessActivity from './views/pages/ProposalManagement/businessActivity/AddBusinessActivity'
 import Dashboard from './views/pages/EmployeePortal/Dashboard/Dashboard'
+import BusinessSubCategory from './views/pages/ProposalManagement/subCategory/BusinessSubCategory'
 
 
  
@@ -115,6 +116,7 @@ if (isLoading) {
        <Route path="/business-category" element={<BusinessCategory/>} />
        <Route path="/add-business-category" element={<AddBusinessCategory/>} />
        <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
+       <Route path="/business-subcategory" element={<BusinessSubCategory/>} />
         <Route path="/business-activity" element={<BusinessActivity/>} />
        <Route path="/add-business-activity" element={<AddBusinessActivity/>} />
        <Route path="/edit-business-activity/:uuid" element={<AddBusinessActivity/>} />

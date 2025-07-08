@@ -32,6 +32,9 @@ const AppSidebar = () => {
       ? employee_nav
       : []
 
+  console.log("role->", user.role);
+
+
   return (
     <CSidebar
       className="border-end"

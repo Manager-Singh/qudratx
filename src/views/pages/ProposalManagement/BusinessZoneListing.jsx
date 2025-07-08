@@ -44,7 +44,7 @@ const columns = [
   {
     name: 'BusinessZone',
     selector: row => (
-      <Link to={`/view-businesszone/${row.uuid}`} style={{ textDecoration: 'none' }}>
+      <Link to={`/business-authority/${row.uuid}`} style={{ textDecoration: 'none' }}>
         {row.name}
       </Link>
     ),

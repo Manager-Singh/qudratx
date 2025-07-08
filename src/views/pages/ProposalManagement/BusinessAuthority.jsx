@@ -13,7 +13,7 @@ import { ToastExample } from '../../../components/toast/Toast'
 
 
 
-function ViewBusinessZone() {
+function BusinessAuthority() {
     const {uuid} = useParams()
     const [formData ,setFormData]= useState({
       name:'',
@@ -49,7 +49,11 @@ useEffect(() => {
   const columns = [
   {
     name: 'Authority Zones',
-    selector: row => row.name,
+    selector: row => (
+      <Link to={`/business-category`} style={{ textDecoration: 'none' }}>
+        {row.name}
+      </Link>
+    ),
     sortable: true,
   },
    {
@@ -209,4 +213,4 @@ const filteredData = authorities.filter(item =>
   )
 }
 
-export default ViewBusinessZone
+export default BusinessAuthority

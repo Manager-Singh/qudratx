@@ -19,11 +19,9 @@ import AddEmployee from './views/pages/employees/AddEmployee'
 import AdminLogin from './views/pages/login/AdminLogin'
 import BusinessZone from './views/pages/ProposalManagement/BusinessZoneListing'
 import AddBusinessZone from './views/pages/ProposalManagement/AddBusinessZone'
-import ViewBusinessZone from './views/pages/ProposalManagement/ViewBusinessZone'
 import FeeStructure from './views/pages/FeeStructureManagement/FeeStructure'
 import AddFeeStructure from  './views/pages/FeeStructureManagement/AddFeeStructure'
-import BusinessActivity from './views/pages/ProposalManagement/BusinessActivity'
-import AddBusinessActivty from './views/pages/ProposalManagement/AddBusinessActivty'
+import BusinessCategory from './views/pages/ProposalManagement/BusinessCategory'
 import ClientListing from './views/pages/LeadManagement/clients/ClientListing'
 import AddClient from './views/pages/LeadManagement/clients/AddClient'
 import AllLead from './views/pages/LeadManagement/All Leads/AllLead'
@@ -32,6 +30,10 @@ import AddLead from './views/pages/LeadManagement/All Leads/AddLead'
 import PackageListing from './views/pages/ProposalManagement/package/PackageListing'
 import AddPackage from './views/pages/ProposalManagement/package/AddPackage'
 import ViewPackageDetail from './views/pages/ProposalManagement/package/ViewPackageDetail'
+import BusinessAuthority from './views/pages/ProposalManagement/BusinessAuthority'
+import AddBusinessCategory from './views/pages/ProposalManagement/AddBusinessCategory'
+import BusinessActivity from './views/pages/ProposalManagement/businessActivity/BusinessActivity'
+import AddBusinessActivity from './views/pages/ProposalManagement/businessActivity/AddBusinessActivity'
 
 
  
@@ -105,13 +107,16 @@ if (isLoading) {
        <Route path="/business-zone" element={<BusinessZone/>} />
        <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
-       <Route path ="/view-businesszone/:uuid" element={<ViewBusinessZone/>} />
+       <Route path ="/business-authority/:uuid" element={<BusinessAuthority/>} />
        <Route path="/fee-structure" element={<FeeStructure/>} />
        <Route path="/add-feestructure" element={<AddFeeStructure />} />
        <Route path="/edit-feestructure/:id" element={<AddFeeStructure />} />
-       <Route path="/business-activities" element={<BusinessActivity/>} />
-       <Route path="/add-business-activities" element={<AddBusinessActivty/>} />
-       <Route path="/edit-business-activities/:uuid" element={<AddBusinessActivty/>} />
+       <Route path="/business-category" element={<BusinessCategory/>} />
+       <Route path="/add-business-category" element={<AddBusinessCategory/>} />
+       <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
+        <Route path="/business-activity" element={<BusinessActivity/>} />
+       <Route path="/add-business-activity" element={<AddBusinessActivity/>} />
+       <Route path="/edit-business-activity/:uuid" element={<AddBusinessActivity/>} />
        <Route path="/clients" element={<ClientListing/>} />
        <Route path="/add-client" element={<AddClient/>} />
        <Route path="/edit-client/:uuid" element={<AddClient/>} />

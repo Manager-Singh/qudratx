@@ -4,13 +4,12 @@ import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash} from '@coreui/icons';
-import { FaCircle ,FaTrash,} from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteBusinessActivity, getBusinessActivity } from '../../../store/admin/businessActivitySlice';
 import { ToastExample } from '../../../components/toast/Toast'
 
-function BusinessActivity() {
+function BusinessCategory() {
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 const {business_activities} = useSelector((state)=>state.business_activity)
@@ -28,7 +27,7 @@ dispatch(getBusinessActivity())
 const columns = [
   
   {
-    name: 'Business Activities',
+    name: 'Business Category',
     selector: row => row.name,
     sortable: true,
   },
@@ -63,7 +62,7 @@ const columns = [
   <CIcon icon={cilTrash} size="lg" />
 </span>
     <Link
-        to={`/edit-business-activities/${row.uuid}`}
+        to={`/edit-business-category/${row.uuid}`}
               
             >
             <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
@@ -98,7 +97,7 @@ const columns = [
               </div>
             )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to='/add-business-activities'> <CButton className='custom-button'>Add Business Activity </CButton></Link>
+        <Link to='/add-business-category'> <CButton className='custom-button'>Add Business Category </CButton></Link>
        
         <input
           type="text"
@@ -123,4 +122,4 @@ const columns = [
   )
 }
 
-export default BusinessActivity
+export default BusinessCategory

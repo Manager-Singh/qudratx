@@ -5,7 +5,6 @@ const { Op, where } = require('sequelize');
 const createBusinessActivity = async (req, res) => {
   try {
     const {
-      activity_master_number,
       zone,
       activity_code,
       activity_name,
@@ -46,7 +45,7 @@ const createBusinessActivity = async (req, res) => {
     if (existingActivity) {
       return res.status(400).json({ message: 'Business Activity already exists' });
     }
-
+const activity_master_number = await generateActivityNumber(); 
     // Create activity
     const activity = await BusinessActivity.create({
       activity_master_number,
@@ -94,6 +93,7 @@ const createBusinessActivity = async (req, res) => {
   }
 };
 
+
 // READ ALL
 const getBusinessActivity = async (req, res) => {
   try {
@@ -137,6 +137,26 @@ const getBusinessActivity = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const generateActivityNumber = async () => {
+  const prefix = "AM-";
+  let unique = false;
+  let activityNumber;
+
+  while (!unique) {
+    const randomNum = Math.floor(10000 + Math.random() * 90000); // 5-digit number
+    activityNumber = `${prefix}${randomNum}`;
+
+    const exists = await BusinessActivity.findOne({
+      where: { activity_number: activityNumber }
+    });
+
+    if (!exists) unique = true;
+  }
+
+  return activityNumber;
+};
+
 
 // GET ONE
 const getBusinessActivityByUUID = async (req, res) => {

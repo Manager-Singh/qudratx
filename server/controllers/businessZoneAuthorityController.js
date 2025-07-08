@@ -37,7 +37,7 @@ const createBusinessZonesAuthority = async (req, res) => {
     });
   } catch (error) {
     console.error('Create authority error:', error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

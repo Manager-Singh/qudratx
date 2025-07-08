@@ -52,7 +52,7 @@ const getCategory = async (req, res) => {
       where.status = false;
     }
 
-    const { count, rows } = await BusinessActivity.findAndCountAll({
+    const { count, rows } = await Category.findAndCountAll({
       where,
       limit,
       offset,
@@ -62,7 +62,7 @@ const getCategory = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Business activities fetched successfully',
+      message: 'Categories fetched successfully',
       page,
       limit,
       totalPages,
@@ -70,7 +70,7 @@ const getCategory = async (req, res) => {
       data: rows
     });
   } catch (error) {
-    console.error('Get activities error:', error);
+    console.error('Get categories error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -80,18 +80,18 @@ const getCategoryByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const activity = await BusinessActivity.findOne({ where: { uuid } });
-    if (!activity) {
-      return res.status(404).json({ message: 'Business activity not found' });
+    const cat = await Category.findOne({ where: { uuid } });
+    if (!cat) {
+      return res.status(404).json({ message: 'category not found' });
     }
 
     res.status(200).json({
-      message: 'Business activity fetched successfully',
+      message: 'category fetched successfully',
       success: true,
-      data: activity,
+      data: cat,
     });
   } catch (error) {
-    console.error('Get activity error:', error);
+    console.error('Get category error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -106,26 +106,26 @@ const updateCategory = async (req, res) => {
         return res.status(400).json({ message: 'Name is required' });
       }
 
-    const activity = await BusinessActivity.findOne({ where: { uuid } });
-    if (!activity) {
-      return res.status(404).json({ message: 'Business activity not found' });
+    const cat = await Category.findOne({ where: { uuid } });
+    if (!cat) {
+      return res.status(404).json({ message: 'Category not found' });
     }
 
-    activity.name = name;
-    activity.status = status;
-    activity.updated_by = req.user.id;
-    activity.updated_at = new Date();
-    activity.last_update = new Date();
+    cat.name = name;
+    cat.status = status;
+    cat.updated_by = req.user.id;
+    cat.updated_at = new Date();
+    cat.last_update = new Date();
 
-    await activity.save({ userId: req.user.id });
+    await cat.save({ userId: req.user.id });
 
     res.status(200).json({
-      message: 'Business activity updated successfully',
+      message: 'category updated successfully',
       success: true,
       data: activity
     });
   } catch (error) {
-    console.error('Update activity error:', error);
+    console.error('Update category error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -135,20 +135,20 @@ const deleteCategory = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const activity = await BusinessActivity.findOne({ where: { uuid } });
-    if (!activity) {
-      return res.status(404).json({ message: 'Business activity not found' });
+    const cat = await Category.findOne({ where: { uuid } });
+    if (!cat) {
+      return res.status(404).json({ message: 'Category not found' });
     }
 
-    await activity.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    await cat.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
 
     res.status(200).json({
-      message: 'Business activity deleted successfully',
+      message: 'category deleted successfully',
       success: true,
-      data: { uuid: activity.uuid, name: activity.name },
+      data: { uuid: cat.uuid, name: cat.name },
     });
   } catch (error) {
-    console.error('Delete activity error:', error);
+    console.error('Delete category error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -175,7 +175,7 @@ const getDeletedCategory = async (req, res) => {
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Deleted business activities fetched successfully',
+      message: 'Deleted categories fetched successfully',
       page,
       limit,
       totalPages,
@@ -183,7 +183,7 @@ const getDeletedCategory = async (req, res) => {
       data: rows,
     });
   } catch (error) {
-    console.error('Get deleted activity error:', error);
+    console.error('Get deleted categories error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

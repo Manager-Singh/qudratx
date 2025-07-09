@@ -44,12 +44,28 @@ export const getData = async (url) => {
   }
 }
 
+// export const postData = async (url, data) => {
+//   try {
+//     const res = await api.post(url, data)
+//     return res.data
+//   } catch (error) {
+//     handleError(error)
+//   }
+// }
 export const postData = async (url, data) => {
-  try {
-    const res = await api.post(url, data)
-    return res.data
-  } catch (error) {
-    handleError(error)
+  try{
+  const isFormData = data instanceof FormData
+
+  const config = {
+    headers: {
+      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+    },
+  }
+
+  const response = await axios.post(url, data, config)
+  return response.data
+  } catch(error){
+    handleError(error);
   }
 }
 

@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { CCard, CCardBody, CCardTitle, CCardText } from "@coreui/react";
 import "./Card.css"; // Custom styles (defined below)
+import logo from "../../../../../../public/download.png"; // Custom styles (defined below)
 
 const Card = ({ title, paragraph, backgroundImage, textAlign, onClick }) => {
   const alignment = textAlign || "left"; // default is left
@@ -16,12 +17,15 @@ const Card = ({ title, paragraph, backgroundImage, textAlign, onClick }) => {
     : {};
 
   return (
-    <CCard className="custom-card" style={cardStyle} onClick={onClick}>
+    <a href="#" className="">
+    <CCard className="mb-4 authorty-activity" style={cardStyle} onClick={onClick}>
       <CCardBody className={`text-${alignment}`}>
-        <CCardTitle className="fs-4 fw-bold mb-3">{title}</CCardTitle>
+        <img src={logo} className="w-75 mt-2"/>
+        <CCardTitle className="card-heading">{title}</CCardTitle>
         {paragraph && <CCardText className="fs-6">{paragraph}</CCardText>}
       </CCardBody>
     </CCard>
+    </a>
   );
 };
 

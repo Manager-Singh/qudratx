@@ -21,7 +21,7 @@ const Dashboard = () => {
 
     const handleZone =(zone)=>{
         console.log("Clicked on create Proposal") 
-        navigate(`/proposal/${zone.id}`);
+        navigate(`/authority/${zone.id}`);
     }
 
   return (

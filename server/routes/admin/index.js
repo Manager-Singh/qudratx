@@ -67,6 +67,8 @@ router.get('/get-subcategory',authenticateJWT, isEmployee,getSubCategory)
 router.get('/get-subcategory-by-uuid/:uuid',authenticateJWT, isEmployee,getSubCategoryByUUID)
 router.get('/get-employee',authenticateJWT, isEmployee,getEmployees)
 router.get('/get-employee-by-uuid/:uuid',authenticateJWT, isEmployee,getEmployeeBYuuid)
+
+
 router.use('/admin',authenticateJWT,isAdmin,user)
 router.use('/admin',authenticateJWT,isAdmin,BusinessZone)
 router.use('/admin',authenticateJWT,isAdmin,BusinessZoneAuhtority)

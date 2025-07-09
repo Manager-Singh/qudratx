@@ -22,11 +22,12 @@ const createBusinessZonesAuthority = async (req, res) => {
     if (existingAuthority) {
       return res.status(400).json({ message: 'Authority with this name already exists' });
     }
-
+    const image = req.file ? req.file.filename : null;
     const authority = await BusinessZonesAuthority.create({
       name,
       zone_id,
       status,
+      image,
       last_update: new Date()
     }, { userId: req.user.id });
 

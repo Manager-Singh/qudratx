@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../../middlewares/upload');
 const { createBusinessZone,
   getBusinessZones,
   getBusinessZoneByUUID,
@@ -7,7 +8,7 @@ const { createBusinessZone,
   deleteBusinessZone,
   getDeletedBusinessZones} = require('../../controllers/businessZoneController');
 
-router.post('/create-zone',createBusinessZone)
+router.post('/create-zone',upload.single('image'),createBusinessZone)
 router.get('/get-zone',getBusinessZones)
 router.get('/get-zone-by-uuid/:uuid',getBusinessZoneByUUID)
 router.put('/update-zone/:uuid',updateBusinessZone)

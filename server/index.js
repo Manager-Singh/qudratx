@@ -23,6 +23,8 @@ app.get('/', (req, res) => res.send('Welcome to the API!'));
 app.use('/api', authRoutes);
 app.use('/api',commonRoute)
 app.use('/api',adminRoute)
+app.use('/uploads', express.static('uploads'));
+
 
 const PORT = process.env.PORT || 5000;
 sequelize.authenticate()

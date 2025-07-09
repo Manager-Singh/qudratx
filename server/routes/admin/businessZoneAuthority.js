@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const upload = require('../../middlewares/upload');
 const {
   createBusinessZonesAuthority,
   getBusinessZonesAuthorities,
@@ -11,7 +11,7 @@ const {
 } = require('../../controllers/businessZoneAuthorityController');
 
 // Create authority
-router.post('/create-authority', createBusinessZonesAuthority);
+router.post('/create-authority',upload.single('image'), createBusinessZonesAuthority);
 
 // Get all authorities
 router.get('/get-authorities', getBusinessZonesAuthorities);

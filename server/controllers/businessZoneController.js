@@ -14,9 +14,11 @@ const existingZone= await BusinessZone.findOne({
 if (existingZone) {
   return res.status(400).json({message:"Business zone already exist"})
 }
+const image = req.file ? req.file.filename : null;
     const zone = await BusinessZone.create({
       name,
       status,
+      image,
       last_update: new Date(),
     },{ userId: req.user.id });
 

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { CCard, CCardBody, CCardTitle, CCardText } from "@coreui/react";
 import "./Card.css"; // Custom styles (defined below)
 
-const Card = ({ title, paragraph, backgroundImage, textAlign }) => {
+const Card = ({ title, paragraph, backgroundImage, textAlign, onClick }) => {
   const alignment = textAlign || "left"; // default is left
   const cardStyle = backgroundImage
     ? {
@@ -16,7 +16,7 @@ const Card = ({ title, paragraph, backgroundImage, textAlign }) => {
     : {};
 
   return (
-    <CCard className="custom-card" style={cardStyle}>
+    <CCard className="custom-card" style={cardStyle} onClick={onClick}>
       <CCardBody className={`text-${alignment}`}>
         <CCardTitle className="fs-4 fw-bold mb-3">{title}</CCardTitle>
         {paragraph && <CCardText className="fs-6">{paragraph}</CCardText>}

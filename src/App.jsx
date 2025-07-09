@@ -36,6 +36,7 @@ import BusinessActivity from './views/pages/ProposalManagement/businessActivity/
 import AddBusinessActivity from './views/pages/ProposalManagement/businessActivity/AddBusinessActivity'
 import Dashboard from './views/pages/EmployeePortal/Dashboard/Dashboard'
 import BusinessSubCategory from './views/pages/ProposalManagement/subCategory/BusinessSubCategory'
+import Proposal from './views/pages/EmployeePortal/CreateProposal/Proposal'
 
 
  
@@ -133,7 +134,8 @@ if (isLoading) {
 
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
-        </Route>
+       <Route path="/proposal/:id" element={<Proposal/>}/>
+       </Route>
          
         </Routes>
       </Suspense>

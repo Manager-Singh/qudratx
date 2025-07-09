@@ -126,7 +126,9 @@ const updateBusinessZonesAuthority = async (req, res) => {
      if (!name) {
       return res.status(400).json({ message: 'Name is required' });
     }
-
+ if (req.file) {
+      authority.image = req.file.filename;
+    }
     authority.name = name;
     authority.status = status;
     authority.updated_at = new Date();

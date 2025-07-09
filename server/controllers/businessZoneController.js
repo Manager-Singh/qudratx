@@ -110,7 +110,9 @@ const updateBusinessZone = async (req, res) => {
     if (!zone) {
       return res.status(404).json({ message: 'Business zone not found' });
     }
-
+ if (req.file) {
+      zone.image = req.file.filename;
+    }
     zone.name = name;
     zone.status = status;
     zone.updated_by = req.user.id;

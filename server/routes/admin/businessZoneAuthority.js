@@ -20,7 +20,7 @@ router.get('/get-authorities', getBusinessZonesAuthorities);
 router.get('/get-authority-by-zone/:id', getBusinessZonesAuthorityByZoneId);
 
 // Update authority by UUID
-router.put('/update-authority/:uuid', updateBusinessZonesAuthority);
+router.put('/update-authority/:uuid',upload.single('image'), updateBusinessZonesAuthority);
 
 // Delete (soft delete) authority by UUID
 router.delete('/delete-authority/:uuid', deleteBusinessZonesAuthority);

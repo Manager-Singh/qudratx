@@ -11,7 +11,7 @@ const { createBusinessZone,
 router.post('/create-zone',upload.single('image'),createBusinessZone)
 router.get('/get-zone',getBusinessZones)
 router.get('/get-zone-by-uuid/:uuid',getBusinessZoneByUUID)
-router.put('/update-zone/:uuid',updateBusinessZone)
+router.put('/update-zone/:uuid',upload.single('image'),updateBusinessZone)
 router.delete('/delete-zone/:uuid',deleteBusinessZone)
 router.get('/get-deleted-zone',getDeletedBusinessZones)
 

@@ -1,4 +1,4 @@
-Container that holds multiple cards
+
 .card-container {
   display: flex;
   flex-wrap: wrap;
@@ -19,6 +19,7 @@ Container that holds multiple cards
   height: auto; /* grow with content */
   background: #2f1051;
   color: #fff;
+  cursor: pointer;
 }
 
 /* Hover effect */
@@ -37,3 +38,13 @@ Container that holds multiple cards
   text-align: right;
 }
 
+.authorty-activity{
+  transition: box-shadow 0.5s;
+}
+.authorty-activity:hover{
+  box-shadow: 0px 0px 9px 0px #2f1051;
+}
+
+a{
+  text-decoration: none;
+}

@@ -35,10 +35,10 @@ const {
   const { 
   getPackage,
   getPackageByUUID} = require('../../controllers/packageController');
-const { 
-  getProposalDetail,
-  getProposalDetailByUUID
-} = require('../../controllers/proposalController');
+// const { 
+//   getProposalDetail,
+//   getProposalDetailByUUID
+// } = require('../../controllers/proposalController');
   const {
   getSubCategory,
   getSubCategoryByUUID} = require('../../controllers/subCategoryController');
@@ -61,8 +61,8 @@ router.get('/get-lead-detail',authenticateJWT, isEmployee,getLeadDetail)
 router.get('/get-lead-detail-by-uuid/:uuid',authenticateJWT, isEmployee,getLeadDetailByUUID)
 router.get('/get-package',authenticateJWT, isEmployee,getPackage)
 router.get('/get-package-by-uuid/:uuid',authenticateJWT, isEmployee,getPackageByUUID)
-router.get('/get-proposal-detail',authenticateJWT, isEmployee,getProposalDetail)
-router.get('/get-proposal-detail-by-uuid/:uuid',authenticateJWT, isEmployee,getProposalDetailByUUID)
+//router.get('/get-proposal-detail',authenticateJWT, isEmployee,getProposalDetail)
+//router.get('/get-proposal-detail-by-uuid/:uuid',authenticateJWT, isEmployee,getProposalDetailByUUID)
 router.get('/get-subcategory',authenticateJWT, isEmployee,getSubCategory)
 router.get('/get-subcategory-by-uuid/:uuid',authenticateJWT, isEmployee,getSubCategoryByUUID)
 router.get('/get-employee',authenticateJWT, isEmployee,getEmployees)

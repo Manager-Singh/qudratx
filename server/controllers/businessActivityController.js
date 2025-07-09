@@ -6,7 +6,6 @@ const createBusinessActivity = async (req, res) => {
   try {
     const {
       zone,
-      activity_code,
       activity_name,
       activity_name_arabic,
       status,
@@ -45,7 +44,8 @@ const createBusinessActivity = async (req, res) => {
     if (existingActivity) {
       return res.status(400).json({ message: 'Business Activity already exists' });
     }
-const activity_master_number = await generateActivityNumber(); 
+    const activity_master_number = await generateActivityNumber(); 
+    const activity_code = await generateActivityCode(); 
     // Create activity
     const activity = await BusinessActivity.create({
       activity_master_number,
@@ -93,6 +93,20 @@ const activity_master_number = await generateActivityNumber();
   }
 };
 
+const generateActivityCode = async () => {
+  const lastRecord = await BusinessActivity.findOne({
+    order: [['createdAt', 'DESC']]
+  });
+
+  let lastNumber = 0;
+
+  if (lastRecord && lastRecord.activity_code) {
+    lastNumber = parseInt(lastRecord.activity_code, 10);
+  }
+
+  const newCode = String(lastNumber + 1).padStart(5, '0'); // e.g., "00001"
+  return newCode;
+};
 
 // READ ALL
 const getBusinessActivity = async (req, res) => {

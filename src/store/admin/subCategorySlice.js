@@ -42,15 +42,18 @@ export const deleteSubCategory  = createAsyncThunk('admin/delete-subcategory', a
 // })
 
 
-export const updateSubCategory= createAsyncThunk('admin/update-subcategory', async ({ uuid, payload}, thunkAPI) => {
-  try {
-    
-    const response = await putData(`/admin/update-subcategory/${uuid}`, payload)
-    return response
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.message)
+export const updateSubCategory = createAsyncThunk(
+  'admin/update-subcategory',
+  async ({ uuid, data }, thunkAPI) => {
+    try {
+      console.log(data, "formData being sent")
+      const response = await putData(`/admin/update-subcategory/${uuid}`, data)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message)
+    }
   }
-})
+)
 
 export const getSubCategoryByUUID = createAsyncThunk('admin/get-subcategory-by-uuid', async (uuid, thunkAPI) => {
   try {
@@ -61,6 +64,17 @@ export const getSubCategoryByUUID = createAsyncThunk('admin/get-subcategory-by-u
     return thunkAPI.rejectWithValue(error.message)
   }
 })
+export const getSubCategoryByCategoryId = createAsyncThunk(
+  'authority/getByUUID',
+  async ({categoryId}, thunkAPI) => {
+    try {
+      const response = await getData(`/admin/get-subcategory-by-categoryid/${categoryId}`)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
 
 
 const subCategorySlice = createSlice({
@@ -141,7 +155,19 @@ const subCategorySlice = createSlice({
         state.isLoading = false
         state.sub_category = null
        
-      })
+      }).addCase(getSubCategoryByCategoryId.pending, (state) => {
+              state.isLoading = true
+            })
+            .addCase(getSubCategoryByCategoryId.fulfilled, (state, action) => {
+              state.isLoading = false
+              state.sub_categories = action.payload.data
+      
+            })
+            .addCase(getSubCategoryByCategoryId.rejected, (state, action) => {
+              state.isLoading = false
+              state.sub_categories = []
+              state.error = action.payload
+            })
 
   },
 })

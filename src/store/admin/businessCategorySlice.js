@@ -44,7 +44,6 @@ export const deleteBusinessCategory = createAsyncThunk('employee/delete-category
 
 export const updateBusinessCategory = createAsyncThunk('admin/update-category', async ({ uuid, formData}, thunkAPI) => {
   try {
-    
     const response = await putData(`/admin/update-category/${uuid}`, formData)
     return response
   } catch (error) {

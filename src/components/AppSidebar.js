@@ -46,6 +46,17 @@ const AppSidebar = () => {
     }))
   }, [businesszones])
 
+  
+
+  const zoneNavEmp = useMemo(() => {
+    return (businesszones || []).map((zone) => ({
+      component: CNavItem,
+      name: zone.name,
+      to: `/create-proposal/${zone.id}`,
+      showhyphen: true, // for hyphen indent
+    }))
+  }, [businesszones])
+
   const adminNav = [
     {
       component: CNavTitle,
@@ -101,16 +112,7 @@ const AppSidebar = () => {
       name: 'Dashboard',
       to: '/dashboard',
     },
-     {
-        component: CNavItem,
-        name: 'Free Zone',
-        to: '#',
-      },
-      {
-        component: CNavItem,
-        name: 'Mainland',
-        to: '#',
-      },
+    ...zoneNavEmp 
     // add more employee-specific items here
   ]
 

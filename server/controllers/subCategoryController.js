@@ -76,6 +76,54 @@ const getSubCategory = async (req, res) => {
   }
 };
 
+const getSubCategoryByCategoryId = async (req, res) => {
+  try {
+    const categoryId = req.params.categoryId;
+
+    if (!categoryId) {
+      return res.status(400).json({ message: 'Category ID is required' });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status; // optional
+
+    const where = {
+      category_id: categoryId,
+      deleted_at: null,
+      name: { [Op.like]: `%${search}%` },
+    };
+
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
+
+    const { count, rows } = await Subcategory.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    return res.status(200).json({
+      message: 'Subcategories fetched successfully',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows,
+    });
+  } catch (error) {
+    console.error('Error fetching subcategories by category:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 // GET ONE
 const getSubCategoryByUUID = async (req, res) => {
   try {
@@ -194,6 +242,7 @@ module.exports = {
   createSubCategory,
   getSubCategory,
   getSubCategoryByUUID,
+  getSubCategoryByCategoryId,
   updateSubCategory,
   deleteSubCategory,
   getDeletedSubCategory,

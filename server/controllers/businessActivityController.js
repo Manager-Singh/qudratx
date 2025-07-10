@@ -1,4 +1,4 @@
-const { BusinessActivity } = require('../models');
+const { BusinessActivity,BusinessZone } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -7,7 +7,7 @@ const xlsx = require('xlsx');
 // CREATE
 const createBusinessActivity = async (req, res) => {
   try {
-    // ✅ CASE 1: CSV upload
+
     if (req.file) {
       const results = [];
       const errors = [];
@@ -19,36 +19,42 @@ const createBusinessActivity = async (req, res) => {
         .on('end', async () => {
           for (const [index, row] of results.entries()) {
             try {
-              const existing = await BusinessActivity.findOne({ where: { activity_name: row.activity_name } });
+              const existing = await BusinessActivity.findOne({ where: { activity_name: row["Activity Name"]  } });
               if (existing) {
                 errors.push({ row: index + 1, message: 'Duplicate activity name' });
                 continue;
               }
 
+            const existingZone = await BusinessZone.findOne({ where: { name : row["Zone"]  } });
+              if (!existingZone) {
+               return res.status(400).json({ message: 'Zone does not exist' });
+              }
+
               const activity = await BusinessActivity.create({
-                authority_id: row.authority_id,
-                zone: row.zone,
-                activity_name: row.activity_name,
-                activity_name_arabic: row.activity_name_arabic,
-                status: row.status !== undefined ? row.status : true,
-                minimum_share_capital: row.minimum_share_capital,
-                license_type: row.license_type,
-                is_not_allowed_for_coworking_esr: row.is_not_allowed_for_coworking_esr,
-                is_special: row.is_special,
-                activity_price: row.activity_price,
-                activity_group: row.activity_group,
-                description: row.description,
-                qualification_requirement: row.qualification_requirement,
-                documents_required: row.documents_required,
-                category: row.category,
-                additional_approval: row.additional_approval,
-                sub_category: row.sub_category,
-                group_id: row.group_id,
-                third_party: row.third_party,
-                when: row.when,
-                esr: row.esr,
-                notes: row.notes,
-                created_by: req.user?.id || null,
+                authority_id: req.body.authority_id,
+                activity_master_number: row["Activity Master: Activity Master Number"],
+                activity_code: row["Activity Code"],
+                zone: existingZone.id,
+                activity_name: row["Activity Name"] ,
+                activity_name_arabic: row["Activity Name (Arabic)"] ,
+                status: row["Status"]  !== undefined ? row["Status"]  : true,
+                minimum_share_capital: row["Minimum Share Capital"] ,
+                license_type: row["License Type"] ,
+                is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"] ,
+                is_special: row["Is Special"] ,
+                activity_price: row["Activity Price"] ,
+                activity_group: row["Activity Group"] ,
+                description: row["Description"] ,
+                qualification_requirement: row["Qualification Requirement"] ,
+                documents_required: row["Documents Required"] ,
+                category: row["Category"] || row["Price Category"]  ,
+                additional_approval: row["Additional Approval"] ,
+                sub_category: row["Sub Category"],
+                group_id: row["Group"] ,
+                third_party: row["Third Party"] ,
+                when: row["When"] ,
+                esr: row["ESR"] ,
+                notes: row["Notes"] ,
                 updated_by: req.user?.id || null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -69,10 +75,11 @@ const createBusinessActivity = async (req, res) => {
         });
     }
 
-    // ✅ CASE 2: Manual JSON input
     else {
       const {
         authority_id,
+        activity_master_number,
+        activity_code,
         zone,
         activity_name,
         activity_name_arabic,
@@ -107,6 +114,8 @@ const createBusinessActivity = async (req, res) => {
 
       const activity = await BusinessActivity.create({
         authority_id,
+        activity_master_number,
+        activity_code,
         zone,
         activity_name,
         activity_name_arabic,
@@ -128,7 +137,6 @@ const createBusinessActivity = async (req, res) => {
         when,
         esr,
         notes,
-        created_by: req.user?.id || null,
         updated_by: req.user?.id || null,
         created_at: new Date(),
         updated_at: new Date(),

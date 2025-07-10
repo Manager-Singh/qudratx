@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CCard, CCardBody, CCardHeader } from "@coreui/react";
 import { useNavigate } from "react-router-dom";
 import Card from "../Components/Card/Card";
+import { getBusinessZone } from "../../../../store/admin/businessZoneSlice";
 import "./Dashboard.css"
 
 const data = [
@@ -17,12 +18,20 @@ const data = [
 
 const Dashboard = () => {
     const user = useSelector(state => state.auth.user)
+    const businesszones = useSelector(state => state.businesszone.businesszones);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      dispatch(getBusinessZone())
+    }, [dispatch]);
 
     const handleZone =(zone)=>{
         console.log("Clicked on create Proposal") 
-        navigate(`/authority/${zone.id}`);
+        navigate(`/create-proposal/${zone.id}`);
     }
+
+    console.log("data->",businesszones);
 
   return (
     <div className="container mt-1">
@@ -73,7 +82,7 @@ const Dashboard = () => {
             <div className="col-md-6 w-100">
               <h2>Create Proposal </h2>
                 <div className="row">
-                    {data.map((zone) => (
+                    {businesszones.map((zone) => (
                         <div className="col-md-6 mb-3" key={zone.id}>
                             <Card title={zone.name} textAlign="center" onClick={()=> handleZone(zone)}></Card>
                         </div>

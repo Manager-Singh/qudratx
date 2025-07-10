@@ -22,7 +22,6 @@ const store = configureStore({
     client:clientSliceReducer,
     lead:leadReducer,
     package:packageReducer
-
   }, 
 })
 

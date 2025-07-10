@@ -70,15 +70,15 @@ const {getEmployees,getEmployeeBYuuid} = require('../../controllers/userControll
 
 router.use('/admin',authenticateJWT,BusinessZone)
 router.use('/admin',authenticateJWT,BusinessZoneAuhtority)
-router.use('/admin',authenticateJWT,isAdmin,user)
+router.use('/admin',authenticateJWT,user)
 
-router.use('/admin',authenticateJWT,isAdmin,BusinessActivity)
-router.use('/admin',authenticateJWT,isAdmin,FeeStructure)
-router.use('/admin',authenticateJWT,isAdmin,Client)
-router.use('/admin',authenticateJWT,isAdmin,Lead)
-router.use('/admin',authenticateJWT,isAdmin,Package)
-router.use('/admin',authenticateJWT,isAdmin,Category)
-router.use('/admin',authenticateJWT,isAdmin,SubCategory)
+router.use('/admin',authenticateJWT,BusinessActivity)
+router.use('/admin',authenticateJWT,FeeStructure)
+router.use('/admin',authenticateJWT,Client)
+router.use('/admin',authenticateJWT,Lead)
+router.use('/admin',authenticateJWT,Package)
+router.use('/admin',authenticateJWT,Category)
+router.use('/admin',authenticateJWT,SubCategory)
 
 module.exports = router;
 

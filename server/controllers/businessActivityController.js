@@ -1,86 +1,146 @@
 const { BusinessActivity } = require('../models');
 const { Op, where } = require('sequelize');
-
+const fs = require('fs');
+const csv = require('csv-parser');
+const path = require('path');
+const xlsx = require('xlsx');
 // CREATE
 const createBusinessActivity = async (req, res) => {
   try {
-    const {
-      zone,
-      activity_name,
-      activity_name_arabic,
-      status,
-      minimum_share_capital,
-      license_type,
-      is_not_allowed_for_coworking_esr,
-      is_special,
-      activity_price,
-      activity_group,
-      description,
-      qualification_requirement,
-      documents_required,
-      category,
-      additional_approval,
-      sub_category,
-      group_id,
-      third_party,
-      when,
-      esr,
-      notes
-    } = req.body;
+    // ✅ CASE 1: CSV upload
+    if (req.file) {
+      const results = [];
+      const errors = [];
+      const filePath = path.resolve(req.file.path);
 
-    // Validate required field
-    if (!activity_name) {
-      return res.status(400).json({ message: 'Activity Name is required' });
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => results.push(row))
+        .on('end', async () => {
+          for (const [index, row] of results.entries()) {
+            try {
+              const existing = await BusinessActivity.findOne({ where: { activity_name: row.activity_name } });
+              if (existing) {
+                errors.push({ row: index + 1, message: 'Duplicate activity name' });
+                continue;
+              }
+
+              const activity = await BusinessActivity.create({
+                authority_id: row.authority_id,
+                zone: row.zone,
+                activity_name: row.activity_name,
+                activity_name_arabic: row.activity_name_arabic,
+                status: row.status !== undefined ? row.status : true,
+                minimum_share_capital: row.minimum_share_capital,
+                license_type: row.license_type,
+                is_not_allowed_for_coworking_esr: row.is_not_allowed_for_coworking_esr,
+                is_special: row.is_special,
+                activity_price: row.activity_price,
+                activity_group: row.activity_group,
+                description: row.description,
+                qualification_requirement: row.qualification_requirement,
+                documents_required: row.documents_required,
+                category: row.category,
+                additional_approval: row.additional_approval,
+                sub_category: row.sub_category,
+                group_id: row.group_id,
+                third_party: row.third_party,
+                when: row.when,
+                esr: row.esr,
+                notes: row.notes,
+                created_by: req.user?.id || null,
+                updated_by: req.user?.id || null,
+                created_at: new Date(),
+                updated_at: new Date(),
+                last_update: new Date()
+              });
+            } catch (err) {
+              errors.push({ row: index + 1, message: err.message });
+            }
+          }
+
+          return res.status(200).json({
+            message: 'CSV import completed',
+            success: true,
+            imported: results.length - errors.length,
+            failed: errors.length,
+            errors
+          });
+        });
     }
 
-    // Check if activity already exists
-    const existingActivity = await BusinessActivity.findOne({
-      where: { activity_name }
-    });
+    // ✅ CASE 2: Manual JSON input
+    else {
+      const {
+        authority_id,
+        zone,
+        activity_name,
+        activity_name_arabic,
+        status,
+        minimum_share_capital,
+        license_type,
+        is_not_allowed_for_coworking_esr,
+        is_special,
+        activity_price,
+        activity_group,
+        description,
+        qualification_requirement,
+        documents_required,
+        category,
+        additional_approval,
+        sub_category,
+        group_id,
+        third_party,
+        when,
+        esr,
+        notes
+      } = req.body;
 
-    if (existingActivity) {
-      return res.status(400).json({ message: 'Business Activity already exists' });
+      if (!activity_name) {
+        return res.status(400).json({ message: 'Activity Name is required' });
+      }
+
+      const existingActivity = await BusinessActivity.findOne({ where: { activity_name } });
+      if (existingActivity) {
+        return res.status(400).json({ message: 'Business Activity already exists' });
+      }
+
+      const activity = await BusinessActivity.create({
+        authority_id,
+        zone,
+        activity_name,
+        activity_name_arabic,
+        status: status !== undefined ? status : true,
+        minimum_share_capital,
+        license_type,
+        is_not_allowed_for_coworking_esr,
+        is_special,
+        activity_price,
+        activity_group,
+        description,
+        qualification_requirement,
+        documents_required,
+        category,
+        additional_approval,
+        sub_category,
+        group_id,
+        third_party,
+        when,
+        esr,
+        notes,
+        created_by: req.user?.id || null,
+        updated_by: req.user?.id || null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        last_update: new Date()
+      });
+
+      return res.status(201).json({
+        message: 'Business activity created successfully',
+        success: true,
+        data: activity
+      });
     }
-    const activity_master_number = await generateActivityNumber(); 
-    const activity_code = await generateActivityCode(); 
-    // Create activity
-    const activity = await BusinessActivity.create({
-      activity_master_number,
-      zone,
-      activity_code,
-      activity_name,
-      activity_name_arabic,
-      status: status !== undefined ? status : true,
-      minimum_share_capital,
-      license_type,
-      is_not_allowed_for_coworking_esr,
-      is_special,
-      activity_price,
-      activity_group,
-      description,
-      qualification_requirement,
-      documents_required,
-      category,
-      additional_approval,
-      sub_category,
-      group_id,
-      third_party,
-      when,
-      esr,
-      notes,
-      last_update: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-      created_by: req.user?.id || null,
-      updated_by: req.user?.id || null
-    });
-
-    return res.status(201).json({
-      message: 'Business activity created successfully',
-      success: true,
-      data: activity,
-    });
-
   } catch (error) {
     console.error('Create activity error:', error);
     res.status(500).json({ message: 'Internal server error' });

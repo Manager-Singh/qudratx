@@ -18,6 +18,7 @@ import { MdEdit } from 'react-icons/md'
 // } from '../../../store/admin/businessSubCategorySlice'
 import { ToastExample } from '../../../../components/toast/Toast'
 import AddSubCategoryPopup from './AddSubCategoryPopup'
+import { getSubCategoryByUUID } from '../../../../store/admin/subCategorySlice'
 
 function BusinessSubCategory() {
   const { uuid } = useParams()
@@ -29,7 +30,8 @@ function BusinessSubCategory() {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
 
-//   const { category } = useSelector((state) => state.businessCategory)
+    const {}
+    const {sub_category} = useSelector((state)=>state.sub_category)
 //   const { subcategories } = useSelector((state) => state.businessSubCategory)
 
   const showToast = (status, message) => {
@@ -37,15 +39,15 @@ function BusinessSubCategory() {
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 
-//   useEffect(() => {
-//     dispatch(getBusinessCategoryByUuid(uuid))
-//   }, [uuid])
+  useEffect(() => {
+    dispatch(getSubCategoryByUUID(uuid))
+  }, [uuid])
 
-//   useEffect(() => {
-//     if (category?.id) {
-//       dispatch(getSubCategoriesByCategoryId({ id: category.id }))
-//     }
-//   }, [category])
+  useEffect(() => {
+    if (category?.id) {
+      dispatch(getSubCategoriesByCategoryId({ id: category.id }))
+    }
+  }, [category])
 
 //   const handleDelete = (uuid) => {
 //     dispatch(deleteBusinessSubCategory(uuid)).then((res) => {
@@ -202,7 +204,7 @@ function BusinessSubCategory() {
 
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
         <div className='d-flex justify-content-between w-75 px-3'>
-          {/* <h4>{category?.name}</h4> */}
+          <h4>{sub_category?.name}</h4>
           <CButton className='custom-button' onClick={() => setVisible(true)}>
             Add Subcategory
           </CButton>

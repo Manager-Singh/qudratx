@@ -9,6 +9,7 @@ import BusinessCategoryReducer from './admin/businessCategorySlice'
 import clientSliceReducer from './admin/clientSlice'
 import leadReducer from './admin/leadSlice'
 import packageReducer from './admin/packageSlice'
+import subCategoryReducer from './admin/subCategorySlice'
 
 const store = configureStore({
   reducer: {
@@ -21,7 +22,8 @@ const store = configureStore({
     feeStructure:feeStructureReducer,
     client:clientSliceReducer,
     lead:leadReducer,
-    package:packageReducer
+    package:packageReducer,
+    sub_category:subCategoryReducer
   }, 
 })
 

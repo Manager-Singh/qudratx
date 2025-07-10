@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getData, postData, putData, deleteData } from '../../utils/api'
+import { getData, postData, putData, deleteData, postDataWithImage, putDataWithImage } from '../../utils/api'
 
 // CREATE
 export const addBusinessZonesAuthority = createAsyncThunk(
@@ -7,7 +7,8 @@ export const addBusinessZonesAuthority = createAsyncThunk(
   async (data, thunkAPI) => {
     
     try {
-      const response = await postData('/admin/create-authority', data)
+      const response = await postDataWithImage('/admin/create-authority', data)
+      console.log(response,"response")
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
@@ -47,7 +48,7 @@ export const updateBusinessZonesAuthority = createAsyncThunk(
   async ({ uuid, data }, thunkAPI) => {
     console.log(data,"data")
     try {
-      const response = await putData(`/admin/update-authority/${uuid}`, data)
+      const response = await putDataWithImage(`/admin/update-authority/${uuid}`, data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)

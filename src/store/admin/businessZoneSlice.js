@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postData, getData ,deleteData ,putData,postDataWithImage} from '../../utils/api'
+import { postData, getData ,deleteData ,putData,postDataWithImage, putDataWithImage} from '../../utils/api'
 
 export const addBusinessZone = createAsyncThunk('admin/create-businesszone', async (data, thunkAPI) => {
   try {
@@ -45,7 +45,7 @@ export const updateBusinessZone = createAsyncThunk('admin/update-businesszone', 
    
   try {
      const uuid = id;
-    const response = await putData(`/admin/update-zone/${uuid}`, formData)
+    const response = await putDataWithImage(`/admin/update-zone/${uuid}`, formData)
     return response
   } catch (error) {
     return thunkAPI.rejectWithValue(error.message)

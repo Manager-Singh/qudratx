@@ -41,9 +41,12 @@
 // export default Proposal;
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Card from "../Components/Card/Card";
+import logo from "../../../../../public/download.png"; // Custom styles (defined below)
+import { getBusinessZonesAuthorityByZoneId } from "../../../../store/admin/zoneAuthoritySlice";
+import { useSelector, useDispatch  } from "react-redux";
 
 const authorityOptions = [
   { id: "221", name: "North Zone Supervisor" },
@@ -77,6 +80,11 @@ const packageOptions = [
 const Proposal = () => {
   const { id } = useParams();
   const [step, setStep] = useState(1);
+  const businessZonesAuthority = useSelector((state) => state.businessZonesAuthority);
+  const authorities = businessZonesAuthority?.authorities || [];
+  const isLoading = businessZonesAuthority?.isLoading || false;
+
+  const dispatch = useDispatch();
 
   const [selectedAuthority, setSelectedAuthority] = useState(null);
   const [selectedActivities, setSelectedActivities] = useState([]);
@@ -84,6 +92,15 @@ const Proposal = () => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [selectedClient, setSelectedClient] = useState("");
 
+  useEffect(() => {
+    if(id) {
+      console.log("use->",id);
+      dispatch(getBusinessZonesAuthorityByZoneId({id}));
+    }
+  }, [id, dispatch]);
+  
+
+  console.log("id->",id,"Authorities ->",authorities)
   const handleActivityToggle = (id) => {
     setSelectedActivities((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -118,15 +135,21 @@ const Proposal = () => {
         <>
           <h4>Select Authority</h4>
           <div className="row">
-            {authorityOptions.map((item) => (
-              <div
-                key={item.id}
-                className={`col-4 p-2 ${selectedAuthority === item.id ? "border border-primary" : ""}`}
-                onClick={() => setSelectedAuthority(item.id)}
-              >
-                <Card title={item.name} textAlign="center" />
-              </div>
-            ))}
+            {isLoading ? (
+              <p>Loading authorities...</p>
+            ) : authorities.length === 0 ? (
+              <p>No authorities available for this zone.</p>
+            ) : (
+              authorities.map((item) => (
+                <div
+                  key={item.uuid}
+                  className={`col-4 p-2 ${selectedAuthority === item.uuid ? "border border-primary" : ""}`}
+                  onClick={() => setSelectedAuthority(item.uuid)}
+                >
+                  <Card backgroundImage={logo} title={item.name} textAlign="center" />
+                </div>
+              ))
+            )}
           </div>
         </>
       )}

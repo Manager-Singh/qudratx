@@ -53,19 +53,21 @@ export const postData = async (url, data) => {
   }
 }
 export const postDataWithImage = async (url, data) => {
-  try{
-  const isFormData = data instanceof FormData
+  try {
+    if (!(data instanceof FormData)) {
+      throw new Error('Image upload must be sent as FormData')
+    }
 
-  const config = {
-    headers: {
-      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
-    },
-  }
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
 
-  const response = await axios.post(url, data, config)
-  return response.data
-  } catch(error){
-    handleError(error);
+    const res = await api.post(url, data, config)
+    return res.data
+  } catch (error) {
+    handleError(error)
   }
 }
 
@@ -77,6 +79,21 @@ export const putData = async (url, data) => {
     handleError(error)
   }
 }
+
+export const putDataWithImage = async (url, data) => {
+  try {
+    const isFormData = data instanceof FormData
+
+    const res = await api.put(url, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    })
+
+    return res.data
+  } catch (error) {
+    handleError(error)
+  }
+}
+
 
 export const deleteData = async (url) => {
   try {

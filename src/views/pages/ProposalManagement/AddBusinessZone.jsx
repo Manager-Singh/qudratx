@@ -132,17 +132,27 @@ function AddBusinessZone() {
               </CCol>
 
               <CCol xs={12}>
-                <CFormLabel htmlFor="status">Status</CFormLabel>
-                <CFormSelect
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value={1}>Active</option>
-                  <option value={0}>Inactive</option>
-                </CFormSelect>
-              </CCol>
+                                            <CFormLabel htmlFor="status">Status</CFormLabel>
+                                            <CFormSelect
+                                              id="status"
+                                              name="status"
+                                              value={formData.status}
+                                              onChange={handleChange}
+                                            >
+                                              {formData.status == 1 ? (
+                                              <>
+                                         <option value={1}>Active</option>
+                                         <option value={0}>Inactive</option>
+                                             </>
+                                       ) : (
+                                            <>
+                                       <option value={0}>Inactive</option>
+                                       <option value={1}>Active</option>
+                                          </>
+                                                     )}
+                                              
+                                            </CFormSelect>
+                                          </CCol>
 
               <CCol xs={12}>
                 <CFormLabel htmlFor="image">Image</CFormLabel>

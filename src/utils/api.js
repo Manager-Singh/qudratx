@@ -52,22 +52,22 @@ export const postData = async (url, data) => {
     handleError(error)
   }
 }
-// export const postData = async (url, data) => {
-//   try{
-//   const isFormData = data instanceof FormData
+export const postDataWithImage = async (url, data) => {
+  try{
+  const isFormData = data instanceof FormData
 
-//   const config = {
-//     headers: {
-//       'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
-//     },
-//   }
+  const config = {
+    headers: {
+      'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+    },
+  }
 
-//   const response = await axios.post(url, data, config)
-//   return response.data
-//   } catch(error){
-//     handleError(error);
-//   }
-// }
+  const response = await axios.post(url, data, config)
+  return response.data
+  } catch(error){
+    handleError(error);
+  }
+}
 
 export const putData = async (url, data) => {
   try {

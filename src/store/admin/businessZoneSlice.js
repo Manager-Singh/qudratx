@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postData, getData ,deleteData ,putData} from '../../utils/api'
+import { postData, getData ,deleteData ,putData,postDataWithImage} from '../../utils/api'
 
 export const addBusinessZone = createAsyncThunk('admin/create-businesszone', async (data, thunkAPI) => {
   try {
-    const response = await postData('/admin/create-zone', data)
+    const response = await postDataWithImage('/admin/create-zone', data)
     return response
   } catch (error) {
     console.error('Create businesszone error:', error)

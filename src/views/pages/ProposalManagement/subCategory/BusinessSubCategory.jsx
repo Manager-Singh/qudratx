@@ -7,67 +7,68 @@ import { cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { MdEdit } from 'react-icons/md'
 
-// import {
-//   getBusinessCategoryByUuid
-// } from '../../../store/admin/businessCategorySlice'
-// import {
-//   getSubCategoriesByCategoryId,
-//   addBusinessSubCategory,
-//   updateBusinessSubCategory,
-//   deleteBusinessSubCategory
-// } from '../../../store/admin/businessSubCategorySlice'
 import { ToastExample } from '../../../../components/toast/Toast'
 import AddSubCategoryPopup from './AddSubCategoryPopup'
+import {
+  addSubCategory,
+  deleteSubCategory,
+  getSubCategoryByCategoryId,
+  updateSubCategory,
+  
+} from '../../../../store/admin/subCategorySlice'
+import {  getBusinessCategoryByUuid } from '../../../../store/admin/businessCategorySlice'
 
 function BusinessSubCategory() {
   const { uuid } = useParams()
   const dispatch = useDispatch()
+
   const [filterText, setFilterText] = useState('')
-  const [formData, setFormData] = useState({ name: '', status: 1 })
+  const [formData, setFormData] = useState({ name: '', status:1 })
   const [visible, setVisible] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
   const [selectedSubCategory, setSelectedSubCategory] = useState(null)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
 
-//   const { category } = useSelector((state) => state.businessCategory)
-//   const { subcategories } = useSelector((state) => state.businessSubCategory)
+  const { business_category } = useSelector((state) => state.business_category)
+  const { sub_categories } = useSelector((state) => state.sub_category)
 
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 
-//   useEffect(() => {
-//     dispatch(getBusinessCategoryByUuid(uuid))
-//   }, [uuid])
+  useEffect(() => {
+    dispatch(getBusinessCategoryByUuid(uuid))
+  }, [uuid, dispatch])
 
-//   useEffect(() => {
-//     if (category?.id) {
-//       dispatch(getSubCategoriesByCategoryId({ id: category.id }))
-//     }
-//   }, [category])
-
-//   const handleDelete = (uuid) => {
-//     dispatch(deleteBusinessSubCategory(uuid)).then((res) => {
-//       if (res.payload.success) {
-//         dispatch(getSubCategoriesByCategoryId({ id: category.id }))
-//         showToast('success', res.payload.message)
-//       }
-//     })
-//   }
+  useEffect(() => {
+    if (business_category?.id) {
+      dispatch(getSubCategoryByCategoryId({ categoryId: business_category.id }))
+    }
+  }, [business_category, dispatch])
+  console.log(business_category,"business_category")
+  const handleDelete = (uuid) => {
+    dispatch(deleteSubCategory(uuid)).then((res) => {
+      if (res.payload.success) {
+        dispatch(getSubCategoryByCategoryId({ categoryId: business_category.id }))
+        showToast('success', res.payload.message)
+      }
+    })
+  }
 
   const handleAddSubCategory = (e) => {
     e.preventDefault()
     const newFormData = new FormData()
     newFormData.append('name', formData.name)
     newFormData.append('status', formData.status)
-    newFormData.append('category_id', category.id)
+    newFormData.append('category_id', business_category.id)
 
-    dispatch(addBusinessSubCategory(newFormData)).then((res) => {
+    dispatch(addSubCategory(newFormData)).then((res) => {
       if (res.payload.success) {
         showToast('success', res.payload.message)
         setFormData({ name: '', status: 1 })
         setVisible(false)
+        dispatch(getSubCategoryByCategoryId({ categoryId: business_category.id }))
       } else {
         showToast('error', res.payload)
       }
@@ -79,66 +80,24 @@ function BusinessSubCategory() {
     const newFormData = new FormData()
     newFormData.append('name', formData.name)
     newFormData.append('status', formData.status)
-    newFormData.append('category_id', category.id)
+    newFormData.append('category_id', business_category?.id)
 
-    // dispatch(updateBusinessSubCategory({
-    //   uuid: selectedSubCategory.uuid,
-    //   data: newFormData
-    // })).then((res) => {
-    //   if (res.payload.success) {
-    //     showToast('success', res.payload.message)
-    //     setFormData({ name: '', status: 1 })
-    //     setVisible(false)
-    //   } else {
-    //     showToast('error', res.payload)
-    //   }
-    // })
+    dispatch(updateSubCategory({
+      uuid: selectedSubCategory.uuid,
+      data: newFormData
+    })).then((res) => {
+      if (res.payload.success) {
+        showToast('success', res.payload.message)
+        setFormData({ name: '', status: 1 })
+        setVisible(false)
+        dispatch(getSubCategoryByCategoryId({ categoryId: business_category.id }))
+      } else {
+        showToast('error', res.payload)
+      }
+    })
   }
-  const subcategories = [
-  {
-    id: 1,
-    uuid: 'subcat-001',
-    name: 'Consulting Services',
-    status: 1,
-    category_id: 10,
-    created_at: '2024-07-01T10:15:00Z'
-  },
-  {
-    id: 2,
-    uuid: 'subcat-002',
-    name: 'Legal Advisory',
-    status: 1,
-    category_id: 10,
-    created_at: '2024-07-02T12:00:00Z'
-  },
-  {
-    id: 3,
-    uuid: 'subcat-003',
-    name: 'Technical Support',
-    status: 0,
-    category_id: 10,
-    created_at: '2024-07-03T14:30:00Z'
-  },
-  {
-    id: 4,
-    uuid: 'subcat-004',
-    name: 'Accounting Services',
-    status: 1,
-    category_id: 10,
-    created_at: '2024-07-04T09:00:00Z'
-  },
-  {
-    id: 5,
-    uuid: 'subcat-005',
-    name: 'Marketing Solutions',
-    status: 0,
-    category_id: 10,
-    created_at: '2024-07-05T11:45:00Z'
-  }
-]
 
-
-  const filteredData = subcategories.filter(item =>
+  const filteredData = sub_categories.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase())
   )
 
@@ -170,6 +129,7 @@ function BusinessSubCategory() {
             onClick={() => handleDelete(row.uuid)}
             title="Delete"
             className="p-0"
+            style={{ cursor: 'pointer' }}
           >
             <CIcon icon={cilTrash} size="lg" />
           </span>
@@ -202,7 +162,7 @@ function BusinessSubCategory() {
 
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
         <div className='d-flex justify-content-between w-75 px-3'>
-          {/* <h4>{category?.name}</h4> */}
+          <h4>{business_category?.name}</h4>
           <CButton className='custom-button' onClick={() => setVisible(true)}>
             Add Subcategory
           </CButton>

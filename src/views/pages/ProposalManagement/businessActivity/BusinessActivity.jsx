@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { CButton } from '@coreui/react'
 import DataTable from 'react-data-table-component'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilTrash } from '@coreui/icons'
 import { MdEdit } from 'react-icons/md'
 import { ToastExample } from '../../../../components/toast/Toast'
+import { useDispatch, useSelector } from 'react-redux'
+// import { } from '../../../../store/admin/zoneAuthoritySlice'
 
 const dummyData = [
   {
@@ -46,11 +48,20 @@ function BusinessActivity() {
   const [filterText, setFilterText] = useState('')
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [data, setData] = useState([])
-
+  const {uuid} =useParams()
+  const dispatch = useDispatch()
+  const { authority } = useSelector((state) => state.businessZonesAuthority)
   useEffect(() => {
+    if (!authority) {
+    
+    }
     // In real case: dispatch(getBusinessActivities())
     setData(dummyData)
   }, [])
+
+  useEffect(()=>{
+    dispatch()
+  },[])
 
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })

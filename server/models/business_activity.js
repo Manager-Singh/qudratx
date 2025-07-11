@@ -156,6 +156,11 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     paranoid: true,
   });
-
+  BusinessActivity.associate = function(models) {
+    BusinessActivity.belongsTo(models.BusinessZonesAuthority, {
+      foreignKey: 'authority_id',
+      as: 'authority'
+    });
+  };
   return BusinessActivity;
 };

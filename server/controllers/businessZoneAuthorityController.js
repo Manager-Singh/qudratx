@@ -31,10 +31,15 @@ const createBusinessZonesAuthority = async (req, res) => {
       last_update: new Date()
     }, { userId: req.user.id });
 
+    const fullAuthority = await BusinessZonesAuthority.findOne({
+      where: { id: authority.id },
+      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
+    });
+
     return res.status(201).json({
       message: 'Business zone authority created successfully',
       success: true,
-      data: authority,
+      data: fullAuthority,
     });
   } catch (error) {
     console.error('Create authority error:', error);
@@ -88,6 +93,7 @@ const getBusinessZonesAuthorityByZoneId = async (req, res) => {
 
     const authority = await BusinessZonesAuthority.findAll({
       where: { zone_id: id},
+      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
     });
     if (!authority) {
       return res.status(404).json({ message: 'Business zone authority not found' });
@@ -104,6 +110,35 @@ const getBusinessZonesAuthorityByZoneId = async (req, res) => {
   }
 };
 
+const getBusinessZonesAuthorityByUUID = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    const authority = await BusinessZonesAuthority.findOne({
+      where: { uuid },
+      include: [
+        {
+          model: BusinessZone,
+          as: 'zone',
+          attributes: ['id', 'name', 'uuid']
+        }
+      ]
+    });
+
+    if (!authority) {
+      return res.status(404).json({ message: 'Business zone authority not found' });
+    }
+
+    res.status(200).json({
+      message: 'Business zone authority fetched successfully',
+      success: true,
+      data: authority,
+    });
+  } catch (error) {
+    console.error('Get authority error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 // UPDATE
 const updateBusinessZonesAuthority = async (req, res) => {
   try {
@@ -203,4 +238,5 @@ module.exports = {
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
   getDeletedBusinessZonesAuthorities,
+  getBusinessZonesAuthorityByUUID
 };

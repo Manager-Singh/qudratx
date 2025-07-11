@@ -1,4 +1,4 @@
-const { Subcategory } = require('../models');
+const { Subcategory, Category } = require('../models');
 const { Op, where } = require('sequelize');
 
 // CREATE
@@ -20,11 +20,21 @@ if (existingCat) {
       status,
       last_update: new Date(),
     },{ userId: req.user.id });
-
+    
+    const fullSub = await Subcategory.findOne({
+      where: { id: subcategory.id },
+      include: [
+          {
+            model: Category,
+            as: 'category', // <== required because of the alias
+            attributes: ['id', 'name']
+          }
+        ]
+    });
     return res.status(201).json({
       message: 'Subcategory created successfully',
       success: true,
-      data: subcategory,
+      data: fullSub,
     });
   } catch (error) {
     console.error('Create Subcategory error:', error);
@@ -57,7 +67,14 @@ const getSubCategory = async (req, res) => {
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+      include: [
+          {
+            model: Category,
+            as: 'category', // <== required because of the alias
+            attributes: ['id', 'name']
+          }
+        ]
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -107,6 +124,13 @@ const getSubCategoryByCategoryId = async (req, res) => {
       limit,
       offset,
       order: [['created_at', 'DESC']],
+      include: [
+          {
+            model: Category,
+            as: 'category', // <== required because of the alias
+            attributes: ['id', 'name']
+          }
+        ]
     });
 
     const totalPages = Math.ceil(count / limit);

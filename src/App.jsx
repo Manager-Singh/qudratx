@@ -118,7 +118,7 @@ if (isLoading) {
        <Route path="/add-business-category" element={<AddBusinessCategory/>} />
        <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
        <Route path="/business-subcategory/:uuid" element={<BusinessSubCategory/>} />
-        <Route path="/business-activity" element={<BusinessActivity/>} />
+        <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
        <Route path="/add-business-activity" element={<AddBusinessActivity/>} />
        <Route path="/edit-business-activity/:uuid" element={<AddBusinessActivity/>} />
        <Route path="/clients" element={<ClientListing/>} />

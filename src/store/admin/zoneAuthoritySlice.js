@@ -31,10 +31,22 @@ export const getBusinessZonesAuthorities = createAsyncThunk(
 
 // READ ONE
 export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
-  'authority/getByUUID',
+  'authority/getbyzoneid',
   async ({id}, thunkAPI) => {
     try {
       const response = await getData(`/admin/get-authority-by-zone/${id}`)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
+
+export const getBusinessZonesAuthorityByUuid = createAsyncThunk(
+  'authority/get-by-uuid',
+  async ({uuid}, thunkAPI) => {
+    try {
+      const response = await getData(`/admin/get-authority-by-uuid/${uuid}`)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
@@ -180,8 +192,17 @@ const businessZonesAuthoritySlice = createSlice({
       })
       .addCase(getDeletedBusinessZonesAuthorities.rejected, (state, action) => {
         state.isLoading = false
-        state.error = action.payload
-      })
+      }).addCase(getBusinessZonesAuthorityByUuid.pending, (state) => {
+      state.isLoading = true
+    })
+    .addCase(getBusinessZonesAuthorityByUuid.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.authority = action.payload.data
+    })
+    .addCase(getBusinessZonesAuthorityByUuid.rejected, (state, action) => {
+      state.isLoading = false,
+      state.authority=null
+    })
   }
 })
 

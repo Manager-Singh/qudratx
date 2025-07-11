@@ -11,8 +11,10 @@ import {
   CCol,
   CFormFeedback,
 } from '@coreui/react'
+import { useDispatch } from 'react-redux'
 
 const BusinessActivityForm = () => {
+  const dispatch=useDispatch()
   const [formData, setFormData] = useState({
     activity_master_number: '',
     activity_code: '',
@@ -65,7 +67,7 @@ const BusinessActivityForm = () => {
     } else {
       setErrors({})
       console.log('Form Submitted:', formData)
-      // submit to backend here
+      dispatch()
     }
   }
 

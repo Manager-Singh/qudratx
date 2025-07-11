@@ -65,10 +65,23 @@ export const getDeletedBusinessActivities = createAsyncThunk('admin/get-deleted-
   }
 })
 
+// GET activity by UUID
+export const getBusinessActivityByAuthorityId = createAsyncThunk('admin/get-activity-authority-id', async (authority_id, thunkAPI) => {
+  try {
+    console.log(authority_id,"authority_idhjdfghjcfvbn")
+    const response = await getData(`/admin/get-activity-by-authority/${authority_id}`)
+    return response
+  } catch (error) {
+    console.error('Get by UUID error:', error)
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+
+
 const businessActivitySlice = createSlice({
   name: 'business_activity',
   initialState: {
-    business_activities: [],
+    business_activities:[],
     business_activity: null,
     deleted_activities: [],
     isLoading: true,
@@ -146,8 +159,18 @@ const businessActivitySlice = createSlice({
       })
       .addCase(getDeletedBusinessActivities.rejected, (state) => {
         state.isLoading = false
-        state.deleted_activities = []
-      })
+        state.deleted_activities = [];
+      }).addCase(getBusinessActivityByAuthorityId.pending, (state) => {
+         state.isLoading = true;
+       })
+.addCase(getBusinessActivityByAuthorityId.fulfilled, (state, action) => {
+  state.isLoading = false;
+  state.business_activities = action.payload.data; 
+})
+.addCase(getBusinessActivityByAuthorityId.rejected, (state) => {
+  state.isLoading = false;
+  state.business_activities = [];
+})
   },
 })
 

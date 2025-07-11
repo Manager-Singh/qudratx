@@ -103,11 +103,25 @@ const createBusinessActivity = async (req, res) => {
         notes
       } = req.body;
 
-      if (!activity_name) {
-        return res.status(400).json({ message: 'Activity Name is required' });
+      if (!activity_name || !authority_id || !activity_code ) {
+        return res.status(400).json({ message: 'Activity Name, Authority Id and Activity code are required' });
       }
 
-      const existingActivity = await BusinessActivity.findOne({ where: { activity_name } });
+      const existingActivity = await BusinessActivity.findOne({
+                                      where: {
+                                        deleted_at: null,
+                                        [Op.or]: [
+                                          {
+                                            activity_name,
+                                            activity_code,
+                                            authority_id
+                                          },
+                                          {
+                                            activity_master_number
+                                          }
+                                        ]
+                                      }
+                                    });
       if (existingActivity) {
         return res.status(400).json({ message: 'Business Activity already exists' });
       }
@@ -305,26 +319,83 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
 const updateBusinessActivity = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name,status } = req.body;
+    const {
+      activity_name,
+      activity_name_arabic,
+      status,
+      minimum_share_capital,
+      license_type,
+      is_not_allowed_for_coworking_esr,
+      is_special,
+      activity_price,
+      activity_group,
+      description,
+      qualification_requirement,
+      documents_required,
+      category,
+      additional_approval,
+      sub_category,
+      group_id,
+      third_party,
+      when,
+      esr,
+      notes
+    } = req.body;
 
-    if (!name) {
-        return res.status(400).json({ message: 'Name is required' });
-      }
+    if (!activity_name) {
+      return res.status(400).json({ message: 'Activity name is required' });
+    }
 
     const activity = await BusinessActivity.findOne({ where: { uuid } });
+
     if (!activity) {
       return res.status(404).json({ message: 'Business activity not found' });
     }
 
-    activity.name = name;
+    // Optional: check for duplicate activity_name within the same authority
+    const duplicate = await BusinessActivity.findOne({
+      where: {
+        uuid: { [Op.ne]: uuid },
+        activity_name,
+        authority_id: activity.authority_id,
+        deleted_at: null
+      }
+    });
+
+    if (duplicate) {
+      return res.status(400).json({ message: 'Another activity with this name already exists' });
+    }
+
+    // Update fields
+    activity.activity_name = activity_name;
+    activity.activity_name_arabic = activity_name_arabic;
     activity.status = status;
+    activity.minimum_share_capital = minimum_share_capital;
+    activity.license_type = license_type;
+    activity.is_not_allowed_for_coworking_esr = is_not_allowed_for_coworking_esr;
+    activity.is_special = is_special;
+    activity.activity_price = activity_price;
+    activity.activity_group = activity_group;
+    activity.description = description;
+    activity.qualification_requirement = qualification_requirement;
+    activity.documents_required = documents_required;
+    activity.category = category;
+    activity.additional_approval = additional_approval;
+    activity.sub_category = sub_category;
+    activity.group_id = group_id;
+    activity.third_party = third_party;
+    activity.when = when;
+    activity.esr = esr;
+    activity.notes = notes;
+
+    // Audit fields
     activity.updated_by = req.user.id;
     activity.updated_at = new Date();
     activity.last_update = new Date();
 
-    await activity.save({ userId: req.user.id });
+    await activity.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Business activity updated successfully',
       success: true,
       data: activity

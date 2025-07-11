@@ -137,7 +137,7 @@ console.log(newFormdata,"newformdata")
     {
       name: 'Authority Zones',
       selector: (row) => (
-        <Link to={`/business-activity`} style={{ textDecoration: 'none' }}>
+        <Link to={`/business-activity/${row.uuid}`} style={{ textDecoration: 'none' }}>
           {row.name}
         </Link>
       ),

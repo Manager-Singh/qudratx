@@ -11,6 +11,7 @@ import { ToastExample } from '../../../../components/toast/Toast'
 import { FaEye } from 'react-icons/fa';
 import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
+import PackageCard from './PackageCard';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -111,7 +112,7 @@ const columns = [
     const filteredData = packages.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
-
+console.log(filteredData,"filteredData")
   const handleDelete =(uuid)=>{
  
   }
@@ -134,7 +135,7 @@ const columns = [
           onChange={e => setFilterText(e.target.value)}
         />
       </div>
-      <DataTable
+      {/* <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -142,8 +143,12 @@ const columns = [
         highlightOnHover
         responsive
         striped
-      />
-      
+      /> */}
+      <div className="row">
+  {filteredData?.map((item) =><div key={item.uuid} className='col-4'> <PackageCard item={item}/></div>)}
+
+      </div>
+     
     </div>
    
   )

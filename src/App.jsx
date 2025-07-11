@@ -37,6 +37,8 @@ import AddBusinessActivity from './views/pages/ProposalManagement/businessActivi
 import Dashboard from './views/pages/EmployeePortal/Dashboard/Dashboard'
 import BusinessSubCategory from './views/pages/ProposalManagement/subCategory/BusinessSubCategory'
 import Proposal from './views/pages/EmployeePortal/Proposal/Proposal'
+import EditBusinessActivity from './views/pages/ProposalManagement/businessActivity/EditBusinessActivity'
+import EmployeeBusinessZone from './views/pages/EmployeePortal/EmployeeBusinessZone'
 
 
  
@@ -119,8 +121,8 @@ if (isLoading) {
        <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
        <Route path="/business-subcategory/:uuid" element={<BusinessSubCategory/>} />
         <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
-       <Route path="/add-business-activity" element={<AddBusinessActivity/>} />
-       <Route path="/edit-business-activity/:uuid" element={<AddBusinessActivity/>} />
+       <Route path="/add-business-activity/:uuid" element={<AddBusinessActivity/>} />
+       <Route path="/edit-business-activity/:uuid" element={<EditBusinessActivity/>} />
        <Route path="/clients" element={<ClientListing/>} />
        <Route path="/add-client" element={<AddClient/>} />
        <Route path="/edit-client/:uuid" element={<AddClient/>} />
@@ -135,6 +137,7 @@ if (isLoading) {
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
        <Route path="/create-proposal/:id" element={<Proposal/>}/>
+       <Route path="/business-zones" element={<EmployeeBusinessZone/>} />
        </Route>
          
         </Routes>

@@ -1,4 +1,4 @@
-const { BusinessActivity,BusinessZone } = require('../models');
+const { BusinessActivity,BusinessZone, BusinessZonesAuthority } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -143,31 +143,34 @@ const createBusinessActivity = async (req, res) => {
         last_update: new Date()
       });
 
+       const fullActivity = await BusinessActivity.findOne({
+      where: { id: activity.id },
+      include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
+    });
+
       return res.status(201).json({
         message: 'Business activity created successfully',
         success: true,
-        data: activity
+        data: fullActivity
       });
     }
   } catch (error) {
     console.error('Create activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-};
-
-const generateActivityCode = async () => {
-  const lastRecord = await BusinessActivity.findOne({
-    order: [['createdAt', 'DESC']]
-  });
-
-  let lastNumber = 0;
-
-  if (lastRecord && lastRecord.activity_code) {
-    lastNumber = parseInt(lastRecord.activity_code, 10);
-  }
-
-  const newCode = String(lastNumber + 1).padStart(5, '0'); // e.g., "00001"
-  return newCode;
 };
 
 // READ ALL
@@ -181,7 +184,7 @@ const getBusinessActivity = async (req, res) => {
     
     const where = {
       deleted_at: null,
-      name: { [Op.like]: `%${search}%` }
+      activity_name: { [Op.like]: `%${search}%` }
     };
 
     // filter by status if provided
@@ -195,7 +198,21 @@ const getBusinessActivity = async (req, res) => {
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+       include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -214,32 +231,28 @@ const getBusinessActivity = async (req, res) => {
   }
 };
 
-const generateActivityNumber = async () => {
-  const prefix = "AM-";
-  let unique = false;
-  let activityNumber;
-
-  while (!unique) {
-    const randomNum = Math.floor(10000 + Math.random() * 90000); // 5-digit number
-    activityNumber = `${prefix}${randomNum}`;
-
-    const exists = await BusinessActivity.findOne({
-      where: { activity_number: activityNumber }
-    });
-
-    if (!exists) unique = true;
-  }
-
-  return activityNumber;
-};
-
 
 // GET ONE
 const getBusinessActivityByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const activity = await BusinessActivity.findOne({ where: { uuid } });
+    const activity = await BusinessActivity.findOne({ where: { uuid },
+    include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
+     });
     if (!activity) {
       return res.status(404).json({ message: 'Business activity not found' });
     }
@@ -254,7 +267,40 @@ const getBusinessActivityByUUID = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+const getBusinessActivityByAuthorityId = async (req, res) => {
+  try {
+    const { authority_id } = req.params;
 
+    const activity = await BusinessActivity.findOne({ where: { authority_id },
+    include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
+     });
+    if (!activity) {
+      return res.status(404).json({ message: 'Business activity not found' });
+    }
+
+    res.status(200).json({
+      message: 'Business activity fetched successfully',
+      success: true,
+      data: activity,
+    });
+  } catch (error) {
+    console.error('Get activity error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 // UPDATE
 const updateBusinessActivity = async (req, res) => {
   try {
@@ -354,4 +400,5 @@ module.exports = {
   updateBusinessActivity,
   deleteBusinessActivity,
   getDeletedBusinessActivity,
+  getBusinessActivityByAuthorityId,
 };

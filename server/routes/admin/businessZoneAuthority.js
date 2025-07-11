@@ -7,7 +7,8 @@ const {
   getBusinessZonesAuthorityByZoneId,
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
-  getDeletedBusinessZonesAuthorities
+  getDeletedBusinessZonesAuthorities,
+  getBusinessZonesAuthorityByUUID
 } = require('../../controllers/businessZoneAuthorityController');
 
 // Create authority
@@ -18,7 +19,7 @@ router.get('/get-authorities', getBusinessZonesAuthorities);
 
 // Get one authority by UUID
 router.get('/get-authority-by-zone/:id', getBusinessZonesAuthorityByZoneId);
-
+router.get('/get-authority-by-uuid/:uuid', getBusinessZonesAuthorityByUUID);
 // Update authority by UUID
 router.put('/update-authority/:uuid',upload.single('image'), updateBusinessZonesAuthority);
 

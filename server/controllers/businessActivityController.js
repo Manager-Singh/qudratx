@@ -271,7 +271,7 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
   try {
     const { authority_id } = req.params;
 
-    const activity = await BusinessActivity.findOne({ where: { authority_id },
+    const activity = await BusinessActivity.findAll({ where: { authority_id },
     include: [
         {
           model: BusinessZonesAuthority,

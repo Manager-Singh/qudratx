@@ -18,7 +18,7 @@ const PackageCard = ({item}) => {
     'Basic Customization',
     'Status & Authenticated API',
   ]
-
+console.log(item,"item")
   return (
     <div className="package-wrapper">
       <CCard className="rounded-2 overflow-hidden shadow" >
@@ -29,10 +29,10 @@ const PackageCard = ({item}) => {
         <CCardBody className="bg-white p-4">
          
           <CListGroup className="list-unstyled">
-            {features.map((feature, index) => (
+            {item.fee_structure?.map((item, index) => (
               <CListGroupItem key={index} className="d-flex gap-2 align-items-center border-0 ps-0">
                 <FaCheck className="text-success" />
-                {feature}
+                {item.name}{""}{item.amount}
               </CListGroupItem>
             ))}
           </CListGroup>

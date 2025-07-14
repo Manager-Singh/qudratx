@@ -39,6 +39,14 @@ module.exports = (sequelize, DataTypes) => {
     defaultValue: true,
     allowNull: false
     },
+    authority_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
+    activity: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -61,5 +69,11 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     paranoid: true,
   });
+  Package.associate = (models) => {
+  Package.belongsTo(models.BusinessZonesAuthority, {
+    foreignKey: 'authority_id',
+    as: 'authority'
+  });
+};
   return Package;
 };

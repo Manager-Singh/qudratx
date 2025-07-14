@@ -58,9 +58,13 @@ module.exports = (sequelize, DataTypes) => {
       as: 'zone'
     });
     BusinessZonesAuthority.hasMany(models.BusinessActivity, {
-  foreignKey: 'authority_id',
-  as: 'activities'
-});
+      foreignKey: 'authority_id',
+      as: 'activities'
+    });
+    BusinessZonesAuthority.hasMany(models.Package, {
+        foreignKey: 'authority_id',
+        as: 'packages',
+      });
   };
 
   return BusinessZonesAuthority;

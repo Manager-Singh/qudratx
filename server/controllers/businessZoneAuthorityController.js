@@ -1,4 +1,4 @@
-const { BusinessZonesAuthority, BusinessZone } = require('../models');
+const { BusinessZonesAuthority, BusinessZone, Package } = require('../models');
 const { Op } = require('sequelize');
 
 // CREATE
@@ -72,7 +72,12 @@ const getBusinessZonesAuthorities = async (req, res) => {
     const authorities = await BusinessZonesAuthority.findAll({
       where,
       order: [['created_at', 'DESC']],
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
+      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] },{
+          model: Package,
+          as: 'packages',
+          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
+        }
+    ]
     });
 
     res.status(200).json({

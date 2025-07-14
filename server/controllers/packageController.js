@@ -4,9 +4,9 @@ const { Op, where } = require('sequelize');
 // CREATE
 const createPackage = async (req, res) => {
   try {
-    const { name,description, total_amount, status, subtotal,discount,fee_structure, tax } = req.body;
-    if (!name || !total_amount || !subtotal || !fee_structure) {
-      return res.status(400).json({ message: 'Name, Fee structure, Subtotal and Total Amount are required' });
+    const { name,description, total_amount, status, subtotal,discount,fee_structure, tax,authority_id, activity } = req.body;
+    if (!name || !total_amount || !subtotal || !fee_structure || !authority_id || !activity) {
+      return res.status(400).json({ message: 'Name, Fee structure, Subtotal, Authority Id, Activity and Total Amount are required' });
     }
 const existingPackage= await Package.findOne({
   where:{name}
@@ -24,13 +24,32 @@ if (existingPackage) {
       discount,
       fee_structure,
       tax,
+      authority_id,
+      activity,
       last_update: new Date(),
     },{ userId: req.user.id });
+     const fullPack = await Package.findOne({
+      where: { id: package.id },
+     include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
+    });
 
     return res.status(201).json({
       message: 'Package created successfully',
       success: true,
-      data: package,
+      data: fullPack,
     });
   } catch (error) {
     console.error('Create package error:', error);
@@ -61,7 +80,21 @@ const getPackage = async (req, res) => {
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -85,7 +118,20 @@ const getPackageByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const package = await Package.findOne({ where: { uuid } });
+    const package = await Package.findOne({ where: { uuid },include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ] });
     if (!package) {
       return res.status(404).json({ message: 'fee not found' });
     }
@@ -105,10 +151,10 @@ const getPackageByUUID = async (req, res) => {
 const updatePackage = async (req, res) => {
   try {
     const { uuid } = req.params;
-     const { name,description, total_amount, status, subtotal,discount,fee_structure, tax } = req.body;
+     const { name,description, total_amount, status, subtotal,discount,fee_structure, tax, authority_id, activity } = req.body;
 
-    if (!name || !total_amount || !subtotal || !fee_structure) {
-      return res.status(400).json({ message: 'Name, Fee structure, Subtotal and Total Amount are required' });
+    if (!name || !total_amount || !subtotal || !fee_structure || !authority_id || !activity) {
+      return res.status(400).json({ message: 'Name, Fee structure, Subtotal, Authority Id, Activity and Total Amount are required' });
     }
 
     const package = await Package.findOne({ where: { uuid } });
@@ -122,6 +168,8 @@ const updatePackage = async (req, res) => {
     package.status = status;
     package.subtotal = subtotal;
     package.fee_structure = fee_structure;
+    package.authority_id = authority_id;
+    package.activity = activity;
     package.updated_by = req.user.id;
     package.updated_at = new Date();
     package.last_update = new Date();

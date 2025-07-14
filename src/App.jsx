@@ -129,8 +129,8 @@ if (isLoading) {
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
        <Route path="/add-lead" element={<AddLead />} />
-       <Route path="/packages" element={<PackageListing/>} />
-       <Route path="/add-package" element={<AddPackage/>} />
+       <Route path="/packages/:uuid" element={<PackageListing/>} />
+       <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />
        <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
 

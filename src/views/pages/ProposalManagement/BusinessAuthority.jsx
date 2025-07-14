@@ -161,6 +161,9 @@ function BusinessAuthority() {
       name: 'Action',
       cell: (row) => (
         <div className="d-flex gap-2">
+           <Link to={`/packages/${row.uuid}`} style={{ textDecoration: 'none' }} className='custom-button'>
+           Add Package
+        </Link>
           <span
             onClick={() => handleDelete(row.uuid)}
             className="p-0"
@@ -189,7 +192,7 @@ function BusinessAuthority() {
         </div>
       ),
       ignoreRowClick: true,
-      width: '150px',
+      width: '250px',
     },
   ]
 

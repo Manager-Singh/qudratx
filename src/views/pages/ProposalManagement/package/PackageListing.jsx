@@ -2,7 +2,7 @@
 import {  useEffect, useState } from 'react';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { MdEdit } from "react-icons/md";
@@ -15,6 +15,7 @@ import PackageCard from './PackageCard';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
+const {uuid} = useParams()
 const dispatch= useDispatch()
 // handle model of delete 
  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -29,6 +30,7 @@ const {packages} = useSelector((state)=>state.package)
 useEffect(()=>{
 dispatch(getPackages())
 },[dispatch])
+console.log(uuid,"uuid")
 
 const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);
@@ -113,10 +115,7 @@ const columns = [
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
 console.log(filteredData,"filteredData")
-  const handleDelete =(uuid)=>{
  
-  }
-  
   return (
     <div className='container'>
       {toastData.show && (
@@ -125,7 +124,7 @@ console.log(filteredData,"filteredData")
               </div>
             )}
       <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to='/add-package'> <CButton className='custom-button'>Add Package </CButton></Link>
+        <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
        
         <input
           type="text"
@@ -135,7 +134,7 @@ console.log(filteredData,"filteredData")
           onChange={e => setFilterText(e.target.value)}
         />
       </div>
-      {/* <DataTable
+      <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -143,9 +142,9 @@ console.log(filteredData,"filteredData")
         highlightOnHover
         responsive
         striped
-      /> */}
-      <div className="row">
-  {filteredData?.map((item) =><div key={item.uuid} className='col-4'> <PackageCard item={item}/></div>)}
+      />
+      <div className="row ">
+  {filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>)}
 
       </div>
      

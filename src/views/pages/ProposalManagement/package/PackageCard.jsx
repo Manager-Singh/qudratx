@@ -32,7 +32,7 @@ console.log(item,"item")
             {item.fee_structure?.map((item, index) => (
               <CListGroupItem key={index} className="d-flex gap-2 align-items-center border-0 ps-0">
                 <FaCheck className="text-success" />
-                {item.name}{""}{item.amount}
+                {`ADE${item.amount} ${item.name}`}
               </CListGroupItem>
             ))}
           </CListGroup>

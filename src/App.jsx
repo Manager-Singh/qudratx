@@ -39,6 +39,8 @@ import BusinessSubCategory from './views/pages/ProposalManagement/subCategory/Bu
 import Proposal from './views/pages/EmployeePortal/Proposal/Proposal'
 import EditBusinessActivity from './views/pages/ProposalManagement/businessActivity/EditBusinessActivity'
 import EmployeeBusinessZone from './views/pages/EmployeePortal/EmployeeBusinessZone'
+import Setting from './views/pages/settings/Setting'
+import UpdateSetting from './views/pages/settings/UpdateSetting'
 
 
  
@@ -95,7 +97,7 @@ if (isLoading) {
           <Route path="/register" element={<Register />} />
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
-
+          
           {/* Protected Routes */}
       
           <Route
@@ -133,7 +135,8 @@ if (isLoading) {
        <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />
        <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
-
+        <Route path='/setting' element={<Setting/>}/>
+         <Route path='/setting/edit' element={<UpdateSetting/>}/>
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
        <Route path="/create-proposal/:id" element={<Proposal/>}/>

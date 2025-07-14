@@ -470,11 +470,10 @@ function AddPackage() {
       dispatch(action).then((data) => {
         if (data.payload.success) {
            if (uuid) {
-            
+           
       setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
     } else {
       // Add Package Success
-      const newPackageUUID = result.data?.uuid // assumes backend returns created uuid
       setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
     }
           showToast('success', data.payload.message)

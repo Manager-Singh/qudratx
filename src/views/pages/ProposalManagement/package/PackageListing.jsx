@@ -12,7 +12,7 @@ import { FaEye } from 'react-icons/fa';
 import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 import PackageCard from './PackageCard';
-import { getBusinessActivityByUuid } from '../../../../store/admin/businessActivitySlice';
+import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -28,11 +28,11 @@ const dispatch= useDispatch()
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 const {packages} = useSelector((state)=>state.package)
+const {authority} = useSelector((state)=> state.businessZonesAuthority)
+const authority_uuid =uuid
 useEffect(()=>{
 dispatch(getPackages())
-dispatch(getBusinessActivityByUuid(uuid)).then((data)=>{
-  console.log(data,"data")
-})
+dispatch(getBusinessZonesAuthorityByUuid({authority_uuid}))
 },[dispatch])
 
 
@@ -127,17 +127,20 @@ console.log(filteredData,"filteredData")
                 <ToastExample status={toastData.status} message={toastData.message} />
               </div>
             )}
-      <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
-       
-        <input
-          type="text"
-          className="form-control w-25"
-          placeholder="Search by name or email"
-          value={filterText}
-          onChange={e => setFilterText(e.target.value)}
-        />
-      </div>
+             <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+                    <div className="d-flex justify-content-between w-75 px-3">
+                      <h4>{authority?.name}</h4>
+                     <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-control w-25"
+                      placeholder="Search by name"
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                    />
+                  </div>
+     
       <DataTable
         columns={columns}
         data={filteredData}

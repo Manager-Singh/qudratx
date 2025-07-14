@@ -322,7 +322,6 @@ import { getFeeStructures } from '../../../../store/admin/feeStructureSlice'
 import { addPackage, getPackageByUUID, updatePackage } from '../../../../store/admin/packageSlice'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ToastExample } from '../../../../components/toast/Toast'
-import { getBusinessActivities } from '../../../../store/admin/businessActivitySlice'
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
 
 function AddPackage() {
@@ -333,6 +332,7 @@ function AddPackage() {
   const {authority} = useSelector((state)=> state.businessZonesAuthority)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [fetchedPackage, setFetchedPackage] = useState(null)
+  const { business_package} = useSelector((state)=> state.package)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -451,7 +451,7 @@ function AddPackage() {
           name: item.name,
           amount: parseFloat(item.amount) || 0,
         }))
-   console.log(authority.id ,"authority id")
+   
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -463,7 +463,7 @@ function AddPackage() {
         total_amount: parseFloat(total.toFixed(2)),
         status: formData.status,
         last_update: new Date(),
-        authority_id:authority?.id
+        authority_id:authority?.id || business_package?.authority_id
       }
 
       const action = uuid ? updatePackage({ uuid, payload }) : addPackage(payload)

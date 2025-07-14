@@ -9,7 +9,7 @@ import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { FaEye } from 'react-icons/fa';
-import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
+import { deletePackage, getPackageByAuthorityId,  } from '../../../../store/admin/packageSlice';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 import PackageCard from './PackageCard';
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice';
@@ -31,8 +31,14 @@ const {packages} = useSelector((state)=>state.package)
 const {authority} = useSelector((state)=> state.businessZonesAuthority)
 const authority_uuid =uuid
 useEffect(()=>{
-dispatch(getPackages())
-dispatch(getBusinessZonesAuthorityByUuid({authority_uuid}))
+dispatch(getBusinessZonesAuthorityByUuid({authority_uuid})).then((data)=>{
+ if(data.payload.success){
+  const id = data.payload.data.id
+    dispatch(getPackageByAuthorityId(id)).then((data)=>{
+ console.log(data,"data")
+})
+  }
+})
 },[dispatch])
 
 
@@ -46,7 +52,8 @@ const confirmDelete = (uuid) => {
       dispatch(deletePackage(selectedUUID)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
-      dispatch(getPackages())
+      const id = authority?.id
+     dispatch(getPackageByAuthorityId(id))
     }
   })
     }
@@ -118,7 +125,6 @@ const columns = [
     const filteredData = packages.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
-console.log(filteredData,"filteredData")
  
   return (
     <div className='container'>
@@ -141,7 +147,7 @@ console.log(filteredData,"filteredData")
                     />
                   </div>
      
-      <DataTable
+      {/* <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -149,7 +155,7 @@ console.log(filteredData,"filteredData")
         highlightOnHover
         responsive
         striped
-      />
+      /> */}
       <div className="row ">
   {filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>)}
 

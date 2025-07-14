@@ -62,12 +62,23 @@ export const getPackageByUUID = createAsyncThunk('admin/get-package-by-uuid', as
   }
 })
 
+export const getPackageByAuthorityId = createAsyncThunk('admin/get-package-by-authority-id', async (id, thunkAPI) => {
+  try {
+    
+    const response = await getData(`/admin/get-package-by-authority-id/${id}`)
+    return response
+  } catch (error) {
+    console.error('Get error:', error)
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+
 
 const packageSlice = createSlice({
   name: 'package',
   initialState: {
     packages: [],
-    package:null,
+    business_package:null,
     isLoading: true,
   },
   reducers: {},
@@ -135,13 +146,23 @@ const packageSlice = createSlice({
       })
       .addCase(getPackageByUUID.fulfilled, (state, action) => {
         state.isLoading = false
-        state.package = action.payload.data
+        state.business_package = action.payload.data
       })
       .addCase(getPackageByUUID.rejected, (state, action) => {
         state.isLoading = false
-        state.package = null
+        state.business_package = null
        
-      })
+      }).addCase(getPackageByAuthorityId.pending, (state) => {
+        state.isLoading = true
+  })
+  .addCase(getPackageByAuthorityId.fulfilled, (state, action) => {
+    state.isLoading = false
+    state.packages = action.payload.data
+  })
+      .addCase(getPackageByAuthorityId.rejected, (state) => {
+    state.isLoading = false
+    state.packages = []
+  })
 
   },
 })

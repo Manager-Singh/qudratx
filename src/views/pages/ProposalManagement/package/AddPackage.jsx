@@ -322,7 +322,6 @@ import { getFeeStructures } from '../../../../store/admin/feeStructureSlice'
 import { addPackage, getPackageByUUID, updatePackage } from '../../../../store/admin/packageSlice'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ToastExample } from '../../../../components/toast/Toast'
-import { getBusinessActivities } from '../../../../store/admin/businessActivitySlice'
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
 
 function AddPackage() {
@@ -333,6 +332,7 @@ function AddPackage() {
   const {authority} = useSelector((state)=> state.businessZonesAuthority)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [fetchedPackage, setFetchedPackage] = useState(null)
+  const { business_package} = useSelector((state)=> state.package)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -345,7 +345,7 @@ function AddPackage() {
     total_amount: 0,
     status: 1,
   })
-
+ 
   const [validated, setValidated] = useState(false)
   const TAX_RATE = 0.18
 
@@ -356,9 +356,7 @@ function AddPackage() {
 
   useEffect(() => {
     dispatch(getFeeStructures())
-     dispatch(getBusinessZonesAuthorityByUuid(authority_uuid)).then((data)=>{
-      console.log(data,"authority data")
-     })
+    dispatch(getBusinessZonesAuthorityByUuid({authority_uuid}))
   }, [dispatch])
 
   useEffect(() => {
@@ -371,13 +369,14 @@ function AddPackage() {
             ...prev,
             name: pkg.name,
             description: pkg.description,
-            activity: pkg.activity || '',
+            activity: pkg.activity || 0,
             isDiscountEnabled: !!pkg.discount,
             discount: pkg.discount || 0,
             tax: pkg.tax || 0,
             subtotal: pkg.subtotal || 0,
             total_amount: pkg.total_amount || 0,
             status: pkg.status ?? 1,
+            
           }))
         }
       })
@@ -452,7 +451,7 @@ function AddPackage() {
           name: item.name,
           amount: parseFloat(item.amount) || 0,
         }))
-
+   
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -464,21 +463,28 @@ function AddPackage() {
         total_amount: parseFloat(total.toFixed(2)),
         status: formData.status,
         last_update: new Date(),
-        authority_id:authority?.id
+        authority_id:authority?.id || business_package?.authority_id
       }
 
       const action = uuid ? updatePackage({ uuid, payload }) : addPackage(payload)
       dispatch(action).then((data) => {
         if (data.payload.success) {
+           if (uuid) {
+           
+      setTimeout(() => navigate(`/packages/${business_package.authority.uuid}`), 1500)
+    } else {
+      // Add Package Success
+      setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
+    }
           showToast('success', data.payload.message)
-          setTimeout(() => navigate('/packages'), 1500)
+          setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
         }
       })
     }
 
     setValidated(true)
   }
-
+console.log(business_package,"business_package")
   return (
     <CContainer className="mt-4">
       {toastData.show && (

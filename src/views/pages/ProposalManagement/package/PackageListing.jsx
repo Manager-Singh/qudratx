@@ -9,9 +9,10 @@ import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { FaEye } from 'react-icons/fa';
-import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
+import { deletePackage, getPackageByAuthorityId,  } from '../../../../store/admin/packageSlice';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 import PackageCard from './PackageCard';
+import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -27,10 +28,19 @@ const dispatch= useDispatch()
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 const {packages} = useSelector((state)=>state.package)
+const {authority} = useSelector((state)=> state.businessZonesAuthority)
+const authority_uuid =uuid
 useEffect(()=>{
-dispatch(getPackages())
+dispatch(getBusinessZonesAuthorityByUuid({authority_uuid})).then((data)=>{
+ if(data.payload.success){
+  const id = data.payload.data.id
+    dispatch(getPackageByAuthorityId(id)).then((data)=>{
+ console.log(data,"data")
+})
+  }
+})
 },[dispatch])
-console.log(uuid,"uuid")
+
 
 const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);
@@ -42,7 +52,8 @@ const confirmDelete = (uuid) => {
       dispatch(deletePackage(selectedUUID)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
-      dispatch(getPackages())
+      const id = authority?.id
+     dispatch(getPackageByAuthorityId(id))
     }
   })
     }
@@ -114,7 +125,6 @@ const columns = [
     const filteredData = packages.filter(item =>
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
-console.log(filteredData,"filteredData")
  
   return (
     <div className='container'>
@@ -123,18 +133,21 @@ console.log(filteredData,"filteredData")
                 <ToastExample status={toastData.status} message={toastData.message} />
               </div>
             )}
-      <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
-       
-        <input
-          type="text"
-          className="form-control w-25"
-          placeholder="Search by name or email"
-          value={filterText}
-          onChange={e => setFilterText(e.target.value)}
-        />
-      </div>
-      <DataTable
+             <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+                    <div className="d-flex justify-content-between w-75 px-3">
+                      <h4>{authority?.name}</h4>
+                     <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-control w-25"
+                      placeholder="Search by name"
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                    />
+                  </div>
+     
+      {/* <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -142,9 +155,9 @@ console.log(filteredData,"filteredData")
         highlightOnHover
         responsive
         striped
-      />
+      /> */}
       <div className="row ">
-  {filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>)}
+  {filteredData && filteredData.length > 0 ? filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>):<h5 className='text-center bg-white '>Packages Not Found </h5>}
 
       </div>
      

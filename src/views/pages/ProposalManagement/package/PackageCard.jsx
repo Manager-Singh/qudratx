@@ -24,15 +24,16 @@ console.log(item,"item")
       <CCard className="rounded-2 overflow-hidden shadow" >
         <CCardHeader className="text-center  text-white py-4" style={{backgroundColor:"#2f1051"}}>
           <h4 className="fw-bold mb-2">{item.name}</h4>
-          <h1 className="fw-bold mb-1">{item.total_amount}</h1>
+          <h1 className="fw-bold mb-1 " style={{color:'#ff770f'}}>{`AED ${item.total_amount}`}</h1>
         </CCardHeader>
         <CCardBody className="bg-white p-4">
-         
+            <p>Activity Offered: {item.activity}</p>
           <CListGroup className="list-unstyled">
             {item.fee_structure?.map((item, index) => (
               <CListGroupItem key={index} className="d-flex gap-2 align-items-center border-0 ps-0">
                 <FaCheck className="text-success" />
-                {`ADE${item.amount} ${item.name}`}
+                <span className='text-success'>{`AED ${item.amount}`}</span>
+                {` ${item.name}`}
               </CListGroupItem>
             ))}
           </CListGroup>

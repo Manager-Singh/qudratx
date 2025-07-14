@@ -157,7 +157,7 @@ const columns = [
         striped
       /> */}
       <div className="row ">
-  {filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>)}
+  {filteredData && filteredData.length > 0 ? filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>):<h5 className='text-center bg-white '>Packages Not Found </h5>}
 
       </div>
      

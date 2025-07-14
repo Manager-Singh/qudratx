@@ -471,7 +471,7 @@ function AddPackage() {
         if (data.payload.success) {
            if (uuid) {
            
-      setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
+      setTimeout(() => navigate(`/packages/${business_package.authority.uuid}`), 1500)
     } else {
       // Add Package Success
       setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
@@ -484,7 +484,7 @@ function AddPackage() {
 
     setValidated(true)
   }
-
+console.log(business_package,"business_package")
   return (
     <CContainer className="mt-4">
       {toastData.show && (

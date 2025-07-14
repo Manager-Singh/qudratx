@@ -7,10 +7,12 @@ const { createBusinessActivity,
   getBusinessActivityByAuthorityId,
   updateBusinessActivity,
   deleteBusinessActivity,
-  getDeletedBusinessActivity} = require('../../controllers/businessActivityController');
+  getDeletedBusinessActivity,
+searchBusinessActivities} = require('../../controllers/businessActivityController');
 
 router.post('/create-activity',upload.single('file'),createBusinessActivity)
 router.get('/get-activity',getBusinessActivity)
+router.get('/search-business-activity',searchBusinessActivities)
 router.get('/get-activity-by-uuid/:uuid',getBusinessActivityByUUID)
 router.get('/get-activity-by-authority/:authority_id',getBusinessActivityByAuthorityId)
 router.put('/update-activity/:uuid',updateBusinessActivity)

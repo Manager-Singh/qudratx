@@ -464,6 +464,79 @@ const getDeletedBusinessActivity = async (req, res) => {
   }
 };
 
+const searchBusinessActivities = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const search = req.query.search || '';
+    const status = req.query.status; // 'active' | 'inactive'
+    const authority_id = req.query.authority_id;
+    const zone_id = req.query.zone_id;
+
+    const where = {
+      deleted_at: null,
+      [Op.or]: [
+        { activity_name: { [Op.like]: `%${search}%` } },
+        { activity_name_arabic: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } },
+        { activity_code: { [Op.like]: `%${search}%` } },
+        { activity_master_number: { [Op.like]: `%${search}%` } }
+      ]
+    };
+
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
+
+    if (authority_id) {
+      where.authority_id = authority_id;
+    }
+
+    if (zone_id) {
+      where.zone = zone_id;
+    }
+
+    const { count, rows } = await BusinessActivity.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid']
+            }
+          ]
+        }
+      ]
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    return res.status(200).json({
+      message: 'Business activities fetched successfully',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows
+    });
+  } catch (error) {
+    console.error('Search BusinessActivity error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createBusinessActivity,
   getBusinessActivity,
@@ -472,4 +545,5 @@ module.exports = {
   deleteBusinessActivity,
   getDeletedBusinessActivity,
   getBusinessActivityByAuthorityId,
+  searchBusinessActivities
 };

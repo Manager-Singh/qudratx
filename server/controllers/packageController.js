@@ -1,4 +1,4 @@
-const { Package } = require('../models');
+const { Package,BusinessZonesAuthority,BusinessZone } = require('../models');
 const { Op, where } = require('sequelize');
 
 // CREATE
@@ -112,6 +112,66 @@ const getPackage = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const getPackageByAuthorityId = async (req, res) => {
+  try {
+    const { authority_id } = req.params;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status;
+
+    const where = {
+      deleted_at: null,
+      authority_id,
+      name: { [Op.like]: `%${search}%` }
+    };
+
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
+
+    const { count, rows } = await Package.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: BusinessZonesAuthority,
+          as: 'authority',
+          attributes: ['id', 'name', 'uuid', 'zone_id'],
+          include: [
+            {
+              model: BusinessZone,
+              as: 'zone',
+              attributes: ['id', 'name', 'uuid'],
+            }
+          ]
+        }
+      ]
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(200).json({
+      message: 'Packages fetched successfully by authority ID',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows
+    });
+  } catch (error) {
+    console.error('Get Packages by authority error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 // GET ONE
 const getPackageByUUID = async (req, res) => {
@@ -249,6 +309,7 @@ module.exports = {
   createPackage,
   getPackage,
   getPackageByUUID,
+  getPackageByAuthorityId,
   updatePackage,
   deletePackage,
   getDeletedPackage,

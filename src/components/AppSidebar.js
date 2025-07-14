@@ -79,11 +79,7 @@ const AppSidebar = () => {
       name: 'Business Categories',
       to: '/business-category',
     },
-    {
-      component: CNavItem,
-      name: 'Packages',
-      to: '/packages',
-    },
+    
     {
       component: CNavItem,
       name: 'Fee Structure',

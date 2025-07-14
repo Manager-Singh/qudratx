@@ -303,7 +303,6 @@
 
 // export default AddPackage
 
-
 import React, { useState, useEffect } from 'react'
 import {
   CForm,
@@ -323,19 +322,22 @@ import { getFeeStructures } from '../../../../store/admin/feeStructureSlice'
 import { addPackage, getPackageByUUID, updatePackage } from '../../../../store/admin/packageSlice'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ToastExample } from '../../../../components/toast/Toast'
+import { getBusinessActivities } from '../../../../store/admin/businessActivitySlice'
+import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
 
 function AddPackage() {
-  const { uuid } = useParams()
+  const { uuid ,authority_uuid } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { feestructures } = useSelector((state) => state.feeStructure)
-
+  const {authority} = useSelector((state)=> state.businessZonesAuthority)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [fetchedPackage, setFetchedPackage] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    fee_structure: [], // Changed to array
+    activity: 1,
+    fee_structure: [],
     isDiscountEnabled: false,
     discount: 0,
     tax: 0,
@@ -354,6 +356,9 @@ function AddPackage() {
 
   useEffect(() => {
     dispatch(getFeeStructures())
+     dispatch(getBusinessZonesAuthorityByUuid(authority_uuid)).then((data)=>{
+      console.log(data,"authority data")
+     })
   }, [dispatch])
 
   useEffect(() => {
@@ -366,6 +371,7 @@ function AddPackage() {
             ...prev,
             name: pkg.name,
             description: pkg.description,
+            activity: pkg.activity || '',
             isDiscountEnabled: !!pkg.discount,
             discount: pkg.discount || 0,
             tax: pkg.tax || 0,
@@ -382,11 +388,8 @@ function AddPackage() {
     if (feestructures.length > 0) {
       const updatedFees = feestructures.map((item) => {
         let matched = null
-        if (fetchedPackage && fetchedPackage.fee_structure) {
-          const amount = fetchedPackage.fee_structure[item.name]
-          if (typeof amount !== 'undefined') {
-            matched = { name: item.name, amount }
-          }
+        if (fetchedPackage && Array.isArray(fetchedPackage.fee_structure)) {
+          matched = fetchedPackage.fee_structure.find((f) => f.name === item.name)
         }
         return {
           name: item.name,
@@ -453,13 +456,15 @@ function AddPackage() {
       const payload = {
         name: formData.name,
         description: formData.description,
-        fee_structure: feeDetails, // now array of objects
+        activity: formData.activity,
+        fee_structure: feeDetails,
         discount: formData.isDiscountEnabled ? formData.discount : 0,
         subtotal: parseFloat(subtotal.toFixed(2)),
         tax: parseFloat(tax.toFixed(2)),
         total_amount: parseFloat(total.toFixed(2)),
         status: formData.status,
         last_update: new Date(),
+        authority_id:authority?.id
       }
 
       const action = uuid ? updatePackage({ uuid, payload }) : addPackage(payload)
@@ -510,6 +515,20 @@ function AddPackage() {
             <CFormFeedback invalid>Description is required.</CFormFeedback>
           </CCol>
 
+          <CCol md={12}>
+            <CFormLabel htmlFor="activity">Activities<span className="text-danger">*</span></CFormLabel>
+            <CFormInput
+              id="activity"
+              type='number'
+              name="activity"
+              value={formData.activity}
+              onChange={handleChange}
+              required
+              placeholder="Enter number of activities"
+            />
+            <CFormFeedback invalid>Activity is required.</CFormFeedback>
+          </CCol>
+
           <CCol xs={12}>
             <CFormLabel htmlFor="status">Status</CFormLabel>
             <CFormSelect
@@ -523,35 +542,31 @@ function AddPackage() {
             </CFormSelect>
           </CCol>
 
-          {feestructures.map((item) => {
-            const fee = formData.fee_structure[item.id] || { enabled: false, amount: item.amount || 0 }
-
-            return (
-              <CCol md={12} key={item.id}>
-                <CRow className="align-items-center">
-                  <CCol xs="auto">
-                    <CFormCheck
-                      id={`fee-${item.id}`}
-                      checked={fee.enabled}
-                      onChange={(e) => handleFeeChange(item.id, 'enabled', e.target.checked)}
-                    />
-                  </CCol>
-                  <CCol xs="auto">
-                    <CFormLabel htmlFor={`fee-${item.id}`} className="mb-0">{item.name}</CFormLabel>
-                  </CCol>
-                  <CCol>
-                    <CFormInput
-                      type="number"
-                      value={fee.amount === 0 ? '' : fee.amount}
-                      onChange={(e) => handleFeeChange(item.id, 'amount', e.target.value)}
-                      min={0}
-                      disabled={!fee.enabled}
-                    />
-                  </CCol>
-                </CRow>
-              </CCol>
-            )
-          })}
+          {formData.fee_structure.map((fee, index) => (
+            <CCol md={12} key={index}>
+              <CRow className="align-items-center">
+                <CCol xs="auto">
+                  <CFormCheck
+                    id={`fee-${index}`}
+                    checked={fee.enabled}
+                    onChange={(e) => handleFeeChange(index, 'enabled', e.target.checked)}
+                  />
+                </CCol>
+                <CCol xs="auto">
+                  <CFormLabel htmlFor={`fee-${index}`} className="mb-0">{fee.name}</CFormLabel>
+                </CCol>
+                <CCol>
+                  <CFormInput
+                    type="number"
+                    value={fee.amount === 0 ? '' : fee.amount}
+                    onChange={(e) => handleFeeChange(index, 'amount', e.target.value)}
+                    min={0}
+                    disabled={!fee.enabled}
+                  />
+                </CCol>
+              </CRow>
+            </CCol>
+          ))}
 
           <CCol md={12}>
             <CRow className="align-items-center">

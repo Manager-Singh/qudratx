@@ -98,7 +98,11 @@ const getBusinessZonesAuthorityByZoneId = async (req, res) => {
 
     const authority = await BusinessZonesAuthority.findAll({
       where: { zone_id: id},
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
+      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] },{
+          model: Package,
+          as: 'packages',
+          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
+        }]
     });
     if (!authority) {
       return res.status(404).json({ message: 'Business zone authority not found' });
@@ -126,6 +130,10 @@ const getBusinessZonesAuthorityByUUID = async (req, res) => {
           model: BusinessZone,
           as: 'zone',
           attributes: ['id', 'name', 'uuid']
+        },{
+          model: Package,
+          as: 'packages',
+          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
         }
       ]
     });
@@ -144,6 +152,42 @@ const getBusinessZonesAuthorityByUUID = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const getBusinessZonesAuthorityById = async (req, res) => {
+  try {
+    const { authority_id } = req.params;
+
+    const authority = await BusinessZonesAuthority.findOne({
+      where: { authority_id },
+      include: [
+        {
+          model: BusinessZone,
+          as: 'zone',
+          attributes: ['id', 'name', 'uuid']
+        },
+        {
+          model: Package,
+          as: 'packages',
+          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
+        }
+      ]
+    });
+
+    if (!authority) {
+      return res.status(404).json({ message: 'Business zone authority not found' });
+    }
+
+    res.status(200).json({
+      message: 'Business zone authority fetched successfully',
+      success: true,
+      data: authority,
+    });
+  } catch (error) {
+    console.error('Get authority error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // UPDATE
 const updateBusinessZonesAuthority = async (req, res) => {
   try {
@@ -240,6 +284,7 @@ module.exports = {
   createBusinessZonesAuthority,
   getBusinessZonesAuthorities,
   getBusinessZonesAuthorityByZoneId,
+  getBusinessZonesAuthorityById,
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
   getDeletedBusinessZonesAuthorities,

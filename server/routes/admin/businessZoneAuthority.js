@@ -5,6 +5,7 @@ const {
   createBusinessZonesAuthority,
   getBusinessZonesAuthorities,
   getBusinessZonesAuthorityByZoneId,
+  getBusinessZonesAuthorityById,
   updateBusinessZonesAuthority,
   deleteBusinessZonesAuthority,
   getDeletedBusinessZonesAuthorities,
@@ -19,6 +20,7 @@ router.get('/get-authorities', getBusinessZonesAuthorities);
 
 // Get one authority by UUID
 router.get('/get-authority-by-zone/:id', getBusinessZonesAuthorityByZoneId);
+router.get('/get-authority-by-id/:authority_id', getBusinessZonesAuthorityById);
 router.get('/get-authority-by-uuid/:uuid', getBusinessZonesAuthorityByUUID);
 // Update authority by UUID
 router.put('/update-authority/:uuid',upload.single('image'), updateBusinessZonesAuthority);

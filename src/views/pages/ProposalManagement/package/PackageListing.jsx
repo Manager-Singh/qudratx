@@ -12,6 +12,7 @@ import { FaEye } from 'react-icons/fa';
 import { deletePackage, getPackages } from '../../../../store/admin/packageSlice';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 import PackageCard from './PackageCard';
+import { getBusinessActivityByUuid } from '../../../../store/admin/businessActivitySlice';
 
 function PackageListing() {
 const [filterText, setFilterText] = useState('');
@@ -29,8 +30,11 @@ const dispatch= useDispatch()
 const {packages} = useSelector((state)=>state.package)
 useEffect(()=>{
 dispatch(getPackages())
+dispatch(getBusinessActivityByUuid(uuid)).then((data)=>{
+  console.log(data,"data")
+})
 },[dispatch])
-console.log(uuid,"uuid")
+
 
 const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);

@@ -345,7 +345,7 @@ function AddPackage() {
     total_amount: 0,
     status: 1,
   })
-
+ 
   const [validated, setValidated] = useState(false)
   const TAX_RATE = 0.18
 
@@ -356,9 +356,7 @@ function AddPackage() {
 
   useEffect(() => {
     dispatch(getFeeStructures())
-     dispatch(getBusinessZonesAuthorityByUuid(authority_uuid)).then((data)=>{
-      console.log(data,"authority data")
-     })
+    dispatch(getBusinessZonesAuthorityByUuid({authority_uuid}))
   }, [dispatch])
 
   useEffect(() => {
@@ -371,13 +369,14 @@ function AddPackage() {
             ...prev,
             name: pkg.name,
             description: pkg.description,
-            activity: pkg.activity || '',
+            activity: pkg.activity || 0,
             isDiscountEnabled: !!pkg.discount,
             discount: pkg.discount || 0,
             tax: pkg.tax || 0,
             subtotal: pkg.subtotal || 0,
             total_amount: pkg.total_amount || 0,
             status: pkg.status ?? 1,
+            
           }))
         }
       })
@@ -452,7 +451,7 @@ function AddPackage() {
           name: item.name,
           amount: parseFloat(item.amount) || 0,
         }))
-
+   console.log(authority.id ,"authority id")
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -470,8 +469,16 @@ function AddPackage() {
       const action = uuid ? updatePackage({ uuid, payload }) : addPackage(payload)
       dispatch(action).then((data) => {
         if (data.payload.success) {
+           if (uuid) {
+            
+      setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
+    } else {
+      // Add Package Success
+      const newPackageUUID = result.data?.uuid // assumes backend returns created uuid
+      setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
+    }
           showToast('success', data.payload.message)
-          setTimeout(() => navigate('/packages'), 1500)
+          setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
         }
       })
     }

@@ -44,9 +44,9 @@ export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
 
 export const getBusinessZonesAuthorityByUuid = createAsyncThunk(
   'authority/get-by-uuid',
-  async ({uuid}, thunkAPI) => {
+  async ({authority_uuid}, thunkAPI) => {
     try {
-      const response = await getData(`/admin/get-authority-by-uuid/${uuid}`)
+      const response = await getData(`/admin/get-authority-by-uuid/${authority_uuid}`)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)

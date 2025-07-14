@@ -18,7 +18,7 @@
   }
   
   .card__input:checked ~ .card__body {
-    box-shadow: 0 0 0 3px var(--card-shadow);
+    box-shadow: 0 0 0 3px var(--card-shadow) !important;
   }
   
   .card__input:checked ~ .card__body .card__body-cover-checkbox {
@@ -55,8 +55,8 @@
   
   .card__body-cover-checkbox {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 10px !important;
+    right: 10px !important;
     background: var(--background-checkbox);
     border: 2px solid #fff;
     width: 28px;
@@ -94,3 +94,10 @@
     color: var(--text-headline);
   }
   
+  .img-div{
+    height: 200px;
+  }
+
+  .text-div{
+    height: 0px;
+  }

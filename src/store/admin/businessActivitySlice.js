@@ -66,15 +66,19 @@ export const getDeletedBusinessActivities = createAsyncThunk('admin/get-deleted-
 })
 
 // GET activity by UUID
-export const getBusinessActivityByAuthorityId = createAsyncThunk('admin/get-activity-authority-id', async (authority_id, thunkAPI) => {
-  try {
-    const response = await getData(`/admin/get-activity-by-authority/${authority_id}`)
-    return response
-  } catch (error) {
-    console.error('Get by UUID error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+export const getBusinessActivityByAuthorityId = createAsyncThunk(
+  'admin/get-activity-authority-id',
+  async ({ authority_id }, thunkAPI) => {
+    try {
+      const response = await getData(`/admin/get-activity-by-authority/${authority_id}`)
+      return response
+    } catch (error) {
+      console.error('Get by Authority ID error:', error)
+      return thunkAPI.rejectWithValue(error.message)
+    }
   }
-})
+)
+
 
 
 const businessActivitySlice = createSlice({
@@ -83,6 +87,7 @@ const businessActivitySlice = createSlice({
     business_activities:[],
     business_activity: null,
     deleted_activities: [],
+    isActivityLoading: false,
     isLoading: true,
   },
   reducers: {},
@@ -160,17 +165,17 @@ const businessActivitySlice = createSlice({
         state.isLoading = false
         state.deleted_activities = [];
       }).addCase(getBusinessActivityByAuthorityId.pending, (state) => {
-         state.isLoading = true;
+         state.isActivityLoading = true;
        })
-.addCase(getBusinessActivityByAuthorityId.fulfilled, (state, action) => {
-  state.isLoading = false;
-  state.business_activities = action.payload.data; 
-})
-.addCase(getBusinessActivityByAuthorityId.rejected, (state) => {
-  state.isLoading = false;
-  state.business_activities = [];
-})
-  },
+    .addCase(getBusinessActivityByAuthorityId.fulfilled, (state, action) => {
+      state.isActivityLoading = false;
+      state.business_activities = action.payload.data || [];
+    })
+    .addCase(getBusinessActivityByAuthorityId.rejected, (state) => {
+      state.isActivityLoading = false;
+      state.business_activities = [];
+    })
+      },
 })
 
 export default businessActivitySlice.reducer

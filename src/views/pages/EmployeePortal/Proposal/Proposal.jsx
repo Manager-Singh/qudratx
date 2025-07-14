@@ -285,7 +285,7 @@ const Proposal = () => {
                     type="radio"
                     name="withLocalPartner"
                     id="withPartner"
-                    label="With Partners"
+                    label="With Local"
                     value="with"
                     checked={withLocalPartner === 'with'}
                     onChange={() => setWithLocalPartner('with')}
@@ -296,7 +296,7 @@ const Proposal = () => {
                     type="radio"
                     name="withLocalPartner"
                     id="withoutPartner"
-                    label="Without Partners"
+                    label="Without Local"
                     value="without"
                     checked={withLocalPartner === 'without'}
                     onChange={() => setWithLocalPartner('without')}

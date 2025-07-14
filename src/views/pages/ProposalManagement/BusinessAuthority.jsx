@@ -97,7 +97,7 @@ function BusinessAuthority() {
       uuid: selectedAuthority.uuid,
       data: newFormdata,
     }
-console.log(newFormdata,"newformdata") 
+
     dispatch(updateBusinessZonesAuthority(updatedData)).then((data) => {
       if (data.payload.success) {
         setFormData({ name: '', status: 1, image: null })

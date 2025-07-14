@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { postData, getData, deleteData, putData } from '../../utils/api'
 
 // CREATE activity (with file upload)
-export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (formData, thunkAPI) => {
+export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (data, thunkAPI) => {
   try {
-    const response = await postData('/admin/create-activity', formData, true) // 'true' if multipart/form-data
+    const response = await postData('/admin/create-activity', data, true) // 'true' if multipart/form-data
     return response
   } catch (error) {
     console.error('Create error:', error)
@@ -35,9 +35,9 @@ export const getBusinessActivityByUuid = createAsyncThunk('admin/get-activity-by
 })
 
 // UPDATE activity
-export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, formData }, thunkAPI) => {
+export const updateBusinessActivity = createAsyncThunk('admin/update-activity', async ({ uuid, data }, thunkAPI) => {
   try {
-    const response = await putData(`/admin/update-activity/${uuid}`, formData, true)
+    const response = await putData(`/admin/update-activity/${uuid}`, data)
     return response
   } catch (error) {
     console.error('Update error:', error)
@@ -68,7 +68,6 @@ export const getDeletedBusinessActivities = createAsyncThunk('admin/get-deleted-
 // GET activity by UUID
 export const getBusinessActivityByAuthorityId = createAsyncThunk('admin/get-activity-authority-id', async (authority_id, thunkAPI) => {
   try {
-    console.log(authority_id,"authority_idhjdfghjcfvbn")
     const response = await getData(`/admin/get-activity-by-authority/${authority_id}`)
     return response
   } catch (error) {

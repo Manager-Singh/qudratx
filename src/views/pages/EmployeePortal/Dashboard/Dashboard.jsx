@@ -1,11 +1,11 @@
 import React, {useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import { CCard, CCardBody, CCardHeader } from "@coreui/react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Card from "../Components/Card/Card";
 import { getBusinessZone } from "../../../../store/admin/businessZoneSlice";
 import "./Dashboard.css"
-
+import { CButton } from '@coreui/react';
 const data = [
     {"id":1,
     "name":"FreeZone"
@@ -82,11 +82,12 @@ const Dashboard = () => {
             <div className="col-md-6 w-100">
               <h2>Create Proposal </h2>
                 <div className="row">
-                    {businesszones.map((zone) => (
+                    {/* {businesszones.map((zone) => (
                         <div className="col-md-6 mb-3" key={zone.id}>
                             <Card title={zone.name} textAlign="center" onClick={()=> handleZone(zone)}></Card>
                         </div>
-                    ))}
+                    ))} */}
+                    <Link to='/business-zones'> <CButton className='custom-button mt-3'>Add Proposal</CButton></Link>   
                 </div>
             </div>
           </div>

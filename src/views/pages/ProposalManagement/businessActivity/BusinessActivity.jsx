@@ -7,7 +7,7 @@ import { cilTrash } from '@coreui/icons'
 import { MdEdit } from 'react-icons/md'
 import { ToastExample } from '../../../../components/toast/Toast'
 import { useDispatch, useSelector } from 'react-redux'
-import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
+import { deleteBusinessActivity, getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
 
 function BusinessActivity() {
@@ -37,19 +37,35 @@ function BusinessActivity() {
   }
 
   const handleDelete = (uuid) => {
-    // Replace with dispatch(deleteActivity(uuid)) when you have the delete API
-    showToast('success', 'Activity deleted successfully')
+    dispatch(deleteBusinessActivity(uuid)).then((data)=>{
+      console.log(data,"data")
+      if (data.payload.success) {
+        showToast('success', data.payload.message)
+        dispatch(getBusinessActivityByAuthorityId(authority.id))
+      }
+    })
+    
   }
 
   const columns = [
     {
       name: 'Master Number',
-      selector: (row) => row.activity_master_number || '-',
+      selector: (row) => row.activity_master_number || 'N/A',
       sortable: true,
     },
     {
       name: 'Activity Code',
-      selector: (row) => row.activity_code || '-',
+      selector: (row) => row.activity_code || 'N/A',
+      sortable: true,
+    },
+     {
+      name: 'Activity Name',
+      selector: (row) => row.activity_name || 'N/A',
+      sortable: true,
+    },
+     {
+      name: 'Category/Type',
+      selector: (row) => row.category || 'N/A',
       sortable: true,
     },
     {
@@ -62,16 +78,16 @@ function BusinessActivity() {
       sortable: true,
       width: '120px',
     },
-    {
-      name: 'Authority',
-      selector: (row) => row.authority?.name || '-',
-      sortable: true,
-    },
-    {
-      name: 'Zone',
-      selector: (row) => row.authority?.zone?.name || '-',
-      sortable: true,
-    },
+    // {
+    //   name: 'Authority',
+    //   selector: (row) => row.authority?.name || 'N/A',
+    //   sortable: true,
+    // },
+    // {
+    //   name: 'Zone',
+    //   selector: (row) => row.authority?.zone?.name || 'N/A',
+    //   sortable: true,
+    // },
     {
       name: 'Actions',
       cell: (row) => (
@@ -99,6 +115,12 @@ function BusinessActivity() {
     (item.authority?.name || '').toLowerCase().includes(filterText.toLowerCase())
   )
 
+const firstActivity = business_activities[0] || {}
+const fullZoneAuthority = 
+  (firstActivity.authority?.name || '') + 
+  ' ' + 
+  (firstActivity.authority?.zone?.name || '')
+  
   return (
     <div className="container">
       {toastData.show && (
@@ -108,17 +130,23 @@ function BusinessActivity() {
       )}
 
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
-        <Link to="/add-business-activity">
-          <CButton className="custom-button">Add Business Activity</CButton>
-        </Link>
-        <input
-          type="text"
-          className="form-control w-25"
-          placeholder="Search by code, master number or authority"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-        />
-      </div>
+             <div className="d-flex justify-content-between w-75 px-3">
+               <h4>{fullZoneAuthority}</h4>
+               
+          <Link to={`/add-business-activity/${uuid}`}>
+          <CButton className="custom-button">
+          Add Business Activity
+          </CButton>
+          </Link>
+             </div>
+             <input
+               type="text"
+               className="form-control w-25"
+               placeholder="Search by name"
+               value={filterText}
+               onChange={(e) => setFilterText(e.target.value)}
+             />
+           </div>
 
       <DataTable
         columns={columns}

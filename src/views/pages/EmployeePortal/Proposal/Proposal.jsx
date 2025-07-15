@@ -508,6 +508,7 @@ import logo from '../../../../../public/download.png'
 import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneAuthoritySlice'
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { useSelector, useDispatch } from 'react-redux'
+import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
 import { FaCheckCircle } from 'react-icons/fa'
 import CardSelectable from '../Components/CardSelector/CardSelector'
 import CardSelector from '../Components/CardSelector/CardSelector'
@@ -547,40 +548,6 @@ const questions = [
   'Do you need bank assistance?',
 ]
 
-const packageOptions = [
-  {
-    id: 'p1',
-    name: 'Basic Package',
-    total_amount: '$49',
-    fee_structure: [
-      { name: '250 Subscribers', amount: '' },
-      { name: '5 Team Members', amount: '' },
-      { name: 'Email Notifications', amount: '' },
-    ],
-  },
-  {
-    id: 'p2',
-    name: 'Standard Package',
-    total_amount: '$99',
-    fee_structure: [
-      { name: '500 Subscribers', amount: '' },
-      { name: '10 Team Members', amount: '' },
-      { name: 'Email Notifications', amount: '' },
-    ],
-  },
-  {
-    id: 'p3',
-    name: 'Premium Package',
-    total_amount: '$199',
-    fee_structure: [
-      { name: '1000 Subscribers', amount: '' },
-      { name: '25 Team Members', amount: '' },
-      { name: 'Email Notifications', amount: '' },
-    ],
-  },
-]
-
-
 const Proposal = () => {
   const { id } = useParams()
   const [step, setStep] = useState(1)
@@ -591,10 +558,9 @@ const Proposal = () => {
     (state) => state.business_activity || {}
   );
   
-  console.log('Activities->', business_activities)
+  // get package state from redux
+  const {packages , isPackageLoading} = useSelector((state) => state.package);
   
-
-
   const dispatch = useDispatch()
 
   const [selectedAuthority, setSelectedAuthority] = useState(null)
@@ -623,6 +589,19 @@ const Proposal = () => {
       setSelectedActivities([]);
     }
   }, [selectedAuthority, dispatch]);
+
+  useEffect(() => {
+    if (step === 2 && selectedAuthority) {
+      dispatch(getPackageByAuthorityId(selectedAuthority))
+    }
+  }, [step, selectedAuthority, dispatch])
+  
+  
+  
+
+  useEffect(() => {
+   
+  }, [selectedAuthority , dispatch])
 
   // activity optoipn from getactivity
   const activityOptions = business_activities.map((item) => ({
@@ -714,7 +693,7 @@ const Proposal = () => {
 
     setValidated(true)
   }
-
+console.log(packages,"packages")
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Proposal Form - Step {step}/7</h2>
@@ -751,16 +730,25 @@ const Proposal = () => {
         <>
           <h4>Select License Package</h4>
           <div className="row">
-            {packageOptions.map((item) => (
-              <div
-                key={item.id}
-                className="col-4 p-2"
-                onClick={() => setSelectedPackage(item.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <PackageCardSelector item={item} />
-              </div>
-            ))}
+            {isPackageLoading ? (
+              <p>Loading packages...</p>
+            ) : packages.length === 0 ? (
+              <p>No packages available.</p>
+            ) : (
+              packages.map((item) => (
+                <div
+                  key={item.id}
+                  className="col-4 p-2"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <PackageCardSelector
+                    item={item}
+                    selected={selectedPackage === item.id}
+                    onClick={() => setSelectedPackage(item.id)}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </>
       )}

@@ -80,6 +80,7 @@ const packageSlice = createSlice({
     packages: [],
     business_package:null,
     isLoading: true,
+    isPackageLoading :true,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -153,17 +154,16 @@ const packageSlice = createSlice({
         state.business_package = null
        
       }).addCase(getPackageByAuthorityId.pending, (state) => {
-        state.isLoading = true
-  })
-  .addCase(getPackageByAuthorityId.fulfilled, (state, action) => {
-    state.isLoading = false
-    state.packages = action.payload.data
-  })
-      .addCase(getPackageByAuthorityId.rejected, (state) => {
-    state.isLoading = false
-    state.packages = []
-  })
-
+        state.isPackageLoading  = true
+      })
+      .addCase(getPackageByAuthorityId.fulfilled, (state, action) => {
+        state.isPackageLoading  = false
+        state.packages = action.payload.data
+      })
+          .addCase(getPackageByAuthorityId.rejected, (state) => {
+        state.isPackageLoading  = false
+        state.packages = []
+      })
   },
 })
 

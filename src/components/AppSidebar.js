@@ -18,7 +18,9 @@ import {
   cilPeople,
   cilDescription,
   cilGroup,
+  cilSettings
 } from '@coreui/icons'
+
 
 // Import your zone action
 import { getBusinessZone } from '../store/admin/businessZoneSlice'
@@ -143,10 +145,10 @@ const AppSidebar = () => {
 
       <AppSidebarNav items={navigation} />
 
-      <CSidebarFooter className="border-top d-none d-lg-flex">
-        <CSidebarToggler
-          onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
-        />
+      <CSidebarFooter className="border-top d-none d-lg-flex justify-content-end">
+        
+        <Link to='/setting' style={{textDecoration:'none', color:'white'}}><CIcon icon={cilSettings} className="me-2" /></Link>
+       
       </CSidebarFooter>
     </CSidebar>
   )

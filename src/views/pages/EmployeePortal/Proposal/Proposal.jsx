@@ -532,6 +532,7 @@ import {
   CProgressBar 
 } from '@coreui/react'
 import { FaTimes } from 'react-icons/fa';
+import PackageCard from '../../ProposalManagement/package/PackageCard'
 
 const activityOptions = [
   { id: 1, name: 'Consultancy' },
@@ -695,7 +696,7 @@ const Proposal = () => {
   }
 console.log(packages,"packages")
   return (
-    <div className="container mt-5">
+    <div className="container ">
       <h2 className="text-center mb-4">Proposal Form - Step {step}/7</h2>
     <CProgress color="info" className='mb-3' variant='striped' animated value={(step / 7) * 100}/> 
        {step === 1 && (
@@ -713,10 +714,14 @@ console.log(packages,"packages")
                   className="col-4"
                   onClick={() => setSelectedAuthority(item.id)}
                 >
+                  <label className={`card mt-3`}>
+      
+        </label>
                   <CardSelector
                     image={item.image ? `http://localhost:5000/uploads/business-zones/${item.image}` : logo}
                     title={item.name}
                     textAlign="center"
+                    name="card-group"
                   />
 
                 </div>
@@ -728,7 +733,9 @@ console.log(packages,"packages")
 
       {step === 2 && (
         <>
-          <h4>Select License Package</h4>
+          
+          <h4>{`Select package for ${packages[0]?.authority?.name} ${packages[0]?.authority?.zone.name}`}</h4>
+
           <div className="row">
             {isPackageLoading ? (
               <p>Loading packages...</p>
@@ -741,6 +748,7 @@ console.log(packages,"packages")
                   className="col-4 p-2"
                   style={{ cursor: 'pointer' }}
                 >
+                  
                   <PackageCardSelector
                     item={item}
                     selected={selectedPackage === item.id}

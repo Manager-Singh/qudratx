@@ -21,16 +21,18 @@ function BusinessActivity() {
 
   useEffect(() => {
     if (uuid) {
-      dispatch(getBusinessZonesAuthorityByUuid({uuid}))
+
+  const authority_uuid = uuid;
+      dispatch(getBusinessZonesAuthorityByUuid({authority_uuid})).then((data)=>{
+        if (data.payload.success) {
+          const authority_id =data.payload.data.id
+           dispatch(getBusinessActivityByAuthorityId({authority_id}))
+        }
+      })
     }
   }, [uuid])
 
-  useEffect(() => {
-    if (authority?.id) {
-      dispatch(getBusinessActivityByAuthorityId(authority.id))
-    }
-  }, [authority?.id])
-
+console.log(authority,"authority")
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
@@ -41,7 +43,8 @@ function BusinessActivity() {
       console.log(data,"data")
       if (data.payload.success) {
         showToast('success', data.payload.message)
-        dispatch(getBusinessActivityByAuthorityId(authority.id))
+        const authority_id= authority.id
+        dispatch(getBusinessActivityByAuthorityId({authority_id}))
       }
     })
     

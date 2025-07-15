@@ -45,6 +45,7 @@ export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
 export const getBusinessZonesAuthorityByUuid = createAsyncThunk(
   'authority/get-by-uuid',
   async ({authority_uuid}, thunkAPI) => {
+    console.log('sdfsdfsdfesfsdfsdfsdf====== ',authority_uuid)
     try {
       const response = await getData(`/admin/get-authority-by-uuid/${authority_uuid}`)
       return response
@@ -197,6 +198,7 @@ const businessZonesAuthoritySlice = createSlice({
     })
     .addCase(getBusinessZonesAuthorityByUuid.fulfilled, (state, action) => {
       state.isLoading = false
+      console.log("action.payload.data",action.payload.data)
       state.authority = action.payload.data
     })
     .addCase(getBusinessZonesAuthorityByUuid.rejected, (state, action) => {

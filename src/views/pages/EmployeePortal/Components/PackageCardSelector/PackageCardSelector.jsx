@@ -3,6 +3,7 @@ import '../CardSelector/CardSelector.css';
 import { FaCheck } from 'react-icons/fa';
 
 const PackageCardSelector = ({ item, selected, onClick }) => {
+  console.log(item,"item")
   return (
     <label className="card">
       <input
@@ -18,7 +19,7 @@ const PackageCardSelector = ({ item, selected, onClick }) => {
             style={{ backgroundColor: '#2f1051' }}
           >
             <h4 className="fw-bold mb-2">{item.name}</h4>
-            <h1 className="fw-bold mb-1">{item.total_amount}</h1>
+             <h1 className="fw-bold mb-1 " style={{color:'#ff770f'}}>{`AED ${item.total_amount}`}</h1>
           </div>
 
           <div className="card__body-cover-checkbox">
@@ -29,17 +30,23 @@ const PackageCardSelector = ({ item, selected, onClick }) => {
         </div>
 
         <div className="card__body-header p-3">
+            <p className='text-start'>Activity Offered: {item.activity}</p>
           <ul className="list-unstyled m-0">
             {item.fee_structure?.map((fee, index) => (
               <li
                 key={index}
                 className="d-flex gap-2 align-items-center mb-2 text-start"
               >
-                <FaCheck className="text-success" />
-                <span>{fee.name} - {fee.amount}</span>
+                <span className='text-success'>{`AED ${fee.amount}`}</span>
+                {` ${fee.name}`}
               </li>
             ))}
           </ul>
+          {item.discount >0  && <p className='text-start '> <span className='text-success me-1'>{`AED ${item.discount}`}</span>
+                discount </p> }
+          {item.tax >0 &&  <p className='text-start'> <span className='text-success me-1'>{`AED ${item.tax}`}</span>
+                 tax</p>}
+            <p className="text-start">Total: <span className='text-success'>{`AED ${item.total_amount} `}</span> </p>
         </div>
       </div>
     </label>

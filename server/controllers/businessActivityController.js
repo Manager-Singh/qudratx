@@ -163,12 +163,10 @@ const createBusinessActivity = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid'],
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -217,12 +215,10 @@ const getBusinessActivity = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid'],
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -256,12 +252,10 @@ const getBusinessActivityByUUID = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid'],
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -317,12 +311,10 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid'],
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }

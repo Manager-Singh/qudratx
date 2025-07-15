@@ -151,17 +151,14 @@ const getLeadDetail = async (req, res) => {
         {
           model: User,
           as: 'assignedBy',
-          attributes: ['id', 'name', 'email'] // customize fields
         },
         {
           model: User,
           as: 'assignedTo',
-          attributes: ['id', 'name', 'email']
         },
         {
           model: User,
-          as: 'createdBy',
-          attributes: ['id', 'name', 'email']
+          as: 'createdBy'
         }
       ]
     });
@@ -197,17 +194,14 @@ const getLeadDetailByUUID = async (req, res) => {
         {
           model: User,
           as: 'assignedBy',
-          attributes: ['id', 'name', 'email'] // customize fields
         },
         {
           model: User,
           as: 'assignedTo',
-          attributes: ['id', 'name', 'email']
         },
         {
           model: User,
           as: 'createdBy',
-          attributes: ['id', 'name', 'email']
         }
       ] });
     if (!lead) {

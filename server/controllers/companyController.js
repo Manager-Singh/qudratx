@@ -8,8 +8,8 @@ const createAndUpdateCompany = async (req, res) => {
       terms_and_conditions,
       bank_details } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({ message: 'Name and Email are required' });
+    if (!name || !email || (!req.files || !req.files.logo || !req.files.logo[0])) {
+      return res.status(400).json({ message: 'Name , Email and Logo are required' });
     }
 
     const imageLogo = req.files?.logo?.[0]?.filename || null;

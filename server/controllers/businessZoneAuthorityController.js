@@ -33,7 +33,7 @@ const createBusinessZonesAuthority = async (req, res) => {
 
     const fullAuthority = await BusinessZonesAuthority.findOne({
       where: { id: authority.id },
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] }]
+      include: [{ model: BusinessZone, as: 'zone' }]
     });
 
     return res.status(201).json({
@@ -72,10 +72,9 @@ const getBusinessZonesAuthorities = async (req, res) => {
     const authorities = await BusinessZonesAuthority.findAll({
       where,
       order: [['created_at', 'DESC']],
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] },{
+      include: [{ model: BusinessZone, as: 'zone' },{
           model: Package,
           as: 'packages',
-          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
         }
     ]
     });
@@ -96,22 +95,51 @@ const getBusinessZonesAuthorityByZoneId = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const authority = await BusinessZonesAuthority.findAll({
-      where: { zone_id: id},
-      include: [{ model: BusinessZone, as: 'zone', attributes: ['id', 'name', 'uuid'] },{
-          model: Package,
-          as: 'packages',
-          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
-        }]
-    });
-    if (!authority) {
-      return res.status(404).json({ message: 'Business zone authority not found' });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status;
+
+    const where = {
+      zone_id: id,
+      deleted_at: null,
+      name: { [Op.like]: `%${search}%` },
+    };
+
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
     }
 
+    const { count, rows } = await BusinessZonesAuthority.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: BusinessZone,
+          as: 'zone'
+        },
+        {
+          model: Package,
+          as: 'packages'
+        }
+      ]
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
     res.status(200).json({
-      message: 'Business zone authority fetched successfully',
+      message: 'Business zone authorities fetched successfully',
       success: true,
-      data: authority,
+      page,
+      limit,
+      totalRecords: count,
+      totalPages,
+      data: rows
     });
   } catch (error) {
     console.error('Get authority error:', error);
@@ -128,12 +156,10 @@ const getBusinessZonesAuthorityByUUID = async (req, res) => {
       include: [
         {
           model: BusinessZone,
-          as: 'zone',
-          attributes: ['id', 'name', 'uuid']
+          as: 'zone'
         },{
           model: Package,
-          as: 'packages',
-          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
+          as: 'packages'
         }
       ]
     });
@@ -162,13 +188,11 @@ const getBusinessZonesAuthorityById = async (req, res) => {
       include: [
         {
           model: BusinessZone,
-          as: 'zone',
-          attributes: ['id', 'name', 'uuid']
+          as: 'zone'
         },
         {
           model: Package,
-          as: 'packages',
-          attributes: ['id', 'name', 'total_amount','description', 'uuid'], // adjust fields as needed
+          as: 'packages'
         }
       ]
     });

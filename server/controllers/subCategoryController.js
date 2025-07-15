@@ -26,8 +26,7 @@ if (existingCat) {
       include: [
           {
             model: Category,
-            as: 'category', // <== required because of the alias
-            attributes: ['id', 'name']
+            as: 'category',
           }
         ]
     });
@@ -71,8 +70,7 @@ const getSubCategory = async (req, res) => {
       include: [
           {
             model: Category,
-            as: 'category', // <== required because of the alias
-            attributes: ['id', 'name']
+            as: 'category'
           }
         ]
     });
@@ -127,8 +125,7 @@ const getSubCategoryByCategoryId = async (req, res) => {
       include: [
           {
             model: Category,
-            as: 'category', // <== required because of the alias
-            attributes: ['id', 'name']
+            as: 'category',
           }
         ]
     });

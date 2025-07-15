@@ -34,12 +34,10 @@ if (existingPackage) {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -85,12 +83,10 @@ const getPackage = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -144,12 +140,10 @@ const getPackageByAuthorityId = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid', 'zone_id'],
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }
@@ -182,12 +176,10 @@ const getPackageByUUID = async (req, res) => {
         {
           model: BusinessZonesAuthority,
           as: 'authority',
-          attributes: ['id', 'name', 'uuid', 'zone_id'], // Customize as needed
           include: [
             {
               model: BusinessZone,
               as: 'zone',
-              attributes: ['id', 'name', 'uuid'],
             }
           ]
         }

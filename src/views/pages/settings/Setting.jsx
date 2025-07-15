@@ -1,57 +1,124 @@
-
-import React from 'react'
+import React, { useState } from 'react'
 import {
+  CForm,
+  CFormInput,
+  CFormLabel,
+  CFormTextarea,
+  CButton,
+  CRow,
+  CCol,
   CCard,
   CCardBody,
   CCardHeader,
-  CRow,
-  CCol,
   CImage,
-  CButton,
 } from '@coreui/react'
-import { useNavigate } from 'react-router-dom'
 
 const Setting = () => {
-  const navigate = useNavigate()
-
-  // 🔹 Dummy data
-  const settings = {
+  const [form, setForm] = useState({
     name: 'TechNova Solutions Pvt Ltd',
     description:
-      'TechNova is a leading software company providing CRM, ERP, and AI-powered solutions to clients worldwide. Our mission is to simplify business operations.',
-    logo: 'https://via.placeholder.com/150x100.png?text=Company+Logo',
+      'TechNova is a leading software company providing CRM, ERP, and AI-powered solutions to clients worldwide.',
+    logo:'',
+    email:'demo@gmail.com',
+    icon:'',
+  })
+  const [logoPreview, setLogoPreview] = useState('')
+  const [iconPreview, setIconPreview] = useState('')
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (type === 'logo') {
+      setForm((prev) => ({ ...prev, logo: file }))
+      setLogoPreview(URL.createObjectURL(file))
+    }
+
+    if (type === 'icon') {
+      setForm((prev) => ({ ...prev, icon: file }))
+      setIconPreview(URL.createObjectURL(file))
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    
   }
 
   return (
-    <CCard>
-      <CCardHeader className="d-flex justify-content-between align-items-center">
-        <h5 className="mb-0">Company Settings</h5>
-        <CButton color="primary" onClick={() => navigate('/setting/edit')}>
-          Edit
-        </CButton>
-      </CCardHeader>
+    <div className='container'>
+      <CRow>
+      {/* Form */}
+      <CCol md={12}>
+        <CCard>
+          <CCardHeader>
+            <strong>Edit Company Info</strong>
+          </CCardHeader>
+          <CCardBody>
+            <CForm onSubmit={handleSubmit}>
+              <CFormLabel>Company Name</CFormLabel>
+              <CFormInput
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+              />
+              <CFormLabel>Company Email</CFormLabel>
+              <CFormInput
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+              />
 
-      <CCardBody>
-        <CRow className="mb-4">
-          <CCol md={3}>
-            <h6>Logo</h6>
-            <CImage
-              src={settings.logo}
-              alt="Company Logo"
-              height={100}
-              className="border rounded"
-            />
-          </CCol>
-          <CCol md={9}>
-            <h6>Company Name</h6>
-            <p>{settings.name}</p>
+              <CFormLabel className="mt-3">Description</CFormLabel>
+              <CFormTextarea
+                name="description"
+                rows={4}
+                value={form.description}
+                onChange={handleChange}
+              />
 
-            <h6>Description</h6>
-            <p>{settings.description}</p>
-          </CCol>
-        </CRow>
-      </CCardBody>
-    </CCard>
+              <CFormLabel className="mt-3">Company Logo</CFormLabel>
+              <CFormInput
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, 'logo')}
+              />
+              <div className='my-2'>
+                {logoPreview && (
+                  <CImage src={logoPreview} height={100} className="border rounded" />
+                ) }
+              </div>
+
+              <CFormLabel className="mt-3">Company Icon</CFormLabel>
+              <CFormInput
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, 'icon')}
+              />
+              <div className='my-2'>
+                 {iconPreview && (
+                  <CImage src={iconPreview} height={80} width={80} className="border rounded" />
+                ) }
+              </div>
+             
+
+              <CButton type="submit" className="mt-3 custom-button">
+                Update 
+              </CButton>
+            </CForm>
+          </CCardBody>
+        </CCard>
+      </CCol>
+
+    
+    
+    </CRow>
+    </div>
+    
   )
 }
 

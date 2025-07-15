@@ -285,8 +285,35 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
   try {
     const { authority_id } = req.params;
 
-    const activity = await BusinessActivity.findAll({ where: { authority_id },
-    include: [
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status; // optional
+
+    const where = {
+      authority_id,
+      deleted_at: null,
+    };
+
+    // Add search on activity_name
+    if (search) {
+      where.activity_name = { [Op.like]: `%${search}%` };
+    }
+
+    // Filter by status
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
+
+    const { count, rows } = await BusinessActivity.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
         {
           model: BusinessZonesAuthority,
           as: 'authority',
@@ -300,15 +327,21 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
           ]
         }
       ]
-     });
-    if (!activity) {
-      return res.status(404).json({ message: 'Business activity not found' });
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'No business activities found' });
     }
 
-    res.status(200).json({
-      message: 'Business activity fetched successfully',
-      success: true,
-      data: activity,
+    return res.status(200).json({
+      message: 'Business activities fetched successfully',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows,
     });
   } catch (error) {
     console.error('Get activity error:', error);

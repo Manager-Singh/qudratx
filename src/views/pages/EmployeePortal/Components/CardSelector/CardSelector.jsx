@@ -5,12 +5,12 @@ const CardSelector = ({ selected, onClick, image, title ,name}) => {
   return (
     <label className={`card mt-3`}>
       <input
-        type="radio"
-        name={name}
-        className="card__input"
-        checked={selected}
-        onChange={onClick}
-      />
+  type="checkbox"
+  name={name}
+  className="card__input"
+  checked={selected}
+  onChange={onClick}
+/>
       <div className="card__body">
 
         <div className="card__body-cover">

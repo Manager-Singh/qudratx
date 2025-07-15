@@ -25,26 +25,26 @@ const createBusinessActivity = async (req, res) => {
                 continue;
               }
 
-            const existingZone = await BusinessZone.findOne({ where: { name : row["Zone"]  } });
-              if (!existingZone) {
-               return res.status(400).json({ message: 'Zone does not exist' });
-              }
+            // const existingZone = await BusinessZone.findOne({ where: { name : row["Zone"]  } });
+            //   if (!existingZone) {
+            //    return res.status(400).json({ message: 'Zone does not exist' });
+            //   }
 
               const activity = await BusinessActivity.create({
                 authority_id: req.body.authority_id,
                 activity_master_number: row["Activity Master: Activity Master Number"],
                 activity_code: row["Activity Code"],
-                zone: existingZone.id,
+                // zone: existingZone.id,
                 activity_name: row["Activity Name"] ,
                 activity_name_arabic: row["Activity Name (Arabic)"] ,
-                status: row["Status"]  !== undefined ? row["Status"]  : true,
+                // status: row["Status"]  !== undefined ? row["Status"]  : 1,
                 minimum_share_capital: row["Minimum Share Capital"] ,
                 license_type: row["License Type"] ,
                 is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"] ,
-                is_special: row["Is Special"] ,
+                is_special: parseInt(row["Is Special"]),
                 activity_price: row["Activity Price"] ,
                 activity_group: row["Activity Group"] ,
-                description: row["Description"] ,
+                description: row["Descri)ption"] ,
                 qualification_requirement: row["Qualification Requirement"] ,
                 documents_required: row["Documents Required"] ,
                 category: row["Category"] || row["Price Category"]  ,
@@ -80,10 +80,10 @@ const createBusinessActivity = async (req, res) => {
         authority_id,
         activity_master_number,
         activity_code,
-        zone,
+        // zone,
         activity_name,
         activity_name_arabic,
-        status,
+        // status,
         minimum_share_capital,
         license_type,
         is_not_allowed_for_coworking_esr,
@@ -130,10 +130,10 @@ const createBusinessActivity = async (req, res) => {
         authority_id,
         activity_master_number,
         activity_code,
-        zone,
+        // zone,
         activity_name,
         activity_name_arabic,
-        status: status !== undefined ? status : true,
+        // status: status !== undefined ? status : 1,
         minimum_share_capital,
         license_type,
         is_not_allowed_for_coworking_esr,

@@ -87,7 +87,7 @@ const Dashboard = () => {
                             <Card title={zone.name} textAlign="center" onClick={()=> handleZone(zone)}></Card>
                         </div>
                     ))} */}
-                    <Link to='/business-zones'> <CButton className='custom-button mt-3'>Add Proposal</CButton></Link>   
+                    <Link to='/business-zones'> <CButton className='custom-button mt-3'>Create Proposal</CButton></Link>   
                 </div>
             </div>
           </div>

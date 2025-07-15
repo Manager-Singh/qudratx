@@ -10,14 +10,7 @@ import {
 import { FaCheck } from 'react-icons/fa'
 
 const PackageCard = ({item}) => {
-  const features = [
-    '250 Subscribers',
-    '5 Team Members',
-    '5 Metrics',
-    'Email Notifications',
-    'Basic Customization',
-    'Status & Authenticated API',
-  ]
+  
 console.log(item,"item")
   return (
     <div className="package-wrapper">

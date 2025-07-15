@@ -55,10 +55,10 @@ const AdminLogin = () => {
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
                    <CRow>
-                    <CCol xs={9}>
+                    <CCol xs={8}>
                       <h1>Admin Login</h1>
                         </CCol>
-                        <CCol xs={3}>
+                        <CCol xs={4}>
                      <Link to='/employee-login'>Employee Login</Link>
                     </CCol>
                     </CRow>

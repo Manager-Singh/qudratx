@@ -3,7 +3,10 @@ const { Op, where } = require('sequelize');
 
 const createAndUpdateCompany = async (req, res) => {
   try {
-    const { name, email, description, logo, icon } = req.body;
+    const { name, email, description, logo, icon, phone,
+      address,
+      terms_and_conditions,
+      bank_details } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ message: 'Name and Email are required' });
@@ -14,9 +17,17 @@ const createAndUpdateCompany = async (req, res) => {
 
     const existingCompany = await Company.findOne({ where: { email } });
 
+    // Parse JSON strings if sent as strings (e.g., from Postman or forms)
+    const parsedAddress = typeof address === 'string' ? JSON.parse(address) : address;
+    const parsedBankDetails = typeof bank_details === 'string' ? JSON.parse(bank_details) : bank_details;
+
     if (existingCompany) {
       // Update existing record
       existingCompany.name = name;
+      existingCompany.phone = phone || existingCompany.phone;
+      existingCompany.address = parsedAddress || existingCompany.address;
+      existingCompany.terms_and_conditions = terms_and_conditions || existingCompany.terms_and_conditions;
+      existingCompany.bank_details = parsedBankDetails || existingCompany.bank_details;
       existingCompany.description = description;
       existingCompany.logo = imageLogo || existingCompany.logo;
       existingCompany.icon = imageIcon || existingCompany.icon;
@@ -36,6 +47,10 @@ const createAndUpdateCompany = async (req, res) => {
         name,
         email,
         description,
+        phone,
+        address: parsedAddress,
+        terms_and_conditions,
+        bank_details: parsedBankDetails,
         logo: imageLogo,
         icon: imageIcon,
         created_at: new Date(),

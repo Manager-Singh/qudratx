@@ -15,6 +15,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
     },
+       phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    address: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      comment: 'Array of address objects',
+    },
+    terms_and_conditions: {
+      type: DataTypes.TEXT('long'),
+      allowNull: true,
+    },
+    bank_details: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      comment: 'Includes bank_title, account_number, iban_number, bank, branch, swift_code',
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: true,

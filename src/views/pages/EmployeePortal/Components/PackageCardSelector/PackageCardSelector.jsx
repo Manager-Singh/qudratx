@@ -3,7 +3,7 @@ import '../CardSelector/CardSelector.css';
 import { FaCheck } from 'react-icons/fa';
 
 const PackageCardSelector = ({ item, selected, onClick }) => {
-  console.log(item,"item")
+  
   return (
     <label className="card">
       <input

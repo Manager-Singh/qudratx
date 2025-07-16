@@ -36,6 +36,8 @@ import Benefits from './steps/Benefits'
 import ScopeOfWork from './steps/ScopeOfWork'
 import Notes from './steps/Notes'
 import { getClient } from '../../../../store/admin/clientSlice'
+import BusinessActivityStepSelector from '../Components/helper/BusinessActivityInfiniteList'
+import Clients from './Clients'
 
 const activityOptions = [
   { id: 1, name: 'Consultancy' },
@@ -67,9 +69,9 @@ const questions = [
   { title: 'CERTIFICATE OF INCORPORATION', quantity: 1, cost: 'INCLUDED' },
 ]
 const clientOptions = [
-  { id: '1', name: 'John Doe' },
-  { id: '2', name: 'Jane Smith' },
-  { id: '3', name: 'Ahmed Ali' },
+  { id: '1', name: 'Client1' },
+  { id: '2', name: 'Client2' },
+  { id: '3', name: 'Client3' },
 ]
 const Proposal = () => {
   const { id } = useParams()
@@ -290,65 +292,67 @@ const Proposal = () => {
       )}
 
       {step === 3 && (
-        <>
-          <h4>Select Business Activities</h4>
+//         <>
+//           <h4>Select Business Activities</h4>
 
-          {/* React Select Search */}
-          <Select
-            isMulti
-            options={activityOptions}
-            value={activityOptions.filter(opt => selectedActivities.includes(opt.value))}
-            onChange={handleActivityChange}
-            placeholder="Search and select business activities..."
-            className="mb-3"
-            components={{ MultiValue: () => null }} // Hide default tags
-          />
+//           {/* React Select Search */}
+//           <Select
+//             isMulti
+//             options={activityOptions}
+//             value={activityOptions.filter(opt => selectedActivities.includes(opt.value))}
+//             onChange={handleActivityChange}
+//             placeholder="Search and select business activities..."
+//             className="mb-3"
+//             components={{ MultiValue: () => null }} // Hide default tags
+//           />
 
-          {/* Selected badges */}
-          <div className="mb-4 d-flex flex-wrap gap-2">
-            {activityOptions
-              .filter((opt) => selectedActivities.includes(opt.value))
-              .map((opt) => (
-                <span
-                  key={opt.value}
-                  className="badge bg-primary d-flex align-items-center"
-                  style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
-                >
-                  {opt.label}
-                  <FaTimes
-                    onClick={() =>
-                      setSelectedActivities((prev) =>
-                        prev.filter((id) => id !== opt.value)
-                      )
-                    }
-                    style={{
-                      marginLeft: '8px',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                    }}
-                  />
-                </span>
-              ))}
-          </div>
+//           {/* Selected badges */}
+//           <div className="mb-4 d-flex flex-wrap gap-2">
+//             {activityOptions
+//               .filter((opt) => selectedActivities.includes(opt.value))
+//               .map((opt) => (
+//                 <span
+//                   key={opt.value}
+//                   className="badge bg-primary d-flex align-items-center"
+//                   style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
+//                 >
+//                   {opt.label}
+//                   <FaTimes
+//                     onClick={() =>
+//                       setSelectedActivities((prev) =>
+//                         prev.filter((id) => id !== opt.value)
+//                       )
+//                     }
+//                     style={{
+//                       marginLeft: '8px',
+//                       cursor: 'pointer',
+//                       fontSize: '0.9rem',
+//                     }}
+//                   />
+//                 </span>
+//               ))}
+//           </div>
 
-          {/* Card Grid */}
+//           {/* Card Grid */}
          
-   <div className="row">
-  {business_activities.map((item) => {
-    const isSelected = selectedActivities.includes(item.id); // Only one selected
-    return (
-      <div key={item.id} className="col-3 p-2">
-        <CardSelector
-          title={item.activity_name}
-          selected={isSelected}
-          onClick={() => handleActivityToggle(item.id)}
-          name="activity_group"
-        />
-      </div>
-    );
-  })}
-</div>
-        </>
+//    <div className="row">
+//   {business_activities.map((item) => {
+//     const isSelected = selectedActivities.includes(item.id); // Only one selected
+//     return (
+//       <div key={item.id} className="col-3 p-2">
+//         <CardSelector
+//           title={item.activity_name}
+//           selected={isSelected}
+//           onClick={() => handleActivityToggle(item.id)}
+//           name="activity_group"
+//         />
+//       </div>
+//     );
+//   })}
+// </div>
+//         </>
+
+<BusinessActivityStepSelector step={3} authority_id={selectedAuthority }/>
       )}
 
 
@@ -559,19 +563,8 @@ const Proposal = () => {
       )}
       {step === 10 && (
         <>
-         <h4>Search & Select Client</h4>
-    <CFormSelect
-      value={selectedClient}
-      onChange={(e) => setSelectedClient(e.target.value)}
-      aria-label="Select Client"
-    >
-      <option value="">-- Select a Client --</option>
-      {clientOptions.map((client) => (
-        <option key={client.id} value={client.id}>
-          {client.name}
-        </option>
-      ))}
-    </CFormSelect>
+        <Clients selectedClientId={selectedClient} setSelectedClientId={setSelectedClient} />
+         
         </>
       )}
 
@@ -612,8 +605,8 @@ const Proposal = () => {
             Back
           </button>
         )}
-        {step < 10 && (
-          <button onClick={handleNext} className="custom-button" style={{ padding: '10px 20px' }}>
+        {step < 11 && (
+          <button onClick={handleNext} className="custom-button " style={{ padding: '10px 20px' }}>
             Next
           </button>
         )}

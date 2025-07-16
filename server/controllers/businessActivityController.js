@@ -19,7 +19,7 @@ const createBusinessActivity = async (req, res) => {
         .on('end', async () => {
           for (const [index, row] of results.entries()) {
             try {
-              const existing = await BusinessActivity.findOne({ where: { authority_id: req.body.authority_id,activity_name: row["Activity Name"]  } });
+              const existing = await BusinessActivity.findOne({ where: { authority_id: req.body.authority_id,activity_name: row["Activity Name"], activity_code:row["Activity Code"] } });
               if (existing) {
                 errors.push({ row: index + 1, message: 'Duplicate activity name' });
                 continue;

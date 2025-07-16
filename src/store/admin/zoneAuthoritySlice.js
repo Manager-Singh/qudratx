@@ -8,7 +8,6 @@ export const addBusinessZonesAuthority = createAsyncThunk(
     
     try {
       const response = await postDataWithImage('/admin/create-authority', data)
-      console.log(response,"response")
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
@@ -45,7 +44,6 @@ export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
 export const getBusinessZonesAuthorityByUuid = createAsyncThunk(
   'authority/get-by-uuid',
   async ({authority_uuid}, thunkAPI) => {
-    console.log('sdfsdfsdfesfsdfsdfsdf====== ',authority_uuid)
     try {
       const response = await getData(`/admin/get-authority-by-uuid/${authority_uuid}`)
       return response
@@ -59,7 +57,7 @@ export const getBusinessZonesAuthorityByUuid = createAsyncThunk(
 export const updateBusinessZonesAuthority = createAsyncThunk(
   'authority/update',
   async ({ uuid, data }, thunkAPI) => {
-    console.log(data,"data")
+    
     try {
       const response = await putDataWithImage(`/admin/update-authority/${uuid}`, data)
       return response
@@ -198,7 +196,7 @@ const businessZonesAuthoritySlice = createSlice({
     })
     .addCase(getBusinessZonesAuthorityByUuid.fulfilled, (state, action) => {
       state.isLoading = false
-      console.log("action.payload.data",action.payload.data)
+    
       state.authority = action.payload.data
     })
     .addCase(getBusinessZonesAuthorityByUuid.rejected, (state, action) => {

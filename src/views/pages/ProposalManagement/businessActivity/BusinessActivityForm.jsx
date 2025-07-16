@@ -11,6 +11,8 @@ import {
   CCol,
   CFormFeedback,
 } from '@coreui/react'
+import { getBusinessCategories } from '../../../../store/admin/businessCategorySlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 const BusinessActivityForm = ({ onSubmit, initialData = {} }) => {
   const [formData, setFormData] = useState({
@@ -36,9 +38,12 @@ const BusinessActivityForm = ({ onSubmit, initialData = {} }) => {
     esr: '',
     notes: '',
   })
-
+  const dispatch = useDispatch()
+  const {business_categories} = useSelector((state)=> state.business_category)
   const [errors, setErrors] = useState({})
-
+useEffect(()=>{
+  dispatch(getBusinessCategories())
+},[])
   // If editing, load existing data
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
@@ -78,13 +83,7 @@ const BusinessActivityForm = ({ onSubmit, initialData = {} }) => {
     }
   }
 
-  const categoryOptions = [
-    { value: '', label: 'Select Category' },
-    { value: 'commercial', label: 'Commercial' },
-    { value: 'services', label: 'Services' },
-    { value: 'educational', label: 'Educational' },
-    { value: 'ecommerce', label: 'E-Commerce' },
-  ]
+  
 
   return (
     <div className="container">
@@ -134,15 +133,13 @@ const BusinessActivityForm = ({ onSubmit, initialData = {} }) => {
         </CRow>
 
         <CRow className="mb-3">
-          <CCol md={6}>
-            <CFormLabel>Category</CFormLabel>
-            <CFormSelect name="category" value={formData.category} onChange={handleChange}>
-              {categoryOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </CFormSelect>
+           <CCol md={6}>
+            <CFormLabel>Description</CFormLabel>
+            <CFormTextarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+            />
           </CCol>
           <CCol md={6}>
             <CFormLabel>Minimum Share Capital</CFormLabel>
@@ -192,13 +189,17 @@ const BusinessActivityForm = ({ onSubmit, initialData = {} }) => {
               onChange={handleChange}
             />
           </CCol>
+         
           <CCol md={6}>
-            <CFormLabel>Description</CFormLabel>
-            <CFormTextarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
+            <CFormLabel>Category</CFormLabel>
+            <CFormSelect name="category" value={formData.category} onChange={handleChange}>
+  <option disabled value="">Select Category</option>
+  {business_categories?.map((item) => (
+    <option key={item.id} value={item.value}>
+      {item.name}
+    </option>
+  ))}
+</CFormSelect>
           </CCol>
         </CRow>
 

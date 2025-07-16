@@ -1,11 +1,11 @@
 import React from "react";
 import "./CardSelector.css"; 
 
-const CardSelector = ({ selected, onClick, image, title ,name,activity_code}) => {
+const CardSelector = ({ selected, onClick, image, title ,name,activity_code ,type}) => {
   return (
     <label className={`card mt-3`}>
       <input
-  type="checkbox"
+  type={type}
   name={name}
   className="card__input"
   checked={selected}

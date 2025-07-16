@@ -46,7 +46,7 @@ const PackageCardSelector = ({ item, selected, onClick }) => {
                 discount </p> }
           {item.tax >0 &&  <p className='text-start'> <span className='text-success me-1'>{`AED ${item.tax}`}</span>
                  tax</p>}
-            <p className="text-start">Total: <span className='text-success'>{`AED ${item.total_amount} `}</span> </p>
+          
         </div>
       </div>
     </label>

@@ -252,6 +252,7 @@ const Proposal = () => {
                     title={item.name}
                     textAlign="center"
                     name="card-group"
+                    type="radio"
                   />
 
                 </div>
@@ -292,65 +293,6 @@ const Proposal = () => {
       )}
 
       {step === 3 && (
-//         <>
-//           <h4>Select Business Activities</h4>
-
-//           {/* React Select Search */}
-//           <Select
-//             isMulti
-//             options={activityOptions}
-//             value={activityOptions.filter(opt => selectedActivities.includes(opt.value))}
-//             onChange={handleActivityChange}
-//             placeholder="Search and select business activities..."
-//             className="mb-3"
-//             components={{ MultiValue: () => null }} // Hide default tags
-//           />
-
-//           {/* Selected badges */}
-//           <div className="mb-4 d-flex flex-wrap gap-2">
-//             {activityOptions
-//               .filter((opt) => selectedActivities.includes(opt.value))
-//               .map((opt) => (
-//                 <span
-//                   key={opt.value}
-//                   className="badge bg-primary d-flex align-items-center"
-//                   style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
-//                 >
-//                   {opt.label}
-//                   <FaTimes
-//                     onClick={() =>
-//                       setSelectedActivities((prev) =>
-//                         prev.filter((id) => id !== opt.value)
-//                       )
-//                     }
-//                     style={{
-//                       marginLeft: '8px',
-//                       cursor: 'pointer',
-//                       fontSize: '0.9rem',
-//                     }}
-//                   />
-//                 </span>
-//               ))}
-//           </div>
-
-//           {/* Card Grid */}
-         
-//    <div className="row">
-//   {business_activities.map((item) => {
-//     const isSelected = selectedActivities.includes(item.id); // Only one selected
-//     return (
-//       <div key={item.id} className="col-3 p-2">
-//         <CardSelector
-//           title={item.activity_name}
-//           selected={isSelected}
-//           onClick={() => handleActivityToggle(item.id)}
-//           name="activity_group"
-//         />
-//       </div>
-//     );
-//   })}
-// </div>
-//         </>
 
 <BusinessActivityStepSelector step={3} authority_id={selectedAuthority }/>
       )}
@@ -595,7 +537,7 @@ const Proposal = () => {
         </>
       )}
 
-      <div className="d-flex justify-content-between mt-4">
+      <div className="d-flex justify-content-between mt-4 mb-2">
         {step > 1 && (
           <button
             onClick={handleBack}

@@ -6,6 +6,7 @@ import { addBusinessActivity } from '../../../../store/admin/businessActivitySli
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
 import { ToastExample } from '../../../../components/toast/Toast'
 
+
 const AddBusinessActivity = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -17,8 +18,10 @@ const AddBusinessActivity = () => {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
+
   useEffect(() => {
     dispatch(getBusinessZonesAuthorityByUuid({ uuid }))
+    
   }, [uuid])
 
   const handleSubmit = (formData) => {

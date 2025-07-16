@@ -1,186 +1,262 @@
-import React, { useEffect, useState, useRef } from 'react'
-import Select from 'react-select'
-import { useDispatch } from 'react-redux'
-import { FaTimes } from 'react-icons/fa'
-import { getBusinessActivityByAuthorityId } from '../../../../../store/admin/businessActivitySlice'
-import CardSelector from '../CardSelector/CardSelector'
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import Select from 'react-select';
+import { useDispatch } from 'react-redux';
+import { FaTimes } from 'react-icons/fa';
+import { getBusinessActivityByAuthorityId } from '../../../../../store/admin/businessActivitySlice';
+import CardSelector from '../CardSelector/CardSelector';
 
-
-const PAGE_SIZE = 20
+const PAGE_SIZE = 20;
 
 const BusinessActivityStepSelector = ({ step, authority_id }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const [businessActivities, setBusinessActivities] = useState([])
-  const [selectedActivities, setSelectedActivities] = useState([])
-  const [activityOptions, setActivityOptions] = useState([])
+  const [businessActivities, setBusinessActivities] = useState([]);
+  const [selectedActivities, setSelectedActivities] = useState([]);
+  const [activityOptions, setActivityOptions] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [loading, setLoading] = useState(false)
+  const loader = useRef(null);
+  const observer = useRef(null);
+  const loadingRef = useRef(false);
 
-  const loader = useRef(null)
+  // Memoized fetch function
+  const fetchActivities = useCallback(async (pageNum) => {
+  if (loadingRef.current) return;
+  loadingRef.current = true;
+  setLoading(true);
+  setError(null);
 
-  // Fetch activities on page change
-  const fetchActivities = async (pageNum) => {
-    setLoading(true)
-    try {
-      const res = await dispatch(
-        getBusinessActivityByAuthorityId({ authority_id, page: pageNum, PAGE_SIZE })
-      )
-      const data = res.payload?.data || []
+  console.log('Fetching activities, page:', pageNum);
 
-      if (data.length < PAGE_SIZE) setHasMore(false)
+  try {
+    const res = await dispatch(
+      getBusinessActivityByAuthorityId({ authority_id, page: pageNum, PAGE_SIZE })
+    );
 
-      // Update activity list (avoid duplicates)
-      setBusinessActivities((prev) => {
-        const newItems = data.filter(
-          (item) => !prev.some((existing) => existing.id === item.id)
-        )
-        return [...prev, ...newItems]
-      })
+    if (res.error) {
+      // If error but already some data loaded → just stop fetching more
+      if (businessActivities.length > 0) {
+        console.warn('No more data or error on next page. Stopping scroll.');
+        setHasMore(false);
+        return;
+      }
 
-      // Update select options
-     const newOptions = data.map((item) => ({
-  value: item.id,
-  label: `(${item.activity_code}) ${item.activity_name} `,
-  code: item.activity_code, // 👈 Needed for custom search
-}))
-      setActivityOptions((prev) => {
-        const all = [...prev, ...newOptions]
-        const unique = Array.from(new Map(all.map((o) => [o.value, o])).values())
-        return unique
-      })
-    } catch (error) {
-      console.error('Error fetching business activities:', error)
-    } finally {
-      setLoading(false)
+      // Else if first page fails, show error
+      throw new Error(res.error.message || 'Failed to load');
     }
-  }
 
+    const data = res.payload?.data || [];
+
+    // Stop further fetching if no data
+    if (data.length < PAGE_SIZE) {
+      setHasMore(false);
+    }
+
+    setBusinessActivities((prev) => {
+      const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));
+      return [...prev, ...newItems];
+    });
+
+    const newOptions = data.map((item) => ({
+      value: item.id,
+      label: `(${item.activity_code}) ${item.activity_name}`,
+      code: item.activity_code,
+    }));
+
+    setActivityOptions((prev) => {
+      const combined = [...prev, ...newOptions];
+      return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+    });
+  } catch (err) {
+    console.error('Error fetching activities:', err);
+    setError('Failed to load activities. Please try again.');
+    setHasMore(false); // Important: prevent infinite fetches
+  } finally {
+    loadingRef.current = false;
+    setLoading(false);
+    setInitialLoad(false);
+  }
+}, [dispatch, authority_id, businessActivities.length]);
+
+
+  // Reset state when authority_id changes
   useEffect(() => {
     if (step === 3) {
-      fetchActivities(page)
+      setBusinessActivities([]);
+      setActivityOptions([]);
+      setSelectedActivities([]);
+      setPage(1);
+      setHasMore(true);
+      setInitialLoad(true);
+      loadingRef.current = false;
     }
-  }, [page, step])
+  }, [authority_id, step]);
 
-  // Observe scroll to load more
+  // Initial load and page change effect
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && hasMore && !loading && step === 3) {
-          setPage((prev) => prev + 1)
-        }
-      },
-      { threshold: 1 }
-    )
-
-    if (loader.current) observer.observe(loader.current)
-    return () => {
-      if (loader.current) observer.unobserve(loader.current)
+    if (step === 3 && (initialLoad || page > 1)) {
+      fetchActivities(page);
     }
-  }, [loader, hasMore, loading, step])
+  }, [page, step, initialLoad, fetchActivities]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!hasMore || step !== 3) return;
+
+    const options = {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1
+    };
+
+    const callback = (entries) => {
+      if (entries[0].isIntersecting && !loadingRef.current) {
+        setPage(prev => prev + 1);
+      }
+    };
+
+    observer.current = new IntersectionObserver(callback, options);
+    
+    const currentLoader = loader.current;
+    if (currentLoader) {
+      observer.current.observe(currentLoader);
+    }
+
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, [hasMore, step, loadingRef.current]);
 
   const handleActivityToggle = (id) => {
     setSelectedActivities((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    )
-  }
+    );
+  };
 
   const handleActivityChange = (selected) => {
-    setSelectedActivities(selected.map((item) => item.value))
-  }
+    setSelectedActivities(selected ? selected.map((item) => item.value) : []);
+  };
 
-  if (step !== 3) return null
+  const removeSelectedActivity = (id) => {
+    setSelectedActivities((prev) => prev.filter((item) => item !== id));
+  };
+
+  if (step !== 3) return null;
 
   return (
-    <>
-     <div className="d-flex flex-column" style={{ height: '60vh' }}>
-  {/* Header + select */}
-  <div>
-    <h4>Select Business Activities</h4>
-<Select
-  isMulti
-  options={activityOptions}
-  value={activityOptions.filter((opt) =>
-    selectedActivities.includes(opt.value)
-  )}
-  onChange={handleActivityChange}
-  placeholder="Search by name or code..."
-  className="mb-3"
-  components={{ MultiValue: () => null }}
-  filterOption={(option, inputValue) => {
-    const label = option.label?.toLowerCase() || ''
-    const code = activityOptions.find((a) => a.value === option.value)?.code?.toLowerCase() || ''
-    const input = inputValue.toLowerCase()
-    return label.includes(input) || code.includes(input)
-  }}
-/>
+    <div className="d-flex flex-column" style={{ height: '60vh' }}>
+      {/* Header + select */}
+      <div>
+        <h4>Select Business Activities</h4>
+        <Select
+          isMulti
+          options={activityOptions}
+          value={activityOptions.filter((opt) =>
+            selectedActivities.includes(opt.value)
+          )}
+          onChange={handleActivityChange}
+          placeholder="Search by name or code..."
+          className="mb-3"
+          components={{ MultiValue: () => null }}
+          filterOption={(option, inputValue) => {
+            const label = option.label?.toLowerCase() || '';
+            const code = option.data?.code?.toLowerCase() || '';
+            const input = inputValue.toLowerCase();
+            return label.includes(input) || code.includes(input);
+          }}
+          isLoading={loading}
+          loadingMessage={() => 'Loading...'}
+          noOptionsMessage={() => 'No activities found'}
+        />
 
-    {/* Selected badges */}
-    <div className="mb-3 d-flex flex-wrap gap-2">
-      {activityOptions
-        .filter((opt) => selectedActivities.includes(opt.value))
-        .map((opt) => (
-          <span
-            key={opt.value}
-            className="badge bg-primary d-flex align-items-center"
-            style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
-          >
-            {opt.label}
-            <FaTimes
-              onClick={() =>
-                setSelectedActivities((prev) =>
-                  prev.filter((id) => id !== opt.value)
-                )
-              }
-              style={{
-                marginLeft: '8px',
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-              }}
-            />
-          </span>
-        ))}
-    </div>
-  </div>
+        {/* Selected badges */}
+        <div className="mb-3 d-flex flex-wrap gap-2">
+          {activityOptions
+            .filter((opt) => selectedActivities.includes(opt.value))
+            .map((opt) => (
+              <span
+                key={opt.value}
+                className="badge bg-primary d-flex align-items-center"
+                style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
+              >
+                {opt.label}
+                <FaTimes
+                  onClick={() => removeSelectedActivity(opt.value)}
+                  style={{
+                    marginLeft: '8px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                  }}
+                />
+              </span>
+            ))}
+        </div>
+      </div>
 
-  {/* Scrollable activity grid area */}
-  <div
-    style={{
-      flexGrow: 1,
-      overflowY: 'auto',
-      paddingRight: '10px',
-      position: 'relative',
-    }}
-  >
-    <div className="row">
-      {businessActivities.map((item) => {
-        const isSelected = selectedActivities.includes(item.id)
-        return (
-          <div key={item.id} className="col-3 p-2">
-            <CardSelector
-              title={item.activity_name}
-              activity_code = {item.activity_code}
-              selected={isSelected}
-              onClick={() => handleActivityToggle(item.id)}
-              name="activity_group"
-            />
+      {/* Scrollable activity grid area */}
+      <div
+        style={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          paddingRight: '10px',
+          position: 'relative',
+        }}
+      >
+        {initialLoad ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ height: '100%' }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
-        )
-      })}
+        ) : error ? (
+          <div className="alert alert-danger">{error}</div>
+        ) : businessActivities.length === 0 ? (
+          <div className="text-center text-muted py-5">No activities found</div>
+        ) : (
+          <>
+            <div className="row">
+              {businessActivities.map((item) => {
+                const isSelected = selectedActivities.includes(item.id);
+                return (
+                  <div key={item.id} className="col-3 p-2">
+                    <CardSelector
+                    type="checkbox"
+                      title={item.activity_name}
+                      activity_code={item.activity_code}
+                      selected={isSelected}
+                      onClick={() => handleActivityToggle(item.id)}
+                      name="activity_group"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Loader ref and status messages */}
+            <div ref={loader} style={{ height: '20px' }} />
+            {loading && (
+              <div className="d-flex justify-content-center my-3">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            )}
+            {!hasMore && businessActivities.length > 0 && (
+              <div className="text-center text-muted py-3">
+                All activities loaded
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
+  );
+};
 
-    {/* Loader inside scrollable container */}
-    <div ref={loader} style={{ height: '5px', marginTop: '100px' }} />
-    {loading && <div className="text-center py-3">Loading...</div>}
-    {!hasMore && (
-      <div className="text-center text-muted py-3">No more activities.</div>
-    )}
-  </div>
-  </div>
-    </>
-  )
-}
-
-export default BusinessActivityStepSelector
+export default BusinessActivityStepSelector;

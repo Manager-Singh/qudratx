@@ -478,13 +478,15 @@ function AddPackage() {
     }
           showToast('success', data.payload.message)
           setTimeout(() => navigate(`/packages/${authority.uuid}`), 1500)
+        } else{
+           showToast('error', data.payload)
         }
       })
     }
 
     setValidated(true)
   }
-console.log(business_package,"business_package")
+
   return (
     <CContainer className="mt-4">
       {toastData.show && (

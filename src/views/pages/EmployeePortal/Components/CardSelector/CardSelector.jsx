@@ -26,7 +26,7 @@ const CardSelector = ({ selected, onClick, image, title ,name,activity_code}) =>
           )}
         </div>
        <div className="w-100 text-center">
-  <div className="text-primary fw-semibold small">{activity_code}</div>
+  <div className="text-primary fw-semibold ">{activity_code}</div>
   <div className="fw-bold text-dark mt-1" style={{ fontSize: '0.95rem' }}>
     {title}
   </div>

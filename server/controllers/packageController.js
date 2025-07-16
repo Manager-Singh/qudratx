@@ -9,7 +9,7 @@ const createPackage = async (req, res) => {
       return res.status(400).json({ message: 'Name, Fee structure, Subtotal, Authority Id, Activity and Total Amount are required' });
     }
 const existingPackage= await Package.findOne({
-  where:{name}
+  where:{name,authority_id}
 })
 
 if (existingPackage) {

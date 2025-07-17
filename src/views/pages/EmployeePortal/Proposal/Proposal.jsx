@@ -38,6 +38,7 @@ import Notes from './steps/Notes'
 import { getClient } from '../../../../store/admin/clientSlice'
 import BusinessActivityStepSelector from '../Components/helper/BusinessActivityInfiniteList'
 import Clients from './Clients'
+import BusinessQuestion from './steps/BusinessQuestion'
 
 const activityOptions = [
   { id: 1, name: 'Consultancy' },
@@ -103,10 +104,21 @@ const Proposal = () => {
 
   // get business zonne authority
   useEffect(() => {
-    if (id) {
-      dispatch(getBusinessZonesAuthorityByZoneId({ id }))
-    }
-  }, [id, dispatch])
+  if (id) {
+    // fetch new authorities
+    dispatch(getBusinessZonesAuthorityByZoneId({ id }));
+
+    // reset state to initial
+    setStep(1);
+    setSelectedAuthority(null);
+    setSelectedActivities([]);
+    setSelectedPackage(null);
+    setSelectedClient('');
+    setAnswers(Array(questions.length).fill(''));
+    setIncludeExcludeList(initialIncludeExcludeList);
+  }
+}, [id, dispatch]);
+
 
   // get business activity by zone id
   useEffect(() => {
@@ -125,9 +137,7 @@ const Proposal = () => {
   
   useEffect(()=>{
     if (!clients || clients.length < 1) {
-      dispatch(getClient()).then((data)=>{
-        console.log(data,"data")
-      })
+      dispatch(getClient())
     }
   },[])
 
@@ -176,14 +186,13 @@ const Proposal = () => {
   }
 
   // questions submission
-  const [validated, setValidated] = useState(false)
-  const formRef = useRef(null)
-
-  const [partners, setPartners] = useState('')
-  const [visas, setVisas] = useState('')
-  const [tenancy, setTenancy] = useState('')
-  const [withLocalPartner, setWithLocalPartner] = useState('')
-  const [companyType, setCompanyType] = useState('')
+ const [questionFormData, setQuestionFormData] = useState({
+  partners: '',
+  visas: '',
+  tenancy: '',
+  withLocalPartner: '',
+  companyType: '',
+});
 
   const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
   
@@ -203,26 +212,6 @@ const Proposal = () => {
     setIncludeExcludeList([...includeExcludeList, { title: '', type: 'Include' }])
   }
   
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const form = formRef.current
-
-    if (form.checkValidity() === false) {
-      e.stopPropagation()
-    } else {
-      const data = {
-        partners,
-        visas,
-        tenancy,
-        withLocalPartner,
-        companyType,
-      }
-      if (onSubmit) onSubmit(data)
-    }
-
-    setValidated(true)
-  }
 
 
   return (
@@ -299,119 +288,10 @@ const Proposal = () => {
 
 
 
-      {step === 4 && (
-        <>
-          <h4>Business Questions</h4>
-          <CForm noValidate validated={validated} onSubmit={handleSubmit} ref={formRef}>
-            <CRow className="g-3 m-3">
-              <CCol xs={12}>
-                <CFormLabel>How many partners?</CFormLabel>
-                <CFormInput
-                  type="number"
-                  value={partners}
-                  onChange={(e) => setPartners(e.target.value)}
-                  required
-                  feedbackInvalid="Please enter number of partners."
-                />
-              </CCol>
+    {step === 4 && (
+  <BusinessQuestion  authorities={authorities} questionFormData={questionFormData} setQuestionFormData={setQuestionFormData}/>
+)}
 
-              <CCol xs={12}>
-                <CFormLabel>How many visas?</CFormLabel>
-                <CFormInput
-                  type="number"
-                  value={visas}
-                  onChange={(e) => setVisas(e.target.value)}
-                  required
-                  feedbackInvalid="Please enter number of visas."
-                />
-              </CCol>
-
-              <CCol xs={12}>
-                <CFormLabel>Include tenancy (office space) details in this proposal?</CFormLabel>
-                <div>
-                  <CFormCheck
-                    inline
-                    type="radio"
-                    name="tenancy"
-                    id="tenancyYes"
-                    label="Yes"
-                    value="yes"
-                    checked={tenancy === 'yes'}
-                    onChange={() => setTenancy('yes')}
-                    required
-                  />
-                  <CFormCheck
-                    inline
-                    type="radio"
-                    name="tenancy"
-                    id="tenancyNo"
-                    label="No"
-                    value="no"
-                    checked={tenancy === 'no'}
-                    onChange={() => setTenancy('no')}
-                    required
-                  />
-                </div>
-                {!tenancy && validated && (
-                  <CFormFeedback className="d-block text-danger">
-                    Please select an option.
-                  </CFormFeedback>
-                )}
-              </CCol>
-
-              <CCol xs={12}>
-                <CFormLabel>
-                  Would you like to set up this business with or without a local partner?
-                </CFormLabel>
-                <div>
-                  <CFormCheck
-                    inline
-                    type="radio"
-                    name="withLocalPartner"
-                    id="withPartner"
-                    label="With Local"
-                    value="with"
-                    checked={withLocalPartner === 'with'}
-                    onChange={() => setWithLocalPartner('with')}
-                    required
-                  />
-                  <CFormCheck
-                    inline
-                    type="radio"
-                    name="withLocalPartner"
-                    id="withoutPartner"
-                    label="Without Local"
-                    value="without"
-                    checked={withLocalPartner === 'without'}
-                    onChange={() => setWithLocalPartner('without')}
-                    required
-                  />
-                </div>
-                {!withLocalPartner && validated && (
-                  <CFormFeedback className="d-block text-danger">
-                    Please select an option.
-                  </CFormFeedback>
-                )}
-              </CCol>
-
-              <CCol xs={12}>
-                <CFormLabel>Company Type</CFormLabel>
-                <CFormSelect
-                  value={companyType}
-                  onChange={(e) => setCompanyType(e.target.value)}
-                  required
-                  feedbackInvalid="Please select a company type."
-                >
-                  <option value="">-- Select Company Type --</option>
-                  <option value="llc">Limited Liability Company (LLC)</option>
-                  <option value="sole">Sole</option>
-                  <option value="civil">Civil</option>
-                </CFormSelect>
-              </CCol>
-            </CRow>
-          </CForm>
-        </>
-      )}
 
       {step === 5 && (
         <>

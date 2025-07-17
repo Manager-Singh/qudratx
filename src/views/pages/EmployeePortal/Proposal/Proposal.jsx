@@ -218,7 +218,7 @@ const [questionFormData, setQuestionFormData] = useState({
     setIncludeExcludeList([...includeExcludeList, { title: '', type: 'Include' }])
   }
   
-console.log(selectedPackage,"selectedPackage")
+
 const total_amount = selectedPackage?.total_amount
 const max_activity_selected =selectedPackage?.activity
 
@@ -424,9 +424,9 @@ const max_activity_selected =selectedPackage?.activity
           <p>
             <strong>Answers:</strong> {answers.join(' | ')}
           </p>
-          <p>
+          {/* <p>
             <strong>Package:</strong> {selectedPackage}
-          </p>
+          </p> */}
           <p>
             <strong>Client:</strong> {selectedClient}
           </p>

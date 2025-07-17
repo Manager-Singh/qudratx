@@ -143,36 +143,96 @@ const createBusinessActivity = async (req, res) => {
   }
 };
 
-// ⬇️ Separate logic for data handling
+// // ⬇️ Separate logic for data handling
+// const handleImportData = async (dataRows, req, res, errors) => {
+//   for (const [index, row] of dataRows.entries()) {
+//     try {
+//       const existing = await BusinessActivity.findOne({
+//         where: {
+//           authority_id: req.body.authority_id,
+//           activity_name: row["Activity Name"],
+//           activity_code: row["Activity Code"]
+//         }
+//       });
+
+//       if (existing) {
+//         errors.push({ row: index + 1, message: 'Duplicate activity name' });
+//         continue;
+//       }
+
+//       await BusinessActivity.create({
+//         authority_id: req.body.authority_id,
+//         activity_master_number: row["Activity Master: Activity Master Number"],
+//         activity_code: row["Activity Code"],
+//         activity_name: row["Activity Name"],
+//         activity_name_arabic: row["Activity Name (Arabic)"],
+//         minimum_share_capital: row["Minimum Share Capital"],
+//         license_type: row["License Type"],
+//         is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"],
+//         is_special: parseInt(row["Is Special"]),
+//         activity_price: row["Activity Price"],
+//         activity_group: row["Activity Group"],
+//         description: row["Descri)ption"],
+//         qualification_requirement: row["Qualification Requirement"],
+//         documents_required: row["Documents Required"],
+//         category: row["Category"] || row["Price Category"],
+//         additional_approval: row["Additional Approval"],
+//         sub_category: row["Sub Category"],
+//         group_id: row["Group"],
+//         third_party: row["Third Party"],
+//         when: row["When"],
+//         esr: row["ESR"],
+//         notes: row["Notes"],
+//         updated_by: req.user?.id || null,
+//         created_at: new Date(),
+//         updated_at: new Date(),
+//         last_update: new Date()
+//       });
+
+//     } catch (err) {
+//       errors.push({ row: index + 1, message: err.message });
+//     }
+//   }
+
+//   return res.status(200).json({
+//     message: 'Import completed',
+//     success: true,
+//     imported: dataRows.length - errors.length,
+//     failed: errors.length,
+//     errors
+//   });
+// };
+
 const handleImportData = async (dataRows, req, res, errors) => {
   for (const [index, row] of dataRows.entries()) {
     try {
+      //console.log(row,'get rows');return false;
       const existing = await BusinessActivity.findOne({
         where: {
           authority_id: req.body.authority_id,
-          activity_name: row["Activity Name"],
-          activity_code: row["Activity Code"]
+          activity_name: row["Activity Name"] || row[" English Name"],
+          activity_code: row["Activity Code"] || row["New Activity Code (ISIC Rev 4) "]
         }
       });
-
+ 
       if (existing) {
         errors.push({ row: index + 1, message: 'Duplicate activity name' });
         continue;
       }
-
+ 
       await BusinessActivity.create({
         authority_id: req.body.authority_id,
         activity_master_number: row["Activity Master: Activity Master Number"],
-        activity_code: row["Activity Code"],
-        activity_name: row["Activity Name"],
-        activity_name_arabic: row["Activity Name (Arabic)"],
+        activity_code: row["Activity Code"] || row["New Activity Code (ISIC Rev 4) "],
+        activity_name: row["Activity Name"] || row[" English Name"],
+        activity_name_arabic: row["Activity Name (Arabic)"] || row[" Arabic Name"],
         minimum_share_capital: row["Minimum Share Capital"],
-        license_type: row["License Type"],
+        license_type: row["License Type"] || row["License Type English"],
         is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"],
         is_special: parseInt(row["Is Special"]),
         activity_price: row["Activity Price"],
         activity_group: row["Activity Group"],
-        description: row["Descri)ption"],
+        description: row["Description"] || row[" English Description "],
         qualification_requirement: row["Qualification Requirement"],
         documents_required: row["Documents Required"],
         category: row["Category"] || row["Price Category"],
@@ -188,12 +248,12 @@ const handleImportData = async (dataRows, req, res, errors) => {
         updated_at: new Date(),
         last_update: new Date()
       });
-
+ 
     } catch (err) {
       errors.push({ row: index + 1, message: err.message });
     }
   }
-
+ 
   return res.status(200).json({
     message: 'Import completed',
     success: true,
@@ -202,7 +262,6 @@ const handleImportData = async (dataRows, req, res, errors) => {
     errors
   });
 };
-
 // READ ALL
 const getBusinessActivity = async (req, res) => {
   try {

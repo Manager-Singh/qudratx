@@ -2,12 +2,18 @@ import React from 'react'
 import { CToast, CToastBody, CToastHeader } from '@coreui/react'
 
 export const ToastExample = ({ status = 'success', message = '' }) => {
-  const getColor = () => {
-    return status === 'success' ? '#28a745' : '#dc3545' // Green for success, Red for error
-  }
+    const getColor = () => {
+    if (status === 'success') return '#28a745'; // green
+    if (status === 'error') return '#dc3545';   // red
+    if (status === 'warning') return '#6c757d'; 
+    return '#6c757d';
+  };
 
   const getTitle = () => {
-    return status === 'success' ? 'Success' : 'Error'
+    if (status === 'success') return 'Success'; 
+    if (status === 'error') return 'Error';   
+    if (status === 'warning') return 'Warning'; 
+    return ''
   }
 
   return (

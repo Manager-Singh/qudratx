@@ -4,11 +4,18 @@ import { useDispatch } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import { getBusinessActivityByAuthorityId } from '../../../../../store/admin/businessActivitySlice';
 import CardSelector from '../CardSelector/CardSelector';
+import { ToastExample } from '../../../../../components/toast/Toast'
 
 const PAGE_SIZE = 20;
 
-const BusinessActivityStepSelector = ({ step, authority_id }) => {
+const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selected}) => {
   const dispatch = useDispatch();
+// toast states
+ const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+  const showToast = (status, message) => {
+    setToastData({ show: true, status, message })
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+  }
 
   const [businessActivities, setBusinessActivities] = useState([]);
   const [selectedActivities, setSelectedActivities] = useState([]);
@@ -134,10 +141,17 @@ const BusinessActivityStepSelector = ({ step, authority_id }) => {
   }, [hasMore, step, loadingRef.current]);
 
   const handleActivityToggle = (id) => {
-    setSelectedActivities((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
+  setSelectedActivities((prev) => {
+    if (prev.includes(id)) {
+      return prev.filter((item) => item !== id); // unselect
+    } else if (prev.length < max_activity_selected) {
+      return [...prev, id]; // select if under limit
+    } else {
+       showToast('warning', `You can select up to ${max_activity_selected} activities only`);
+      return prev; // ignore click if limit reached
+    }
+  });
+};
 
   const handleActivityChange = (selected) => {
     setSelectedActivities(selected ? selected.map((item) => item.value) : []);
@@ -151,6 +165,11 @@ const BusinessActivityStepSelector = ({ step, authority_id }) => {
 
   return (
     <div className="d-flex flex-column" style={{ height: '60vh' }}>
+      {toastData.show && (
+              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <ToastExample status={toastData.status} message={toastData.message} />
+              </div>
+            )}
       {/* Header + select */}
       <div>
         <h4>Select Business Activities</h4>

@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  CButton,
   CCol,
   CRow,
   CForm,
@@ -8,17 +7,27 @@ import {
   CFormLabel,
   CFormSelect,
   CFormCheck,
-  CFormFeedback,
 } from '@coreui/react'
 
-function BusinessQuestion({ authorities, questionFormData, setQuestionFormData, validated }) {
+function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }) {
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type } = e.target
+    let val = value
+
+    // Prevent negative values in number inputs
+    if (type === 'number' && parseFloat(value) < 0) {
+      val = ''
+    }
+
     setQuestionFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: val,
     }))
   }
+
+  const showMainlandFields =
+    authorities.length > 0 &&
+    authorities[0]?.zone?.name?.trim().toLowerCase() === 'mainland'
 
   return (
     <>
@@ -32,8 +41,6 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData, 
               name="partners"
               value={questionFormData.partners}
               onChange={handleChange}
-              required
-              feedbackInvalid="Please enter number of partners."
             />
           </CCol>
 
@@ -44,104 +51,176 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData, 
               name="visas"
               value={questionFormData.visas}
               onChange={handleChange}
-              required
-              feedbackInvalid="Please enter number of visas."
             />
           </CCol>
-
-          {authorities.length > 0 &&
-            authorities[0]?.zone?.name?.trim().toLowerCase() === 'mainland' && (
-              <>
+          {questionFormData.visas && (
                 <CCol xs={12}>
-                  <CFormLabel>Include tenancy (office space) details in this proposal?</CFormLabel>
-                  <div>
-                    <CFormCheck
-                      inline
-                      type="radio"
-                      name="tenancy"
-                      id="tenancyYes"
-                      label="Yes"
-                      value="yes"
-                      checked={questionFormData.tenancy === 'yes'}
-                      onChange={handleChange}
-                      required
-                    />
-                    <CFormCheck
-                      inline
-                      type="radio"
-                      name="tenancy"
-                      id="tenancyNo"
-                      label="No"
-                      value="no"
-                      checked={questionFormData.tenancy === 'no'}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {!questionFormData.tenancy && validated && (
-                    <CFormFeedback className="d-block text-danger">
-                      Please select an option.
-                    </CFormFeedback>
-                  )}
-                </CCol>
-
-                <CCol xs={12}>
-                  <CFormLabel>
-                    Would you like to set up this business with or without a local partner?
-                  </CFormLabel>
-                  <div>
-                    <CFormCheck
-                      inline
-                      type="radio"
-                      name="withLocalPartner"
-                      id="withPartner"
-                      label="With Local"
-                      value="with"
-                      checked={questionFormData.withLocalPartner === 'with'}
-                      onChange={handleChange}
-                      required
-                    />
-                    <CFormCheck
-                      inline
-                      type="radio"
-                      name="withLocalPartner"
-                      id="withoutPartner"
-                      label="Without Local"
-                      value="without"
-                      checked={questionFormData.withLocalPartner === 'without'}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {!questionFormData.withLocalPartner && validated && (
-                    <CFormFeedback className="d-block text-danger">
-                      Please select an option.
-                    </CFormFeedback>
-                  )}
-                </CCol>
-
-                <CCol xs={12}>
-                  <CFormLabel>Company Type</CFormLabel>
-                  <CFormSelect
-                    name="companyType"
-                    value={questionFormData.companyType}
+                  <CFormLabel>Enter Visa Amount</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    min="0"
+                    name="VisaAmount"
+                    value={questionFormData.visaAmount || ''}
                     onChange={handleChange}
-                    required
-                    feedbackInvalid="Please select a company type."
-                  >
-                    <option value="">-- Select Company Type --</option>
-                    <option value="Limited Liability Company (LLC)">
-                      Limited Liability Company (LLC)
-                    </option>
-                    <option value="Limited Liability Company (LLC) Single Partner">
-                      Limited Liability Company (LLC) Single Partner
-                    </option>
-                    <option value="sole">Sole</option>
-                    <option value="civil">Civil</option>
-                  </CFormSelect>
+                  />
                 </CCol>
-              </>
-            )}
+              )}
+
+          {showMainlandFields && (
+            <>
+              {/* Tenancy */}
+              <CCol xs={12}>
+                <CFormLabel>Include tenancy (office space) in proposal?</CFormLabel>
+                <div>
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="tenancy"
+                    id="tenancyYes"
+                    label="Yes"
+                    value="yes"
+                    checked={questionFormData.tenancy === 'yes'}
+                    onChange={handleChange}
+                  />
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="tenancy"
+                    id="tenancyNo"
+                    label="No"
+                    value="no"
+                    checked={questionFormData.tenancy === 'no'}
+                    onChange={handleChange}
+                  />
+                </div>
+              </CCol>
+
+              {questionFormData.tenancy === 'yes' && (
+                <CCol xs={12}>
+                  <CFormLabel>Enter Tenancy Amount</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    min="0"
+                    name="tenancyAmount"
+                    value={questionFormData.tenancyAmount || ''}
+                    onChange={handleChange}
+                  />
+                </CCol>
+              )}
+
+              {/* With Local Partner */}
+              <CCol xs={12}>
+                <CFormLabel>
+                  Would you like to set up this business with or without a local partner?
+                </CFormLabel>
+                <div>
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="withLocalPartner"
+                    id="withPartner"
+                    label="With Local"
+                    value="with"
+                    checked={questionFormData.withLocalPartner === 'with'}
+                    onChange={handleChange}
+                  />
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="withLocalPartner"
+                    id="withoutPartner"
+                    label="Without Local"
+                    value="without"
+                    checked={questionFormData.withLocalPartner === 'without'}
+                    onChange={handleChange}
+                  />
+                </div>
+              </CCol>
+
+              {questionFormData.withLocalPartner === 'with' && (
+                <CCol xs={12}>
+                  <CFormLabel>Enter Local Partner Fee</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    min="0"
+                    name="localPartnerAmount"
+                    value={questionFormData.localPartnerAmount || ''}
+                    onChange={handleChange}
+                  />
+                </CCol>
+              )}
+
+              {/* Language Option */}
+              <CCol xs={12}>
+                <CFormLabel>Select Company Name Language </CFormLabel>
+                <div>
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="language"
+                    id='English'
+                    label="English"
+                    value="english"
+                    checked={questionFormData.language === 'english'}
+                    onChange={handleChange}
+                  />
+                  <CFormCheck
+                    inline
+                    type="radio"
+                    name="language"
+                    id='Arabic'
+                    label="Arabic"
+                    value="arabic"
+                    checked={questionFormData.language === 'arabic'}
+                    onChange={handleChange}
+                  />
+                </div>
+              </CCol>
+
+              {/* Only show amount if English is selected */}
+              {questionFormData.language === 'english' && (
+                <CCol xs={12}>
+                  <CFormLabel>Enter Company Name Language Amount</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    min="0"
+                    name="languageAmount"
+                    value={questionFormData.languageAmount || ''}
+                    onChange={handleChange}
+                  />
+                </CCol>
+              )}
+
+              {/* Company Type */}
+              <CCol xs={12}>
+                <CFormLabel>Company Type</CFormLabel>
+                <CFormSelect
+                  name="companyType"
+                  value={questionFormData.companyType}
+                  onChange={handleChange}
+                >
+                  <option value="">-- Select Company Type --</option>
+                  <option value="Limited Liability Company">Limited Liability Company (LLC)</option>
+                  <option value="Limited Liability Company Single Partner">Limited Liability Company Single Partner (LLCsp)</option>
+                  <option value="sole">Sole</option>
+                  <option value="civil">Civil</option>
+                </CFormSelect>
+              </CCol>
+
+              {questionFormData.companyType && (
+                <CCol xs={12}>
+                  <CFormLabel>Enter Company Type Fee</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    min="0"
+                    name="companyTypeAmount"
+                    value={questionFormData.companyTypeAmount || ''}
+                    onChange={handleChange}
+                  />
+                </CCol>
+              )}
+            </>
+          )}
         </CRow>
       </CForm>
     </>

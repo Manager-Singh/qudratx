@@ -186,13 +186,19 @@ const Proposal = () => {
   }
 
   // questions submission
- const [questionFormData, setQuestionFormData] = useState({
+const [questionFormData, setQuestionFormData] = useState({
   partners: '',
   visas: '',
+  visaAmount: 0,
   tenancy: '',
+  tenancyAmount: 0,
   withLocalPartner: '',
+  localPartnerAmount: 0,
+  language: '',
+  languageAmount: 0,
   companyType: '',
-});
+  companyTypeAmount: 0,
+})
 
   const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
   
@@ -212,14 +218,29 @@ const Proposal = () => {
     setIncludeExcludeList([...includeExcludeList, { title: '', type: 'Include' }])
   }
   
-
+console.log(selectedPackage,"selectedPackage")
+const total_amount = selectedPackage?.total_amount
+const max_activity_selected =selectedPackage?.activity
 
   return (
     <div className="container ">
       <h2 className="text-center mb-4">Proposal Form - Step {step}/{total_step}</h2>
     <CProgress color="info" className='mb-3' variant='striped' animated value={(step / total_step) * 100}/> 
+   {selectedPackage && (
+  <div className="w-100 d-flex justify-content-end my-3">
+    <div className="border border-2 border-primary rounded-3 px-4 py-3 bg-white shadow-sm">
+      <h4 className="mb-0 text-dark-emphasis">
+        <span className="fw-medium">Total Amount:</span>{' '}
+        <span className="text-primary fw-bold">AED {total_amount}</span>
+      </h4>
+    </div>
+  </div>
+)}
        {step === 1 && (
         <>
+        <div>
+          <h3>{}</h3>
+        </div>
           <h4 >Select Authority</h4>
           <div className="row">
             {isLoading ? (
@@ -271,8 +292,12 @@ const Proposal = () => {
                   
                   <PackageCardSelector
                     item={item}
-                    selected={selectedPackage === item.id}
-                    onClick={() => setSelectedPackage(item.id)}
+                    selected={selectedPackage?.id === item.id}
+                    onClick={() =>
+                   setSelectedPackage((prev) =>
+                  prev?.id === item.id ? null : item
+                              )
+                        }
                   />
                 </div>
               ))
@@ -282,11 +307,8 @@ const Proposal = () => {
       )}
 
       {step === 3 && (
-
-<BusinessActivityStepSelector step={3} authority_id={selectedAuthority }/>
+        <BusinessActivityStepSelector step={3} authority_id={selectedAuthority } max_activity_selected={max_activity_selected}/>
       )}
-
-
 
     {step === 4 && (
   <BusinessQuestion  authorities={authorities} questionFormData={questionFormData} setQuestionFormData={setQuestionFormData}/>
@@ -417,7 +439,7 @@ const Proposal = () => {
         </>
       )}
 
-      <div className="d-flex justify-content-between mt-4 mb-2">
+      <div className="d-flex justify-content-end mt-4 mb-2">
         {step > 1 && (
           <button
             onClick={handleBack}

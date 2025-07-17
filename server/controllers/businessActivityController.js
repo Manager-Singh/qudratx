@@ -7,83 +7,46 @@ const xlsx = require('xlsx');
 // CREATE
 const createBusinessActivity = async (req, res) => {
   try {
+    const file = req.file;
 
-    if (req.file) {
+    if (file) {
+      const ext = path.extname(file.originalname).toLowerCase();
       const results = [];
       const errors = [];
-      const filePath = path.resolve(req.file.path);
 
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row) => results.push(row))
-        .on('end', async () => {
-          for (const [index, row] of results.entries()) {
-            try {
-              const existing = await BusinessActivity.findOne({ where: { authority_id: req.body.authority_id,activity_name: row["Activity Name"], activity_code:row["Activity Code"] } });
-              if (existing) {
-                errors.push({ row: index + 1, message: 'Duplicate activity name' });
-                continue;
-              }
+      // CSV Handling
+      if (ext === '.csv') {
+        const filePath = path.resolve(file.path);
 
-            // const existingZone = await BusinessZone.findOne({ where: { name : row["Zone"]  } });
-            //   if (!existingZone) {
-            //    return res.status(400).json({ message: 'Zone does not exist' });
-            //   }
-
-              const activity = await BusinessActivity.create({
-                authority_id: req.body.authority_id,
-                activity_master_number: row["Activity Master: Activity Master Number"],
-                activity_code: row["Activity Code"],
-                // zone: existingZone.id,
-                activity_name: row["Activity Name"] ,
-                activity_name_arabic: row["Activity Name (Arabic)"] ,
-                // status: row["Status"]  !== undefined ? row["Status"]  : 1,
-                minimum_share_capital: row["Minimum Share Capital"] ,
-                license_type: row["License Type"] ,
-                is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"] ,
-                is_special: parseInt(row["Is Special"]),
-                activity_price: row["Activity Price"] ,
-                activity_group: row["Activity Group"] ,
-                description: row["Descri)ption"] ,
-                qualification_requirement: row["Qualification Requirement"] ,
-                documents_required: row["Documents Required"] ,
-                category: row["Category"] || row["Price Category"]  ,
-                additional_approval: row["Additional Approval"] ,
-                sub_category: row["Sub Category"],
-                group_id: row["Group"] ,
-                third_party: row["Third Party"] ,
-                when: row["When"] ,
-                esr: row["ESR"] ,
-                notes: row["Notes"] ,
-                updated_by: req.user?.id || null,
-                created_at: new Date(),
-                updated_at: new Date(),
-                last_update: new Date()
-              });
-            } catch (err) {
-              errors.push({ row: index + 1, message: err.message });
-            }
-          }
-
-          return res.status(200).json({
-            message: 'CSV import completed',
-            success: true,
-            imported: results.length - errors.length,
-            failed: errors.length,
-            errors
+        fs.createReadStream(filePath)
+          .pipe(csv())
+          .on('data', (row) => results.push(row))
+          .on('end', async () => {
+            await handleImportData(results, req, res, errors);
           });
-        });
+
+      // XLSX Handling
+      } else if (ext === '.xlsx') {
+        const workbook = xlsx.readFile(file.path);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = xlsx.utils.sheet_to_json(worksheet);
+
+        await handleImportData(jsonData, req, res, errors);
+
+      } else {
+        return res.status(400).json({ message: 'Unsupported file type. Only CSV or XLSX allowed' });
+      }
     }
 
+    // Manual entry (no file uploaded)
     else {
       const {
         authority_id,
         activity_master_number,
         activity_code,
-        // zone,
         activity_name,
         activity_name_arabic,
-        // status,
         minimum_share_capital,
         license_type,
         is_not_allowed_for_coworking_esr,
@@ -103,25 +66,26 @@ const createBusinessActivity = async (req, res) => {
         notes
       } = req.body;
 
-      if (!activity_name || !authority_id || !activity_code ) {
-        return res.status(400).json({ message: 'Activity Name, Authority Id and Activity code are required' });
+      if (!activity_name || !authority_id || !activity_code) {
+        return res.status(400).json({ message: 'Activity Name, Authority Id and Activity Code are required' });
       }
 
       const existingActivity = await BusinessActivity.findOne({
-                                      where: {
-                                        deleted_at: null,
-                                        [Op.or]: [
-                                          {
-                                            activity_name,
-                                            activity_code,
-                                            authority_id
-                                          },
-                                          {
-                                            activity_master_number
-                                          }
-                                        ]
-                                      }
-                                    });
+        where: {
+          deleted_at: null,
+          [Op.or]: [
+            {
+              activity_name,
+              activity_code,
+              authority_id
+            },
+            {
+              activity_master_number
+            }
+          ]
+        }
+      });
+
       if (existingActivity) {
         return res.status(400).json({ message: 'Business Activity already exists' });
       }
@@ -130,10 +94,8 @@ const createBusinessActivity = async (req, res) => {
         authority_id,
         activity_master_number,
         activity_code,
-        // zone,
         activity_name,
         activity_name_arabic,
-        // status: status !== undefined ? status : 1,
         minimum_share_capital,
         license_type,
         is_not_allowed_for_coworking_esr,
@@ -157,21 +119,16 @@ const createBusinessActivity = async (req, res) => {
         last_update: new Date()
       });
 
-       const fullActivity = await BusinessActivity.findOne({
-      where: { id: activity.id },
-      include: [
-        {
-          model: BusinessZonesAuthority,
-          as: 'authority',
-          include: [
-            {
-              model: BusinessZone,
-              as: 'zone',
-            }
-          ]
-        }
-      ]
-    });
+      const fullActivity = await BusinessActivity.findOne({
+        where: { id: activity.id },
+        include: [
+          {
+            model: BusinessZonesAuthority,
+            as: 'authority',
+            include: [{ model: BusinessZone, as: 'zone' }]
+          }
+        ]
+      });
 
       return res.status(201).json({
         message: 'Business activity created successfully',
@@ -179,10 +136,71 @@ const createBusinessActivity = async (req, res) => {
         data: fullActivity
       });
     }
+
   } catch (error) {
     console.error('Create activity error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
+};
+
+// ⬇️ Separate logic for data handling
+const handleImportData = async (dataRows, req, res, errors) => {
+  for (const [index, row] of dataRows.entries()) {
+    try {
+      const existing = await BusinessActivity.findOne({
+        where: {
+          authority_id: req.body.authority_id,
+          activity_name: row["Activity Name"],
+          activity_code: row["Activity Code"]
+        }
+      });
+
+      if (existing) {
+        errors.push({ row: index + 1, message: 'Duplicate activity name' });
+        continue;
+      }
+
+      await BusinessActivity.create({
+        authority_id: req.body.authority_id,
+        activity_master_number: row["Activity Master: Activity Master Number"],
+        activity_code: row["Activity Code"],
+        activity_name: row["Activity Name"],
+        activity_name_arabic: row["Activity Name (Arabic)"],
+        minimum_share_capital: row["Minimum Share Capital"],
+        license_type: row["License Type"],
+        is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"],
+        is_special: parseInt(row["Is Special"]),
+        activity_price: row["Activity Price"],
+        activity_group: row["Activity Group"],
+        description: row["Descri)ption"],
+        qualification_requirement: row["Qualification Requirement"],
+        documents_required: row["Documents Required"],
+        category: row["Category"] || row["Price Category"],
+        additional_approval: row["Additional Approval"],
+        sub_category: row["Sub Category"],
+        group_id: row["Group"],
+        third_party: row["Third Party"],
+        when: row["When"],
+        esr: row["ESR"],
+        notes: row["Notes"],
+        updated_by: req.user?.id || null,
+        created_at: new Date(),
+        updated_at: new Date(),
+        last_update: new Date()
+      });
+
+    } catch (err) {
+      errors.push({ row: index + 1, message: err.message });
+    }
+  }
+
+  return res.status(200).json({
+    message: 'Import completed',
+    success: true,
+    imported: dataRows.length - errors.length,
+    failed: errors.length,
+    errors
+  });
 };
 
 // READ ALL
@@ -283,19 +301,17 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
-    const status = req.query.status; // optional
+    const status = req.query.status;
 
     const where = {
       authority_id,
       deleted_at: null,
     };
 
-    // Add search on activity_name
     if (search) {
       where.activity_name = { [Op.like]: `%${search}%` };
     }
 
-    // Filter by status
     if (status === 'active') {
       where.status = true;
     } else if (status === 'inactive') {
@@ -323,23 +339,25 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    if (!rows.length) {
-      return res.status(404).json({ message: 'No business activities found' });
-    }
-
     return res.status(200).json({
-      message: 'Business activities fetched successfully',
+      message: rows.length ? 'Business activities fetched successfully' : 'No business activities found',
+      success: true,
       page,
       limit,
       totalPages,
       totalRecords: count,
       data: rows,
     });
+
   } catch (error) {
     console.error('Get activity error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
   }
 };
+
 // UPDATE
 const updateBusinessActivity = async (req, res) => {
   try {

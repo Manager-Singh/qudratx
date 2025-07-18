@@ -28,11 +28,11 @@ module.exports = {
         allowNull: true,
       },
       activity_name: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       activity_name_arabic: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       status: {

@@ -210,8 +210,8 @@ const handleImportData = async (dataRows, req, res, errors) => {
       const existing = await BusinessActivity.findOne({
         where: {
           authority_id: req.body.authority_id,
-          activity_name: row["Activity Name"] || row[" English Name"],
-          activity_code: row["Activity Code"] || row["New Activity Code (ISIC Rev 4) "]
+          activity_name: row["Activity Name"] || row["English Name"],
+          activity_code: row["Activity Code"] || row["New Activity Code (ISIC Rev 4)"]
         }
       });
  
@@ -224,15 +224,15 @@ const handleImportData = async (dataRows, req, res, errors) => {
         authority_id: req.body.authority_id,
         activity_master_number: row["Activity Master: Activity Master Number"],
         activity_code: row["Activity Code"] || row["New Activity Code (ISIC Rev 4) "],
-        activity_name: row["Activity Name"] || row[" English Name"],
-        activity_name_arabic: row["Activity Name (Arabic)"] || row[" Arabic Name"],
+        activity_name: row["Activity Name"] || row["English Name"],
+        activity_name_arabic: row["Activity Name (Arabic)"] || row["Arabic Name"],
         minimum_share_capital: row["Minimum Share Capital"],
         license_type: row["License Type"] || row["License Type English"],
         is_not_allowed_for_coworking_esr: row["Is Not Allowed for Coworking(ESR)"],
         is_special: parseInt(row["Is Special"]),
         activity_price: row["Activity Price"],
         activity_group: row["Activity Group"],
-        description: row["Description"] || row[" English Description "],
+        description: row["Description"] || row["English Description "],
         qualification_requirement: row["Qualification Requirement"],
         documents_required: row["Documents Required"],
         category: row["Category"] || row["Price Category"],

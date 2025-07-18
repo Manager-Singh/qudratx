@@ -117,7 +117,7 @@ function AllLead() {
       name: 'Action',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to={`/view-lead/${row.uuid}`} title="View Lead">
+          <Link to={`/business-zones/${row.uuid}`} title="View Lead">
             <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} />
           </Link>
           <span

@@ -7,7 +7,6 @@ import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneA
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
-
 import CardSelector from '../Components/CardSelector/CardSelector'
 import PackageCardSelector from '../Components/PackageCardSelector/PackageCardSelector'
 import { ToastExample } from '../../../../components/toast/Toast'
@@ -31,6 +30,7 @@ import { getClient } from '../../../../store/admin/clientSlice'
 import BusinessActivityStepSelector from '../Components/helper/BusinessActivityInfiniteList'
 import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
+import ProposalSummary from './steps/ProposalSummaryStep'
 
 
 
@@ -139,7 +139,7 @@ const [scopeOfWork, setScopeOfWork] = useState(initialScopeOfWork)
 const [notes, setNotes] = useState(initialNotes)
 const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData)
 
-  
+  const [showPdfSummary, setShowPdfSummary] = useState(false);
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
   
@@ -177,6 +177,8 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
     setScopeOfWork(initialScopeOfWork);
     setNotes(initialNotes);
     setQuestionFormData(initialQuestionFormData);
+    setShowPdfSummary(false)
+    
   }
 }, [id, dispatch]);
 
@@ -232,8 +234,7 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
   }
-const generatePDF = () => {
-  const proposalData = {
+const proposalData = {
     zoneId: id,
     authority: selectedAuthority,
     package: selectedPackage,
@@ -247,6 +248,8 @@ const generatePDF = () => {
     scopeOfWork,
     notes,
   };
+const generatePDF = () => {
+  
 
   console.log('📝 Final Proposal:', proposalData);
   alert('PDF Generated (placeholder)');
@@ -297,7 +300,7 @@ const max_activity_selected =selectedPackage?.activity
        {step === 1 && (
         <>
         <div>
-          <h3>{}</h3>
+          
         </div>
           <h4 >Select Authority</h4>
           <div className="row">
@@ -440,7 +443,7 @@ const max_activity_selected =selectedPackage?.activity
                   >
                     ✕
                   </CButton>
-                )}
+                )} const [showPdfSummary, setShowPdfSummary] = useState(false);
               </CCol>
             </CRow>
           ))}
@@ -493,12 +496,21 @@ const max_activity_selected =selectedPackage?.activity
           <p>
             <strong>Client:</strong> {selectedClient}
           </p>
-          <button
-            onClick={generatePDF}
-            style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff' }}
-          >
-            Generate PDF
-          </button>
+         
+          <CButton className="custom-button me-3"  onClick={() => setShowPdfSummary(true)}>
+                     View PDF
+           </CButton>
+
+          
+            <CButton className="custom-button"  onClick={generatePDF}>
+                     Generate PDF
+              </CButton>
+           {showPdfSummary && (
+        <div className="mt-4">
+          <ProposalSummary data={proposalData}  />
+      
+        </div>
+      )}
         </>
       )}
 

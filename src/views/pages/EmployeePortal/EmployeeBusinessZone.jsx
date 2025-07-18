@@ -2,9 +2,10 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { CCard, CCardBody, CCardTitle } from '@coreui/react'
 import { getBusinessZone } from '../../../store/admin/businessZoneSlice'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 function EmployeeBusinessZone() {
+  const {lead_id} = useParams()
   const dispatch = useDispatch()
 
   const {businesszones} = useSelector((state) => state.businesszone) // adjust if your state shape is different
@@ -18,7 +19,7 @@ function EmployeeBusinessZone() {
       <h2 className="mb-4">Business Zones</h2>
       <div className="row">
         {businesszones.map((zone) => (
-          <Link to={`/create-proposal/${zone.id}`} className="col-md-4 mb-3" key={zone.id}>
+          <Link to={`/create-proposal/${zone.id}/${lead_id}`} className="col-md-4 mb-3" key={zone.id}>
             <CCard style={{backgroundColor:"#2f1051" , color:"#ffffde"}}>
               <CCardBody className="text-center">
                 <CCardTitle>{zone.name}</CCardTitle>

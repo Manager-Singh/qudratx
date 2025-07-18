@@ -59,7 +59,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                   <CFormInput
                     type="number"
                     min="0"
-                    name="VisaAmount"
+                    name="visaAmount"
                     value={questionFormData.visaAmount || ''}
                     onChange={handleChange}
                   />

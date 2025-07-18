@@ -9,17 +9,8 @@ import {
   
 } from '@coreui/react'
 
-function RequiredDocument() {
-    const [requiredDocuments, setRequiredDocuments] = useState([
-  { name: 'Passport Copy' },
-  { name: 'Visit visa or Resident visa copy' },
-  { name: 'For Resident visa holder "No Objection Certificate will be required.' },
-  { name: 'Emirates ID (For resident visa holder)' },
-  { name: 'Any 3 Company Names (To check their availability)' },
-  { name: 'Passport Size Photograph' },
-  { name: 'Email-ID' },
-  { name: 'Contact Number' },
-])
+function RequiredDocument({requiredDocuments,setRequiredDocuments}) {
+   
     const handleRequiredDocChange = (index, value) => {
   setRequiredDocuments((prev) =>
     prev.map((item, i) => (i === index ? { ...item, name: value } : item))

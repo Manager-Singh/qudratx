@@ -8,22 +8,8 @@ import {
   CFormLabel,
   
 } from '@coreui/react'
-function ScopeOfWork() {
-    const [scopeOfWork, setScopeOfWork] = useState([
-  { name: 'Consultancy on Company Incorporation Procedures FZCS' },
-  { name: 'Legalization and Initial Approval from Department of Economic Development, Dubai' },
-  { name: 'Municipality if required FZCS' },
-  { name: 'Virtual Office if Required FZCS' },
-  { name: 'Preparing Local Service Agent Agreement or MOA FZCS' },
-  { name: 'Court Notarization of Local Service Agent Agreement FZCS' },
-  { name: 'Documentation, Legalization and Submission of Final Approval Application to Department of Economic Development FZCS' },
-  { name: 'Follow-up and Collection of Trade License from Department of Economic Development FZCS' },
-  { name: 'Update Trade License with Department of Economic Development FZCS' },
-  { name: 'Documentation, Legalization and Registration of company with Ministry of Immigration (DNDR) FZCS' },
-  { name: 'Documentation, Legalization and Registration of company with Ministry of Labor (MOL) FZCS' },
-  { name: 'Introduction to Banker for opening Bank Account FZCS' },
-  { name: 'Family sponsor process FZCS' },
-])
+function ScopeOfWork({scopeOfWork, setScopeOfWork}) {
+
 
 const handleScopeChange = (index, value) => {
   setScopeOfWork((prev) =>

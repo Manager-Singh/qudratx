@@ -1,17 +1,16 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import Card from '../Components/Card/Card'
+
 import logo from '../../../../../public/download.png' 
 import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneAuthoritySlice'
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
-import { FaCheckCircle } from 'react-icons/fa'
-import CardSelectable from '../Components/CardSelector/CardSelector'
+
 import CardSelector from '../Components/CardSelector/CardSelector'
 import PackageCardSelector from '../Components/PackageCardSelector/PackageCardSelector'
-import Select from 'react-select'
+import { ToastExample } from '../../../../components/toast/Toast'
 
 
 import './proposal.css'
@@ -22,15 +21,8 @@ import {
   CForm,
   CFormInput,
   CFormLabel,
-  CFormFeedback,
-  CFormCheck,
-  CFormSelect,
   CProgress, 
-  CBadge,
-  CProgressBar 
 } from '@coreui/react'
-import { FaTimes } from 'react-icons/fa';
-import PackageCard from '../../ProposalManagement/package/PackageCard'
 import RequiredDocument from './steps/RequiredDocument'
 import Benefits from './steps/Benefits'
 import ScopeOfWork from './steps/ScopeOfWork'
@@ -40,25 +32,19 @@ import BusinessActivityStepSelector from '../Components/helper/BusinessActivityI
 import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
 
-const activityOptions = [
-  { id: 1, name: 'Consultancy' },
-  { id: 2, name: 'IT Services' },
-  { id: 3, name: 'Trading' },
-  { id: 4, name: 'Manufacturing' },
-]
 
+
+
+// Constants
 const questions = [
   'What is your company name?',
   'What is your estimated investment?',
   'Do you need office space?',
   'How many visas are required?',
   'Do you need bank assistance?',
-]
+];
 
-// include pre difine
-
-
- const initialIncludeExcludeList = [
+const initialIncludeExcludeList = [
   { title: 'CERTIFICATE OF INCUMBENCY', quantity: 1, cost: 'INCLUDED' },
   { title: 'MOA', quantity: 1, cost: 'INCLUDED' },
   { title: 'SHARE CERTIFICATE', quantity: 1, cost: 'INCLUDED' },
@@ -68,13 +54,75 @@ const questions = [
   { title: 'COMMERCIAL REGISTRY', quantity: 1, cost: 'INCLUDED' },
   { title: 'LEASE AGREEMENT', quantity: 1, cost: 'INCLUDED' },
   { title: 'CERTIFICATE OF INCORPORATION', quantity: 1, cost: 'INCLUDED' },
-]
-const clientOptions = [
-  { id: '1', name: 'Client1' },
-  { id: '2', name: 'Client2' },
-  { id: '3', name: 'Client3' },
-]
+];
+
+const initialRequiredDocuments = [
+  { name: 'Passport Copy' },
+  { name: 'Visit visa or Resident visa copy' },
+  { name: 'For Resident visa holder "No Objection Certificate will be required.' },
+  { name: 'Emirates ID (For resident visa holder)' },
+  { name: 'Any 3 Company Names (To check their availability)' },
+  { name: 'Passport Size Photograph' },
+  { name: 'Email-ID' },
+  { name: 'Contact Number' },
+];
+
+const initialBenefits = [
+  { name: 'Banking Benefits' },
+  { name: 'Shareholders can easily open global corporate bank accounts.' },
+  { name: 'The company can enjoy liberal bank account proceedings & maintenance.' },
+  { name: 'Can lease office or shop anywhere in Dubai.' },
+];
+
+const initialOtherBenefits = [
+  { name: 'The investor can commence branches.' },
+  { name: 'The company is eligible to hold limitless offices or properties in the UAE.' },
+  { name: 'Companies can be eligible for more visas depending on the nature of the business.' },
+];
+
+const initialScopeOfWork = [
+  { name: 'Consultancy on Company Incorporation Procedures FZCS' },
+  { name: 'Legalization and Initial Approval from Department of Economic Development, Dubai' },
+  { name: 'Municipality if required FZCS' },
+  { name: 'Virtual Office if Required FZCS' },
+  { name: 'Preparing Local Service Agent Agreement or MOA FZCS' },
+  { name: 'Court Notarization of Local Service Agent Agreement FZCS' },
+  { name: 'Documentation, Legalization and Submission of Final Approval Application to Department of Economic Development FZCS' },
+  { name: 'Follow-up and Collection of Trade License from Department of Economic Development FZCS' },
+  { name: 'Update Trade License with Department of Economic Development FZCS' },
+  { name: 'Documentation, Legalization and Registration of company with Ministry of Immigration (DNDR) FZCS' },
+  { name: 'Documentation, Legalization and Registration of company with Ministry of Labor (MOL) FZCS' },
+  { name: 'Introduction to Banker for opening Bank Account FZCS' },
+  { name: 'Family sponsor process FZCS' },
+];
+
+const initialNotes = `• This package license for one year and visa for 2 years, Medical & Work Protection Insurance is not included.
+• Package renewal AED 21150/- VISA FREE FOR LIFE, as long as license valid.
+• In case of any rejection by government, free zone refund money after deduction of specific amount.
+• FZCS will not be responsible in case of any delay or change by government.`;
+
+const initialQuestionFormData = {
+  partners: '',
+  visas: '',
+  visaAmount: 0,
+  tenancy: '',
+  tenancyAmount: 0,
+  withLocalPartner: '',
+  localPartnerAmount: 0,
+  language: '',
+  languageAmount: 0,
+  companyType: '',
+  companyTypeAmount: 0,
+};
+
+
 const Proposal = () => {
+  // toast states
+   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+    const showToast = (status, message) => {
+      setToastData({ show: true, status, message })
+      setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+    }
   const { id } = useParams()
   const [step, setStep] = useState(1)
   const businessZonesAuthority = useSelector((state) => state.businessZonesAuthority)
@@ -83,6 +131,14 @@ const Proposal = () => {
   const { business_activities = [], isActivityLoading = false } = useSelector(
     (state) => state.business_activity || {}
   );
+  const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
+const [requiredDocuments, setRequiredDocuments] = useState(initialRequiredDocuments)
+const [benefits, setBenefits] = useState(initialBenefits)
+const [otherBenefits, setOtherBenefits] = useState(initialOtherBenefits)
+const [scopeOfWork, setScopeOfWork] = useState(initialScopeOfWork)
+const [notes, setNotes] = useState(initialNotes)
+const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData)
+
   
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
@@ -101,21 +157,26 @@ const Proposal = () => {
   // dummy value to hide selected inside searchbar
   const MultiValue = () => null
   const total_step = 11
+// required document 
 
   // get business zonne authority
   useEffect(() => {
   if (id) {
-    // fetch new authorities
     dispatch(getBusinessZonesAuthorityByZoneId({ id }));
 
-    // reset state to initial
+    // Reset form state when zone changes
     setStep(1);
     setSelectedAuthority(null);
     setSelectedActivities([]);
     setSelectedPackage(null);
     setSelectedClient('');
-    setAnswers(Array(questions.length).fill(''));
     setIncludeExcludeList(initialIncludeExcludeList);
+    setRequiredDocuments(initialRequiredDocuments);
+    setBenefits(initialBenefits);
+    setOtherBenefits(initialOtherBenefits);
+    setScopeOfWork(initialScopeOfWork);
+    setNotes(initialNotes);
+    setQuestionFormData(initialQuestionFormData);
   }
 }, [id, dispatch]);
 
@@ -145,62 +206,54 @@ const Proposal = () => {
    
   }, [selectedAuthority , dispatch])
 
-  // activity optoipn from getactivity
-  const activityOptions = business_activities.map((item) => ({
-    value: item.id,
-    label: item.activity_name,
-  }))
-  
-  // handle selection at step 3
-  const handleActivityChange = (selectedOptions) => {
-    const selectedIds = selectedOptions.map((opt) => opt.value)
-    setSelectedActivities(selectedIds)
-  }
   
   
-  const handleActivityToggle = (id) => {
-    setSelectedActivities((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
+ 
   
 
   const handleNext = () => {
-    if (step < total_step) setStep(step + 1)
+  if (step === 1 && !selectedAuthority) {
+     showToast('warning', `Please select an authority before proceeding.`);
+    return
   }
+
+  if (step === 2 && !selectedPackage) {
+    showToast('warning', `Please select an package before proceeding.`)
+    return
+  }
+
+
+  // Add more validations for other steps as needed...
+
+  if (step < total_step) setStep(step + 1)
+}
+
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
   }
+const generatePDF = () => {
+  const proposalData = {
+    zoneId: id,
+    authority: selectedAuthority,
+    package: selectedPackage,
+    activities: selectedActivities,
+    client: selectedClient,
+    questionAnswers: questionFormData,
+    includeExcludeList,
+    requiredDocuments,
+    benefits,
+    otherBenefits,
+    scopeOfWork,
+    notes,
+  };
 
-  const generatePDF = () => {
-    console.log({
-      id,
-      selectedAuthority,
-      selectedActivities,
-      answers,
-      selectedPackage,
-      selectedClient,
-    })
-    alert('PDF Generated (placeholder)')
-  }
+  console.log('📝 Final Proposal:', proposalData);
+  alert('PDF Generated (placeholder)');
+};
 
-  // questions submission
-const [questionFormData, setQuestionFormData] = useState({
-  partners: '',
-  visas: '',
-  visaAmount: 0,
-  tenancy: '',
-  tenancyAmount: 0,
-  withLocalPartner: '',
-  localPartnerAmount: 0,
-  language: '',
-  languageAmount: 0,
-  companyType: '',
-  companyTypeAmount: 0,
-})
 
-  const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
+
   
   const handleIncludeExcludeChange = (index, field, value) => {
     const updated = [...includeExcludeList]
@@ -224,6 +277,11 @@ const max_activity_selected =selectedPackage?.activity
 
   return (
     <div className="container ">
+      {toastData.show && (
+                    <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                      <ToastExample status={toastData.status} message={toastData.message} />
+                    </div>
+                  )}
       <h2 className="text-center mb-4">Proposal Form - Step {step}/{total_step}</h2>
     <CProgress color="info" className='mb-3' variant='striped' animated value={(step / total_step) * 100}/> 
    {selectedPackage && (
@@ -307,7 +365,14 @@ const max_activity_selected =selectedPackage?.activity
       )}
 
       {step === 3 && (
-        <BusinessActivityStepSelector step={3} authority_id={selectedAuthority } max_activity_selected={max_activity_selected}/>
+        <BusinessActivityStepSelector
+  step={3}
+  authority_id={selectedAuthority}
+  max_activity_selected={max_activity_selected}
+  setSelectedActivities={setSelectedActivities} 
+  selectedActivities={selectedActivities}
+/>
+        // <BusinessActivityStepSelector step={3} authority_id={selectedAuthority } max_activity_selected={max_activity_selected}/>
       )}
 
     {step === 4 && (
@@ -358,7 +423,7 @@ const max_activity_selected =selectedPackage?.activity
                <CFormInput
   type="text"
   placeholder="Enter cost"
-  value={item.cost}
+  value={item.cost }
   onChange={(e) =>
     handleIncludeExcludeChange(index, 'cost', e.target.value)
   }
@@ -391,19 +456,19 @@ const max_activity_selected =selectedPackage?.activity
       )}
 
        {step === 6 && (
-         <RequiredDocument/>
+         <RequiredDocument requiredDocuments={requiredDocuments} setRequiredDocuments={setRequiredDocuments}/>
         
       )}
         {step === 7 && (
-          <Benefits/>
+          <Benefits benefits={benefits} setBenefits={setBenefits} otherBenefits={otherBenefits} setOtherBenefits={setOtherBenefits}/>
         
       )}
       {step === 8 && (
-        <ScopeOfWork/>
+        <ScopeOfWork scopeOfWork={scopeOfWork} setScopeOfWork={setScopeOfWork}/>
       )}
 
     {step === 9 && (
-        <Notes/>
+        <Notes notes={notes} setNotes={setNotes}/>
       )}
       {step === 10 && (
         <>
@@ -418,9 +483,7 @@ const max_activity_selected =selectedPackage?.activity
           <p>
             <strong>Authority:</strong> {selectedAuthority}
           </p>
-          <p>
-            <strong>Activities:</strong> {selectedActivities.join(', ')}
-          </p>
+         
           <p>
             <strong>Answers:</strong> {answers.join(' | ')}
           </p>

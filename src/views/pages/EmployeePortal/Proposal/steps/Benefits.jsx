@@ -9,19 +9,8 @@ import {
   
 } from '@coreui/react'
 
-function Benefits() {
-    const [benefits, setBenefits] = useState([
-  { name: 'Banking Benefits' },
-  { name: 'Shareholders can easily open global corporate bank accounts.' },
-  { name: 'The company can enjoy liberal bank account proceedings & maintenance.' },
-  { name: 'Can lease office or shop anywhere in Dubai.' },
-])
-
-const [otherBenefits, setOtherBenefits] = useState([
-  { name: 'The investor can commence branches.' },
-  { name: 'The company is eligible to hold limitless offices or properties in the UAE.' },
-  { name: 'Companies can be eligible for more visas depending on the nature of the business.' },
-])
+function Benefits({benefits,setBenefits,otherBenefits,setOtherBenefits}) {
+    
 const handleListChange = (index, value, setter) => {
   setter((prev) =>
     prev.map((item, i) => (i === index ? { ...item, name: value } : item))

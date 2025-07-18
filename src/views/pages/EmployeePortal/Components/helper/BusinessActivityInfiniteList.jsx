@@ -8,17 +8,16 @@ import { ToastExample } from '../../../../../components/toast/Toast'
 
 const PAGE_SIZE = 20;
 
-const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selected}) => {
+const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selected, selectedActivities, setSelectedActivities }) => {
   const dispatch = useDispatch();
-// toast states
- const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+  // toast states
+  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 
   const [businessActivities, setBusinessActivities] = useState([]);
-  const [selectedActivities, setSelectedActivities] = useState([]);
   const [activityOptions, setActivityOptions] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -32,63 +31,56 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
 
   // Memoized fetch function
   const fetchActivities = useCallback(async (pageNum) => {
-  if (loadingRef.current) return;
-  loadingRef.current = true;
-  setLoading(true);
-  setError(null);
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    setError(null);
 
-  console.log('Fetching activities, page:', pageNum);
+    try {
+      const res = await dispatch(
+        getBusinessActivityByAuthorityId({ authority_id, page: pageNum, PAGE_SIZE })
+      );
 
-  try {
-    const res = await dispatch(
-      getBusinessActivityByAuthorityId({ authority_id, page: pageNum, PAGE_SIZE })
-    );
-
-    if (res.error) {
-      // If error but already some data loaded → just stop fetching more
-      if (businessActivities.length > 0) {
-        console.warn('No more data or error on next page. Stopping scroll.');
-        setHasMore(false);
-        return;
+      if (res.error) {
+        if (businessActivities.length > 0) {
+          setHasMore(false);
+          return;
+        }
+        throw new Error(res.error.message || 'Failed to load');
       }
 
-      // Else if first page fails, show error
-      throw new Error(res.error.message || 'Failed to load');
-    }
+      const data = res.payload?.data || [];
 
-    const data = res.payload?.data || [];
+      if (data.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
 
-    // Stop further fetching if no data
-    if (data.length < PAGE_SIZE) {
+      setBusinessActivities((prev) => {
+        const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));
+        return [...prev, ...newItems];
+      });
+
+      const newOptions = data.map((item) => ({
+        value: item.id,
+        label: `(${item.activity_code}) ${item.activity_name}`,
+        code: item.activity_code,
+        data: item // Store the full object here
+      }));
+
+      setActivityOptions((prev) => {
+        const combined = [...prev, ...newOptions];
+        return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+      });
+    } catch (err) {
+      console.error('Error fetching activities:', err);
+      setError('Failed to load activities. Please try again.');
       setHasMore(false);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+      setInitialLoad(false);
     }
-
-    setBusinessActivities((prev) => {
-      const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));
-      return [...prev, ...newItems];
-    });
-
-    const newOptions = data.map((item) => ({
-      value: item.id,
-      label: `(${item.activity_code}) ${item.activity_name}`,
-      code: item.activity_code,
-    }));
-
-    setActivityOptions((prev) => {
-      const combined = [...prev, ...newOptions];
-      return Array.from(new Map(combined.map((o) => [o.value, o])).values());
-    });
-  } catch (err) {
-    console.error('Error fetching activities:', err);
-    setError('Failed to load activities. Please try again.');
-    setHasMore(false); // Important: prevent infinite fetches
-  } finally {
-    loadingRef.current = false;
-    setLoading(false);
-    setInitialLoad(false);
-  }
-}, [dispatch, authority_id, businessActivities.length]);
-
+  }, [dispatch, authority_id, businessActivities.length]);
 
   // Reset state when authority_id changes
   useEffect(() => {
@@ -140,25 +132,33 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
     };
   }, [hasMore, step, loadingRef.current]);
 
-  const handleActivityToggle = (id) => {
-  setSelectedActivities((prev) => {
-    if (prev.includes(id)) {
-      return prev.filter((item) => item !== id); // unselect
-    } else if (prev.length < max_activity_selected) {
-      return [...prev, id]; // select if under limit
-    } else {
-       showToast('warning', `You can select up to ${max_activity_selected} activities only`);
-      return prev; // ignore click if limit reached
-    }
-  });
-};
+  const handleActivityToggle = (activity) => {
+    setSelectedActivities((prev) => {
+      if (prev.some(item => item.id === activity.id)) {
+        return prev.filter((item) => item.id !== activity.id); // unselect
+      } else if (prev.length < max_activity_selected) {
+        return [...prev, activity]; // select if under limit
+      } else {
+        showToast('warning', `You can select up to ${max_activity_selected} activities only`);
+        return prev; // ignore click if limit reached
+      }
+    });
+  };
 
-  const handleActivityChange = (selected) => {
-    setSelectedActivities(selected ? selected.map((item) => item.value) : []);
+  const handleActivityChange = (selectedOptions) => {
+    const selectedItems = selectedOptions
+      .map((opt) => businessActivities.find((act) => act.id === opt.value))
+      .filter(Boolean);
+    
+    if (selectedItems.length <= max_activity_selected) {
+      setSelectedActivities(selectedItems);
+    } else {
+      showToast('warning', `You can select up to ${max_activity_selected} activities only`);
+    }
   };
 
   const removeSelectedActivity = (id) => {
-    setSelectedActivities((prev) => prev.filter((item) => item !== id));
+    setSelectedActivities((prev) => prev.filter((item) => item.id !== id));
   };
 
   if (step !== 3) return null;
@@ -166,10 +166,10 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
   return (
     <div className="d-flex flex-column" style={{ height: '60vh' }}>
       {toastData.show && (
-              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
-                <ToastExample status={toastData.status} message={toastData.message} />
-              </div>
-            )}
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+          <ToastExample status={toastData.status} message={toastData.message} />
+        </div>
+      )}
       {/* Header + select */}
       <div>
         <h4>Select Business Activities</h4>
@@ -177,7 +177,7 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
           isMulti
           options={activityOptions}
           value={activityOptions.filter((opt) =>
-            selectedActivities.includes(opt.value)
+            selectedActivities.some(item => item.id === opt.value)
           )}
           onChange={handleActivityChange}
           placeholder="Search by name or code..."
@@ -196,17 +196,17 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
 
         {/* Selected badges */}
         <div className="mb-3 d-flex flex-wrap gap-2">
-          {activityOptions
-            .filter((opt) => selectedActivities.includes(opt.value))
-            .map((opt) => (
+          {selectedActivities.map((activity) => {
+            const option = activityOptions.find(opt => opt.value === activity.id);
+            return (
               <span
-                key={opt.value}
+                key={activity.id}
                 className="badge bg-primary d-flex align-items-center"
                 style={{ padding: '0.5rem 0.75rem', borderRadius: '20px' }}
               >
-                {opt.label}
+                {option ? option.label : activity.activity_name}
                 <FaTimes
-                  onClick={() => removeSelectedActivity(opt.value)}
+                  onClick={() => removeSelectedActivity(activity.id)}
                   style={{
                     marginLeft: '8px',
                     cursor: 'pointer',
@@ -214,7 +214,8 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
                   }}
                 />
               </span>
-            ))}
+            );
+          })}
         </div>
       </div>
 
@@ -241,15 +242,15 @@ const BusinessActivityStepSelector = ({ step, authority_id ,max_activity_selecte
           <>
             <div className="row">
               {businessActivities.map((item) => {
-                const isSelected = selectedActivities.includes(item.id);
+                const isSelected = selectedActivities.some(activity => activity.id === item.id);
                 return (
                   <div key={item.id} className="col-3 p-2">
                     <CardSelector
-                    type="checkbox"
+                      type="checkbox"
                       title={item.activity_name}
                       activity_code={item.activity_code}
                       selected={isSelected}
-                      onClick={() => handleActivityToggle(item.id)}
+                      onClick={() => handleActivityToggle(item)}
                       name="activity_group"
                     />
                   </div>

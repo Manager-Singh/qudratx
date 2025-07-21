@@ -139,8 +139,9 @@ if (isLoading) {
         
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
-       <Route path="/create-proposal/:id/:lead_id" element={<Proposal/>}/>
-       <Route path="/business-zones/:lead_id" element={<EmployeeBusinessZone/>} />
+      <Route path="/create-proposal/:id/:lead_id?" element={<Proposal />} />
+         <Route path="/business-zones/:lead_id?" element={<EmployeeBusinessZone />} />
+
        </Route>
          
         </Routes>

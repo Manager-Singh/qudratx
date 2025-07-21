@@ -80,7 +80,7 @@ const getProposal = async (req, res) => {
 
     const where = {
       deleted_at: null,
-      name: { [Op.like]: `%${search}%` }
+      authority_name: { [Op.like]: `%${search}%` }
     };
 // filter by status if provided
     if (status === 'active') {

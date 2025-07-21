@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CForm,
   CFormInput,
@@ -13,7 +13,7 @@ import {
   CImage,
 } from '@coreui/react'
 import axios from 'axios'
-import { postDataWithImage } from '../../../utils/api'
+import { getData, postDataWithImage } from '../../../utils/api'
 
 const Setting = () => {
   const [form, setForm] = useState({
@@ -46,6 +46,58 @@ const Setting = () => {
 
   const [logoPreview, setLogoPreview] = useState('')
   const [iconPreview, setIconPreview] = useState('')
+
+
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const res = await getData('/admin/web-setting-info')
+      console.log(res, "res")
+
+      if (res?.data) {
+        const data = res.data
+
+        // Set form state with fetched data
+        setForm({
+          name: data.name || '',
+          email: data.email || '',
+          description: data.description || '',
+          logo: data.logo || '',
+          icon: data.icon || '',
+          phone: data.phone || '',
+          address: data.address?.length ? data.address : [{
+            type: '',
+            line1: '',
+            city: '',
+            state: '',
+            country: '',
+            postal_code: '',
+          }],
+          terms_and_conditions: data.terms_and_conditions || '',
+          bank_details: {
+            bank_title: data.bank_details?.bank_title || '',
+            account_number: data.bank_details?.account_number || '',
+            iban_number: data.bank_details?.iban_number || '',
+            bank: data.bank_details?.bank || '',
+            branch: data.bank_details?.branch || '',
+            swift_code: data.bank_details?.swift_code || '',
+          },
+        })
+
+        // Set preview if logo/icon exists (if it's a URL)
+        if (data.logo) setLogoPreview(data.logo)
+        if (data.icon) setIconPreview(data.icon)
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error)
+    }
+  }
+
+  fetchData()
+}, [])
+
+
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })

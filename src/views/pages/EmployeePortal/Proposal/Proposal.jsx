@@ -7,7 +7,6 @@ import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneA
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
-
 import CardSelector from '../Components/CardSelector/CardSelector'
 import PackageCardSelector from '../Components/PackageCardSelector/PackageCardSelector'
 import { ToastExample } from '../../../../components/toast/Toast'
@@ -31,6 +30,8 @@ import { getClient } from '../../../../store/admin/clientSlice'
 import BusinessActivityStepSelector from '../Components/helper/BusinessActivityInfiniteList'
 import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
+import ProposalSummary from './steps/ProposalSummaryStep'
+import { CreateProposal } from '../../../../store/admin/proposalSlice'
 
 
 
@@ -131,7 +132,7 @@ const Proposal = () => {
   const { business_activities = [], isActivityLoading = false } = useSelector(
     (state) => state.business_activity || {}
   );
-  const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
+const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
 const [requiredDocuments, setRequiredDocuments] = useState(initialRequiredDocuments)
 const [benefits, setBenefits] = useState(initialBenefits)
 const [otherBenefits, setOtherBenefits] = useState(initialOtherBenefits)
@@ -139,7 +140,7 @@ const [scopeOfWork, setScopeOfWork] = useState(initialScopeOfWork)
 const [notes, setNotes] = useState(initialNotes)
 const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData)
 
-  
+  const [showPdfSummary, setShowPdfSummary] = useState(false);
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
   
@@ -149,7 +150,7 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const [selectedActivities, setSelectedActivities] = useState([])
   const [answers, setAnswers] = useState(Array(questions.length).fill(''))
   const [selectedPackage, setSelectedPackage] = useState(null)
-  const [selectedClient, setSelectedClient] = useState('')
+const [selectedClient, setSelectedClient] = useState(null)
   
   // state for search
   const [activitySearch, setActivitySearch] = useState('');
@@ -177,6 +178,8 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
     setScopeOfWork(initialScopeOfWork);
     setNotes(initialNotes);
     setQuestionFormData(initialQuestionFormData);
+    setShowPdfSummary(false)
+    
   }
 }, [id, dispatch]);
 
@@ -232,29 +235,8 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
   }
-const generatePDF = () => {
-  const proposalData = {
-    zoneId: id,
-    authority: selectedAuthority,
-    package: selectedPackage,
-    activities: selectedActivities,
-    client: selectedClient,
-    questionAnswers: questionFormData,
-    includeExcludeList,
-    requiredDocuments,
-    benefits,
-    otherBenefits,
-    scopeOfWork,
-    notes,
-  };
-
-  console.log('📝 Final Proposal:', proposalData);
-  alert('PDF Generated (placeholder)');
-};
 
 
-
-  
   const handleIncludeExcludeChange = (index, field, value) => {
     const updated = [...includeExcludeList]
     updated[index][field] = value
@@ -270,10 +252,70 @@ const generatePDF = () => {
   const addIncludeExclude = () => {
     setIncludeExcludeList([...includeExcludeList, { title: '', type: 'Include' }])
   }
-  
 
-const total_amount = selectedPackage?.total_amount
+
+  const calculateTotalAmount = () => {
+  let total = Number(selectedPackage?.total_amount || 0);
+
+  // Include/Exclude costs
+  includeExcludeList.forEach((item) => {
+    const cost = parseFloat(item.cost);
+    const quantity = parseInt(item.quantity);
+    if (!isNaN(cost) && !isNaN(quantity)) {
+      total += cost * quantity;
+    }
+  });
+
+  // Question Form Amounts (all *_Amount fields)
+  Object.keys(questionFormData).forEach((key) => {
+    if (key.toLowerCase().includes('amount')) {
+      const value = parseFloat(questionFormData[key]);
+      if (!isNaN(value)) {
+        total += value;
+      }
+    }
+  });
+
+  return total.toFixed(2);
+};
+
+
+const total_amount = calculateTotalAmount();
 const max_activity_selected =selectedPackage?.activity
+
+
+
+const generatePDF = () => {
+ const finalTotalAmount = calculateTotalAmount();
+  const proposalData = {
+    zone_id :id,
+    zone_name :selectedPackage.authority.zone.name,
+    zone_info: selectedPackage.authority.zone,
+    authority_id :selectedPackage.authority.id,
+    authority_name: selectedPackage.authority.name,
+    authority_info:selectedPackage.authority,
+    business_activities:selectedActivities,
+    package_id:selectedPackage.id,
+    package_name:selectedPackage.name,
+    package_info:selectedPackage,
+    client_id:selectedClient.id,
+    client_info:selectedClient,
+    total_amount:finalTotalAmount,
+    business_questions:questionFormData,
+    what_to_include:includeExcludeList,
+    required_documents:requiredDocuments,
+    benefits:benefits,
+    other_benefits:otherBenefits,
+    scope_of_work:scopeOfWork,
+    notes:notes
+  }
+  console.log('📝 Final Proposal:', proposalData);
+  // alert('PDF Generated (placeholder)');
+  // dispatch(CreateProposal(proposalData)).then((data)=>{
+  //   console.log(data,"data")
+  // })
+};
+
 
   return (
     <div className="container ">
@@ -297,7 +339,7 @@ const max_activity_selected =selectedPackage?.activity
        {step === 1 && (
         <>
         <div>
-          <h3>{}</h3>
+          
         </div>
           <h4 >Select Authority</h4>
           <div className="row">
@@ -440,7 +482,7 @@ const max_activity_selected =selectedPackage?.activity
                   >
                     ✕
                   </CButton>
-                )}
+                )} 
               </CCol>
             </CRow>
           ))}
@@ -472,33 +514,44 @@ const max_activity_selected =selectedPackage?.activity
       )}
       {step === 10 && (
         <>
-        <Clients selectedClientId={selectedClient} setSelectedClientId={setSelectedClient} />
-         
+      <Clients
+  selectedClient={selectedClient}
+  setSelectedClient={setSelectedClient}
+/>   
         </>
       )}
 
       {step === 11 && (
         <>
           <h4>Review & Generate PDF</h4>
-          <p>
+          {/* <p>
             <strong>Authority:</strong> {selectedAuthority}
-          </p>
+          </p> */}
          
-          <p>
+          {/* <p>
             <strong>Answers:</strong> {answers.join(' | ')}
-          </p>
+          </p> */}
           {/* <p>
             <strong>Package:</strong> {selectedPackage}
           </p> */}
-          <p>
+          {/* <p>
             <strong>Client:</strong> {selectedClient}
-          </p>
-          <button
-            onClick={generatePDF}
-            style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff' }}
-          >
-            Generate PDF
-          </button>
+          </p> */}
+         
+          <CButton className="custom-button me-3"  onClick={() => setShowPdfSummary(true)}>
+                     View PDF
+           </CButton>
+
+          
+            <CButton className="custom-button"  onClick={generatePDF}>
+                     Generate PDF
+              </CButton>
+           {showPdfSummary && (
+        <div className="mt-4">
+          <ProposalSummary data={proposalData}  />
+      
+        </div>
+      )}
         </>
       )}
 

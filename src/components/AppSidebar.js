@@ -115,8 +115,18 @@ const AppSidebar = () => {
       name: 'Proposal management',
       icon:<CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
-    ...zoneNavEmp 
+    ...zoneNavEmp ,
     // add more employee-specific items here
+    {
+      component: CNavTitle,
+      name: 'Leads Management',
+      icon: <CIcon icon={cilGroup} size="xl" className="text-primary" />,
+    },
+     {
+      component: CNavItem,
+      name: 'All Leads',
+      to: '/all-lead',
+    },
   ]
 
   const navigation = user.role === 'admin' ? adminNav : user.role === 'employee' ? employeeNav : []

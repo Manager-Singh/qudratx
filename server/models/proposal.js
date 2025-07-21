@@ -146,26 +146,6 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
   });
     // Proposal.associate = (models) => {
-    //   Proposal.belongsTo(models.Lead, {
-    //     foreignKey: 'lead_id',
-    //     as: 'lead'
-    //   });
-
-    //   Proposal.belongsTo(models.BusinessZone, {
-    //     foreignKey: 'zone_id',
-    //     as: 'zone'
-    //   });
-
-    //   Proposal.belongsTo(models.BusinessZoneAuthority, {
-    //     foreignKey: 'authority_id',
-    //     as: 'authority'
-    //   });
-
-    //   Proposal.belongsTo(models.Package, {
-    //     foreignKey: 'package_id',
-    //     as: 'package'
-    //   });
-
     //   Proposal.belongsTo(models.Client, {
     //     foreignKey: 'client_id',
     //     as: 'client'

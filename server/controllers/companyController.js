@@ -75,7 +75,7 @@ const createAndUpdateCompany = async (req, res) => {
 
     } else {
       // ✅ Handle GET: return all companies
-      const companies = await Company.findAll({
+      const companies = await Company.findOne({
         where: { deleted_at: null },
         order: [['created_at', 'DESC']]
       });

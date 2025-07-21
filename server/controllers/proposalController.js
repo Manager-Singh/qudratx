@@ -70,58 +70,46 @@ const createProposal = async (req, res) => {
 };
 
 // READ ALL
-// const getProposal = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 10;
-//     const offset = (page - 1) * limit;
-//     const search = req.query.search || '';
-//     const status = req.query.status; // optional: 'active' or 'inactive'
+const getProposal = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status; // optional: 'active' or 'inactive'
 
-//     const where = {
-//       deleted_at: null,
-//       name: { [Op.like]: `%${search}%` }
-//     };
-// // filter by status if provided
-//     if (status === 'active') {
-//       where.status = true;
-//     } else if (status === 'inactive') {
-//       where.status = false;
-//     }
-//     const { count, rows } = await Proposal.findAndCountAll({
-//       where,
-//       limit,
-//       offset,
-//       order: [['created_at', 'DESC']],
-//       include: [
-//         {
-//           model: BusinessZonesAuthority,
-//           as: 'authority',
-//           include: [
-//             {
-//               model: BusinessZone,
-//               as: 'zone',
-//             }
-//           ]
-//         }
-//       ]
-//     });
+    const where = {
+      deleted_at: null,
+      name: { [Op.like]: `%${search}%` }
+    };
+// filter by status if provided
+    if (status === 'active') {
+      where.status = true;
+    } else if (status === 'inactive') {
+      where.status = false;
+    }
+    const { count, rows } = await Proposal.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']]
+    });
 
-//     const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limit);
 
-//     res.status(200).json({
-//       message: 'proposals fetched successfully',
-//       page,
-//       limit,
-//       totalPages,
-//       totalRecords: count,
-//       data: rows
-//     });
-//   } catch (error) {
-//     console.error('Get proposals error:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
+    res.status(200).json({
+      message: 'proposals fetched successfully',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows
+    });
+  } catch (error) {
+    console.error('Get proposals error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 // const getProposalByAuthorityId = async (req, res) => {
 //   try {
@@ -313,7 +301,7 @@ const createProposal = async (req, res) => {
 
 module.exports = {
   createProposal,
-//   getProposal,
+   getProposal,
 //   getProposalByUUID,
 //   getProposalByAuthorityId,
 //   updateProposal,

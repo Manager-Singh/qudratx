@@ -66,7 +66,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: true,
     },
-
+    created_by: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
+    approved_by: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    approval_status: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0,
+      comment: '0 = unapproved, 1 = approved',
+    },
     business_activities: {
       type: DataTypes.JSON,
       allowNull: true,

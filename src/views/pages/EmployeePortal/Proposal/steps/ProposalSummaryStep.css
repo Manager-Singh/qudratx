@@ -1,0 +1,56 @@
+
+.pdf-page {
+    height: 100vh;
+    page-break-after: always; /* Useful for PDF generation */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+
+.page-1-pdf{
+    height: 100vh;
+    text-align: center;
+}
+
+.page-1-pdf img {
+    width: 100%;              /* Fill the container width */
+    max-height: 500px;        /* Prevent overflow */
+    object-fit: cover;        /* Maintain aspect ratio, fill container */
+    display: block;           /* Remove unwanted whitespace */
+    border-radius: 8px;       /* Optional styling */
+  }
+
+  .page-1-pdf-content {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2px 70px;
+}
+
+.footer-company-name {
+    background-color: grey;
+    color: #fff;
+    height: 40px;
+    text-align: left; /* Keep horizontal alignment left */
+    display: flex;
+    align-items: center;      /* Vertically center */
+    padding-left: 10px;       /* Optional: horizontal spacing */
+}
+
+
+.footer-company-name p{
+    margin-top: revert;
+}
+
+.signed-section{
+    display: flex;
+}
+
+
+.signed-section span {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 6px;
+    /* gap: 42px; */
+}

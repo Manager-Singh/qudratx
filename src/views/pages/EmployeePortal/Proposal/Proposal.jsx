@@ -143,6 +143,9 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const [showPdfSummary, setShowPdfSummary] = useState(false);
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
+
+  // state tp save all form data
+  const [ proposalForm , setProposalForm] = useState(null);
   
   const dispatch = useDispatch()
 
@@ -310,12 +313,18 @@ const generatePDF = () => {
     notes:notes
   }
   console.log('📝 Final Proposal:', proposalData);
+  setProposalForm(proposalData);
   // alert('PDF Generated (placeholder)');
   // dispatch(CreateProposal(proposalData)).then((data)=>{
   //   console.log(data,"data")
   // })
 };
 
+// preview pdf
+const viewPDF = () => {
+  generatePDF();
+  setShowPdfSummary(true);
+}
 
   return (
     <div className="container ">
@@ -538,8 +547,8 @@ const generatePDF = () => {
             <strong>Client:</strong> {selectedClient}
           </p> */}
          
-          <CButton className="custom-button me-3"  onClick={() => setShowPdfSummary(true)}>
-                     View PDF
+          <CButton className="custom-button me-3"  onClick={viewPDF}>
+                     Preview PDF
            </CButton>
 
           
@@ -548,8 +557,8 @@ const generatePDF = () => {
               </CButton>
            {showPdfSummary && (
         <div className="mt-4">
-          <ProposalSummary data={proposalData}  />
-      
+          {/* <ProposalSummary data={proposalData}  /> */}
+          <ProposalSummary data={proposalForm} />
         </div>
       )}
         </>

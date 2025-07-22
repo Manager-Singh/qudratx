@@ -12,6 +12,17 @@ export const CreateProposal= createAsyncThunk('admin/create-proposal', async (da
   }
 })
 
+export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
+ 
+  try {
+    const response = await postData('/admin/get-my-proposals', data)
+    return response
+  } catch (error) {
+    console.error('Create  error:', error)
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+
 // export const getSubCategory = createAsyncThunk('admin/get-subcategory', async (_, thunkAPI) => {
 //   try {
 //     const response = await getData('/admin/get-subcategory')
@@ -80,6 +91,7 @@ export const CreateProposal= createAsyncThunk('admin/create-proposal', async (da
 const proposalSlice = createSlice({
   name: 'proposal',
   initialState: {
+    proposals: [],  
     proposal:null,
     isLoading: true,
   },
@@ -96,6 +108,20 @@ const proposalSlice = createSlice({
       .addCase(CreateProposal.rejected, (state, action) => {
         state.isLoading = false
      })
+
+      // GetMyProposal
+      .addCase(GetMyProposal.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(GetMyProposal.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.proposals = action.payload.data // assuming `data` is the array of proposals
+      })
+      .addCase(GetMyProposal.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
      //.addCase(getSubCategory.pending, (state) => {
 //         state.isLoading = true
 //   })

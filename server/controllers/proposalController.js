@@ -427,10 +427,58 @@ const getEmployeeProposals = async (req, res) => {
 //   }
 // };
 
+const getUnapprovedProposals = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    const whereClause = {
+      approval_status: 0 // unapproved
+    };
+
+    // Optional search by fields like client name, zone name, etc.
+    if (search) {
+      whereClause[Op.or] = [
+        { client_name: { [Op.like]: `%${search}%` } },
+        { zone_name: { [Op.like]: `%${search}%` } },
+        { authority_name: { [Op.like]: `%${search}%` } },
+        { package_name: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    const { rows: proposals, count: totalRecords } = await Proposal.findAndCountAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+    });
+
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    return res.status(200).json({
+      message: 'Unapproved proposals fetched successfully',
+      success: true,
+      page,
+      limit,
+      totalPages,
+      totalRecords,
+      data: proposals,
+    });
+  } catch (error) {
+    console.error('Error fetching unapproved proposals:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
 module.exports = {
   createProposal,
    getAllProposals,
    getEmployeeProposals,
+   getUnapprovedProposals,
 //   getProposalByUUID,
 //   getProposalByAuthorityId,
  updateProposal,

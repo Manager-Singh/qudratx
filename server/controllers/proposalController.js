@@ -474,11 +474,53 @@ const getUnapprovedProposals = async (req, res) => {
   }
 };
 
+const approveProposal = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    // Only admin should be allowed to approve
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Only admins can approve proposals.' });
+    }
+
+    const proposal = await Proposal.findOne({ where: { uuid } });
+
+    if (!proposal) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+
+    // Already approved
+    if (proposal.approval_status === 1) {
+      return res.status(400).json({ message: 'Proposal is already approved' });
+    }
+
+    proposal.approval_status = 1; // 1 means approved
+    proposal.approved_by = req.user.id;
+    proposal.updated_by = req.user.id;
+    proposal.updated_at = new Date();
+    proposal.last_update = new Date();
+
+    await proposal.save();
+
+    return res.status(200).json({
+      message: 'Proposal approved successfully',
+      success: true,
+      data: proposal
+    });
+  } catch (error) {
+    console.error('Error approving proposal:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
 module.exports = {
   createProposal,
    getAllProposals,
    getEmployeeProposals,
    getUnapprovedProposals,
+   approveProposal,
 //   getProposalByUUID,
 //   getProposalByAuthorityId,
  updateProposal,

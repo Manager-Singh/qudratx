@@ -16,6 +16,7 @@ router.get('/get-my-proposals',getEmployeeProposals)
 router.put('/update-proposal/:uuid',updateProposal)
 router.delete('/delete-proposal/:uuid',deleteProposal)
 router.get('/proposals/unapproved', getUnapprovedProposals);
+router.put('/proposals/:uuid/approve', approveProposal);
 // router.get('/get-deleted-proposal-detail',getDeletedProposalDetail)
 
 

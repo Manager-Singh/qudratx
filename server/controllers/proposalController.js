@@ -78,7 +78,7 @@ const createProposal = async (req, res) => {
 
 
 // READ ALL
-const getProposal = async (req, res) => {
+const getAllProposals = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -88,7 +88,10 @@ const getProposal = async (req, res) => {
 
     const where = {
       deleted_at: null,
-      authority_name: { [Op.like]: `%${search}%` }
+      client_name: { [Op.like]: `%${search}%` } ,
+      zone_name: { [Op.like]: `%${search}%` } ,
+      authority_name: { [Op.like]: `%${search}%` },
+      package_name: { [Op.like]: `%${search}%` }
     };
 // filter by status if provided
     if (status === 'active') {
@@ -235,7 +238,8 @@ const updateProposal = async (req, res) => {
       scope_of_work,
       notes,
       status,
-      proposal_status
+      proposal_status,
+      approved_by: bodyApprovedBy
     } = req.body;
 
     if (!uuid) {
@@ -282,6 +286,16 @@ const updateProposal = async (req, res) => {
     proposal.updated_at = new Date();
     proposal.last_update = new Date();
 
+    // Approval logic
+    if (req.user.role === 'admin') {
+      proposal.approval_status = 1;
+      proposal.approved_by = req.user.id;
+    } else {
+      // Keep existing values unless provided
+      proposal.approval_status = proposal.approval_status ?? 0;
+      proposal.approved_by = bodyApprovedBy || proposal.approved_by;
+    }
+
     await proposal.save();
 
     return res.status(200).json({
@@ -296,29 +310,88 @@ const updateProposal = async (req, res) => {
 };
 
 
+
 // // DELETE
-// const deleteProposal = async (req, res) => {
-//   try {
-//     const { uuid } = req.params;
+const deleteProposal = async (req, res) => {
+  try {
+    const { uuid } = req.params;
 
-//     const proposal = await Proposal.findOne({ where: { uuid } });
-//     if (!proposal) {
-//       return res.status(404).json({ message: 'proposal not found' });
-//     }
+    const proposal = await Proposal.findOne({ where: { uuid } });
+    if (!proposal) {
+      return res.status(404).json({ message: 'proposal not found' });
+    }
 
-//     await proposal.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    await proposal.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
 
-//     res.status(200).json({
-//       message: 'Proposal deleted successfully',
-//       success: true,
-//       data: { uuid: proposal.uuid, name: proposal.name },
-//     });
-//   } catch (error) {
-//     console.error('Delete proposal error:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
+    res.status(200).json({
+      message: 'Proposal deleted successfully',
+      success: true,
+      data: { uuid: proposal.uuid 
 
+
+      },
+    });
+  } catch (error) {
+    console.error('Delete proposal error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+const getEmployeeProposals = async (req, res) => {
+  try {
+    const employeeId = req.user.id;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const search = req.query.search || '';
+
+    const whereClause = {
+      created_by: employeeId
+    };
+
+    // Optional search by client name or proposal name, etc.
+    if (search) {
+      whereClause[Op.or] = [
+        { client_name: { [Op.like]: `%${search}%` } },
+        { zone_name: { [Op.like]: `%${search}%` } },
+        { authority_name: { [Op.like]: `%${search}%` } },
+        { package_name: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    const { rows: proposals, count: totalRecords } = await Proposal.findAndCountAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: Client,
+          as: 'client', // if you've set up associations
+        },
+        // Add more associations as needed
+      ],
+    });
+
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    return res.status(200).json({
+      message: 'Proposals fetched successfully',
+      success: true,
+      page,
+      limit,
+      totalPages,
+      totalRecords,
+      data: proposals,
+    });
+  } catch (error) {
+    console.error('Error fetching employee proposals:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
 // // GET DELETED Package
 // const getDeletedProposal = async (req, res) => {
 //   try {
@@ -356,10 +429,11 @@ const updateProposal = async (req, res) => {
 
 module.exports = {
   createProposal,
-   getProposal,
+   getAllProposals,
+   getEmployeeProposals,
 //   getProposalByUUID,
 //   getProposalByAuthorityId,
  updateProposal,
-//   deleteProposal,
+  deleteProposal,
 //   getDeletedProposal,
 };

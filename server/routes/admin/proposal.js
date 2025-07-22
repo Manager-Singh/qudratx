@@ -6,6 +6,7 @@ const { createProposal,
    updateProposal,
    deleteProposal,
    getUnapprovedProposals,
+   approveProposal,
   // getDeletedProposalDetail
 } = require('../../controllers/proposalController');
 

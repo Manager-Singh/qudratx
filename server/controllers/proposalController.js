@@ -88,7 +88,6 @@ const getAllProposals = async (req, res) => {
 
     const where = {
       deleted_at: null,
-      client_name: { [Op.like]: `%${search}%` } ,
       zone_name: { [Op.like]: `%${search}%` } ,
       authority_name: { [Op.like]: `%${search}%` },
       package_name: { [Op.like]: `%${search}%` }
@@ -365,13 +364,6 @@ const getEmployeeProposals = async (req, res) => {
       limit,
       offset,
       order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: Client,
-          as: 'client', // if you've set up associations
-        },
-        // Add more associations as needed
-      ],
     });
 
     const totalPages = Math.ceil(totalRecords / limit);

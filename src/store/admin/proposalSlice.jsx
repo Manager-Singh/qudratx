@@ -15,7 +15,7 @@ export const CreateProposal= createAsyncThunk('admin/create-proposal', async (da
 export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
  
   try {
-    const response = await postData('/admin/get-my-proposals', data)
+    const response = await getData('/admin/get-my-proposals', data)
     return response
   } catch (error) {
     console.error('Create  error:', error)

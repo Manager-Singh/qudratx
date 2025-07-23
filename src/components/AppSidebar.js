@@ -116,7 +116,12 @@ const AppSidebar = () => {
       icon:<CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
     ...zoneNavEmp ,
-    // add more employee-specific items here
+    {
+      component: CNavItem,
+      name: 'My Proposals',
+      to: '/proposals',
+    },
+    
     {
       component: CNavTitle,
       name: 'Leads Management',

@@ -29,25 +29,30 @@ export const AppSidebarNav = ({ items }) => {
     )
   }
 
-  const navItem = (item, index, indent = false) => {
-    const { component, name, badge, icon,showhyphen, ...rest} = item
-    const Component = component
-    return (
-      <Component as="div" key={index}>
-        {rest.to || rest.href ? (
-          <CNavLink
-            {...(rest.to && { as: NavLink })}
-            {...(rest.href && { target: '_blank', rel: 'noopener noreferrer' })}
-            {...rest}
-          >
-            {navLink(name, icon, badge, indent)}
-          </CNavLink>
-        ) : (
-          navLink(name, icon, badge, indent)
-        )}
-      </Component>
-    )
-  }
+ const navItem = (item, index, indent = false) => {
+  const { component, name, badge, icon, showhyphen, state, ...rest } = item
+  const Component = component
+  return (
+    <Component as="div" key={index}>
+      {rest.to || rest.href ? (
+        <CNavLink
+          as={NavLink}
+          to={rest.to}
+          state={state}
+          target={rest.href ? '_blank' : undefined}
+          rel={rest.href ? 'noopener noreferrer' : undefined}
+          className={({ isActive }) =>
+            `nav-link ${isActive ? 'active' : ''}`
+          }
+        >
+          {navLink(name, icon, badge, showhyphen)}
+        </CNavLink>
+      ) : (
+        navLink(name, icon, badge, showhyphen)
+      )}
+    </Component>
+  )
+}
 
   const navGroup = (item, index) => {
     const { component, name, icon, items, to, ...rest } = item

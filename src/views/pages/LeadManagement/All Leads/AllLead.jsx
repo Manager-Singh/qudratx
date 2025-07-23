@@ -5,9 +5,10 @@ import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash } from '@coreui/icons';
+import { cilTrash ,cilDescription} from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
+
 
 function AllLead() {
   const dispatch = useDispatch();
@@ -117,7 +118,12 @@ function AllLead() {
       name: 'Action',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to={`/business-zones/${row.uuid}`} title="View Lead">
+          <Link to='/business-zones' state={{ lead: row }} title="Create Porposal">
+            <CIcon icon={cilDescription} size="lg" style={{ cursor: 'pointer', color: '#333', }} />
+            {/* <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} /> */}
+          </Link>
+           <Link  title="View Lead">
+          
             <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} />
           </Link>
           <span

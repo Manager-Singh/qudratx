@@ -12,10 +12,23 @@ export const CreateProposal= createAsyncThunk('admin/create-proposal', async (da
   }
 })
 
+
 export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
  
   try {
     const response = await getData('/admin/get-my-proposals', data)
+    return response
+  } catch (error) {
+    console.error('Create  error:', error)
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+
+
+export const GetAllProposal= createAsyncThunk('admin/get-all-proposals', async (data, thunkAPI) => {
+ 
+  try {
+    const response = await getData('/admin/get-all-proposals', data)
     return response
   } catch (error) {
     console.error('Create  error:', error)
@@ -43,14 +56,14 @@ export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (da
 // })
 
 
-// export const fetchDeletedBusinessActivity  = createAsyncThunk('admin/fetchDeleted-businesszone', async (queryParams = '', thunkAPI) => {
-//   try {
-//     const response = await getData(`/admin/get-deleted-zone${queryParams}`)
-//     return response
-//   } catch (error) {
-//     return thunkAPI.rejectWithValue(error.message)
-//   }
-// })
+export const  deleteProposal = createAsyncThunk('admin/delete-proposal', async (uuid, thunkAPI) => {
+  try {
+    const response = await deleteData(`/admin/delete-proposal/${uuid}`)
+    return response
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
 
 
 // export const updateSubCategory = createAsyncThunk(
@@ -122,6 +135,31 @@ const proposalSlice = createSlice({
         state.isLoading = false
         state.error = action.payload
       })
+      // get all proposal
+       .addCase(GetAllProposal.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(GetAllProposal.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.proposals = action.payload.data // assuming `data` is the array of proposals
+      })
+      .addCase(GetAllProposal.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+
+       .addCase(deleteProposal.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(deleteProposal.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.proposals = state.proposals.filter(item => item.uuid !== action.uuid)
+
+      })
+      .addCase(deleteProposal.rejected, (state, action) => {
+        state.isLoading = false
+      })
      //.addCase(getSubCategory.pending, (state) => {
 //         state.isLoading = true
 //   })
@@ -135,19 +173,7 @@ const proposalSlice = createSlice({
 //   })
 
       
-
-//       // Delete Employee
-//       .addCase(deleteSubCategory.pending, (state) => {
-//         state.isLoading = true
-//       })
-//       .addCase(deleteSubCategory.fulfilled, (state, action) => {
-//         state.isLoading = false
-//         state.sub_categories = state.sub_categories.filter(item => item.uuid !== action.uuid)
-
-//       })
-//       .addCase(deleteSubCategory.rejected, (state, action) => {
-//         state.isLoading = false
-//       })
+     
 
 //       // Update Employee
 //       .addCase(updateSubCategory.pending, (state) => {

@@ -134,6 +134,16 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       allowNull: false,
     },
+     proposal_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+
+    step: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

@@ -5,38 +5,26 @@ const { Op, where } = require('sequelize');
 const createProposal = async (req, res) => {
   try {
     const {
-      client_id,
-      client_info,
       lead_id,
       zone_id,
       zone_name,
       zone_info,
       authority_id,
       authority_name,
-      authority_info,
-      package_id,
-      package_name,
-      package_info,
-      business_activities,
-      total_amount,
-      business_questions,
-      what_to_include,
-      required_documents,
-      benefits,
-      other_benefits,
-      scope_of_work,
-      notes,
-      updated_by,
-      last_update,
+      authority_info, 
       approved_by, // comes from body
     } = req.body;
 
     const created_by = req.user.id;
     const approval_status = req.user.role === 'admin' ? 1 : 0;
+ // Get last proposal to generate proposal_number
+    const lastProposal = await Proposal.findOne({
+      order: [['id', 'DESC']]
+    });
 
+    const nextNumber = lastProposal ? lastProposal.id + 1 : 1;
+    const proposal_number = `PRO_${nextNumber.toString().padStart(4, '0')}`; // e.g., LEAD_0001
     const proposal = await Proposal.create({
-      client_id,
-      client_info,
       lead_id,
       zone_id,
       zone_name,
@@ -44,28 +32,16 @@ const createProposal = async (req, res) => {
       authority_id,
       authority_name,
       authority_info,
-      package_id,
-      package_name,
-      package_info,
-      business_activities,
-      total_amount,
-      business_questions,
-      what_to_include,
-      required_documents,
-      benefits,
-      other_benefits,
-      scope_of_work,
-      notes,
-      updated_by,
-      last_update,
+      proposal_number,
+      step,
       created_by,
       approval_status,
-      approved_by: approval_status === 1 ? created_by : approved_by || null,
     });
 
     return res.status(201).json({
       message: 'Proposal created successfully',
       proposal,
+
     });
   } catch (error) {
     console.error('Error creating proposal:', error);
@@ -238,6 +214,7 @@ const updateProposal = async (req, res) => {
       notes,
       status,
       proposal_status,
+      step,
       approved_by: bodyApprovedBy
     } = req.body;
 
@@ -277,7 +254,7 @@ const updateProposal = async (req, res) => {
     proposal.other_benefits = other_benefits || proposal.other_benefits;
     proposal.scope_of_work = scope_of_work || proposal.scope_of_work;
     proposal.notes = notes || proposal.notes;
-
+    proposal.step = step || proposal.step;
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
 

@@ -32,6 +32,7 @@ import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
 import ProposalSummary from './steps/ProposalSummaryStep'
 import { CreateProposal } from '../../../../store/admin/proposalSlice'
+import AuthorityCard from './steps/Components/AuthorityCard'
 
 
 
@@ -335,14 +336,25 @@ const viewPDF = () => {
                   )}
       <h2 className="text-center mb-4">Proposal Form - Step {step}/{total_step}</h2>
     <CProgress color="info" className='mb-3' variant='striped' animated value={(step / total_step) * 100}/> 
-   {selectedPackage && (
-  <div className="w-100 d-flex justify-content-end my-3">
-    <div className="border border-2 border-primary rounded-3 px-4 py-3 bg-white shadow-sm">
+   {step >= 2 && (
+  <div className="w-100 d-flex justify-content-between my-3">
+    <div className="border border-2 border-primary rounded-3 px-3 py-2 bg-white shadow-sm">
+      <h4 className="mb-0 text-dark-emphasis">
+        <span className="fw-medium">Proposal No:</span>{' '}
+        <span className="text-primary fw-bold">"PRO-0001"</span>
+      </h4>
+    </div>
+   
+    {
+      selectedPackage && (
+         <div className="border border-2 border-primary rounded-3 px-3 py-2 bg-white shadow-sm">
       <h4 className="mb-0 text-dark-emphasis">
         <span className="fw-medium">Total Amount:</span>{' '}
         <span className="text-primary fw-bold">AED {total_amount}</span>
       </h4>
     </div>
+      )
+    }
   </div>
 )}
        {step === 1 && (
@@ -366,13 +378,16 @@ const viewPDF = () => {
                   <label className={`card mt-3`}>
       
         </label>
-                  <CardSelector
-                    image={item.image ? `http://localhost:5000/uploads/business-zones/${item.image}` : logo}
+        <AuthorityCard
+         image={item.image ? `http://localhost:5000/uploads/business-zones/${item.image}` : logo}
                     title={item.name}
                     textAlign="center"
                     name="card-group"
                     type="radio"
-                  />
+                    checked={selectedAuthority === item.id} // ✅ ADD THIS LINE
+                    onChange={() => setSelectedAuthority(item.id)}
+        />
+                
 
                 </div>
               ))

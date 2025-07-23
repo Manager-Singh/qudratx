@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { GetMyProposal } from '../../../../store/admin/proposalSlice';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
@@ -8,8 +7,9 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
+import { GetMyProposal } from '../../../../store/admin/proposalSlice';
 
-function EmployeeAllProposal() {
+function AllProposals() {
   const dispatch = useDispatch();
   const { proposals, isLoading } = useSelector(state => state.proposal);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -17,7 +17,9 @@ function EmployeeAllProposal() {
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
-    dispatch(GetMyProposal());
+    dispatch(GetMyProposal()).then((data)=>{
+      console.log(data,"data")
+    });
   }, [dispatch]);
 
   const filteredData = proposals?.filter(item =>
@@ -168,4 +170,4 @@ function EmployeeAllProposal() {
   );
 }
 
-export default EmployeeAllProposal;
+export default AllProposals;

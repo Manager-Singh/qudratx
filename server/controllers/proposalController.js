@@ -365,13 +365,6 @@ const getEmployeeProposals = async (req, res) => {
       limit,
       offset,
       order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: Client,
-          as: 'client', // if you've set up associations
-        },
-        // Add more associations as needed
-      ],
     });
 
     const totalPages = Math.ceil(totalRecords / limit);

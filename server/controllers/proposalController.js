@@ -88,7 +88,6 @@ const getAllProposals = async (req, res) => {
 
     const where = {
       deleted_at: null,
-      client_name: { [Op.like]: `%${search}%` } ,
       zone_name: { [Op.like]: `%${search}%` } ,
       authority_name: { [Op.like]: `%${search}%` },
       package_name: { [Op.like]: `%${search}%` }

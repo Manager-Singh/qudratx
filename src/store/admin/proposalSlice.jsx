@@ -36,6 +36,18 @@ export const GetAllProposal= createAsyncThunk('admin/get-all-proposals', async (
   }
 })
 
+export const getProposalByUUID = createAsyncThunk(
+  'proposal/getByUUID',
+  async (uuid, thunkAPI) => {
+    try {
+      const response = await getData(`/admin/get-proposal-by-uuid/${uuid}`);
+      return response; 
+    } catch (error) {
+      console.error('Fetch Proposal By UUID Error:', error);
+      return thunkAPI.rejectWithValue(error.message || 'Failed to fetch proposal');
+    }
+  }
+)
 
 
 export const  deleteProposal = createAsyncThunk('admin/delete-proposal', async (uuid, thunkAPI) => {
@@ -69,7 +81,11 @@ const proposalSlice = createSlice({
     proposal:null,
     isLoading: true,
   },
-  reducers: {},
+   reducers: {
+    clearSelectedProposal: (state) => {
+      state.proposal = null;
+      state.isLoading = false;
+    }},
   extraReducers: (builder) => {
     builder
       .addCase(CreateProposal.pending, (state) => {
@@ -77,8 +93,8 @@ const proposalSlice = createSlice({
       })
       .addCase(CreateProposal.fulfilled, (state, action) => {
         state.isLoading = false
-           state.proposal = action.payload.proposal
-         state.proposals.push(action.payload.proposal)
+        state.proposal = action.payload.proposal
+        state.proposals.push(action.payload.proposal)
         
         
       })
@@ -139,10 +155,21 @@ const proposalSlice = createSlice({
       .addCase(updateProposal.rejected, (state, action) => {
         state.isUpdating = false
         state.error = action.payload
+      }).addCase(getProposalByUUID.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
+      .addCase(getProposalByUUID.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.proposal = action.payload?.data || null;
+      })
+      .addCase(getProposalByUUID.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Something went wrong';
+      });
 
   
  },
 })
-
+export const { clearSelectedProposal } = proposalSlice.actions;
 export default proposalSlice.reducer

@@ -92,7 +92,24 @@ const ExpandedRow = ({ data }) => (
       minWidth: '130px',
       wrap: true,
     },
-   
+  {
+  name: 'Proposal Status',
+  selector: row => {
+    const step = row.step?.toString()?.trim();
+
+    if (step === 'last_step') return 'Complete';
+
+    const stepNumber = parseInt(step, 10); // convert to number
+
+    if (!isNaN(stepNumber) && stepNumber < 10) return 'UnComplete';
+
+    return '-';
+  },
+  sortable: true,
+  minWidth: '130px',
+  wrap: true,
+},
+
     {
       name: 'Total Amount',
       selector: row => row.total_amount ? `AED ${row.total_amount}` : '-',
@@ -120,7 +137,7 @@ const ExpandedRow = ({ data }) => (
       name: 'Actions',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to={`/proposals/${row.uuid}`} title="View Proposal">
+          <Link to='/create-proposal' state={{proposal:row ,step:row.step}} title="View Proposal">
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span

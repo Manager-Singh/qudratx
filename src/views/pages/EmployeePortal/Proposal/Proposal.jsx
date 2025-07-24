@@ -234,7 +234,37 @@ useEffect(() => {
     setShowPdfSummary(false);
 }, [selectedAuthority]);
 
+// calculate total
+  const calculateTotalAmount = () => {
+  let total = Number(selectedPackage?.total_amount || 0);
 
+  // Include/Exclude costs
+  includeExcludeList.forEach((item) => {
+    const cost = parseFloat(item.cost);
+    const quantity = parseInt(item.quantity);
+    if (!isNaN(cost) && !isNaN(quantity)) {
+      total += cost * quantity;
+    }
+  });
+
+  // Question Form Amounts (all *_Amount fields)
+  Object.keys(questionFormData).forEach((key) => {
+    if (key.toLowerCase().includes('amount')) {
+      const value = parseFloat(questionFormData[key]);
+      if (!isNaN(value)) {
+        total += value;
+      }
+    }
+  });
+
+  return total.toFixed(2);
+};
+
+
+const total_amount = calculateTotalAmount();
+const max_activity_selected =selectedPackage?.activity
+
+// handle next 
 const handleNext = async () => {
   console.log(step, "step");
 
@@ -305,7 +335,7 @@ const updateProposalStep = async (currentStep) => {
       showToast('danger', 'Proposal ID missing. Cannot update.');
       return;
     }
-
+ const finalTotalAmount = calculateTotalAmount();
     const updatePayload = {
       step: currentStep,
     };
@@ -313,6 +343,7 @@ const updateProposalStep = async (currentStep) => {
     switch (currentStep) {
       case 2:
         updatePayload.package_id = selectedPackage?.id;
+        updatePayload.package_name=selectedPackage.name
         updatePayload.package_info = selectedPackage;
         break;
       case 3:
@@ -340,6 +371,7 @@ const updateProposalStep = async (currentStep) => {
       case 10:
         updatePayload.client_id = selectedClient?.id;
         updatePayload.client_info = selectedClient;
+        updatePayload. total_amount= finalTotalAmount
         break;
       default:
         break;
@@ -381,34 +413,7 @@ const updateProposalStep = async (currentStep) => {
   }
 
 
-  const calculateTotalAmount = () => {
-  let total = Number(selectedPackage?.total_amount || 0);
 
-  // Include/Exclude costs
-  includeExcludeList.forEach((item) => {
-    const cost = parseFloat(item.cost);
-    const quantity = parseInt(item.quantity);
-    if (!isNaN(cost) && !isNaN(quantity)) {
-      total += cost * quantity;
-    }
-  });
-
-  // Question Form Amounts (all *_Amount fields)
-  Object.keys(questionFormData).forEach((key) => {
-    if (key.toLowerCase().includes('amount')) {
-      const value = parseFloat(questionFormData[key]);
-      if (!isNaN(value)) {
-        total += value;
-      }
-    }
-  });
-
-  return total.toFixed(2);
-};
-
-
-const total_amount = calculateTotalAmount();
-const max_activity_selected =selectedPackage?.activity
 
 
 

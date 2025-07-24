@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CCloseButton,
@@ -21,7 +21,6 @@ import {
   cilSettings
 } from '@coreui/icons'
 
-
 // Import your zone action
 import { getBusinessZone } from '../store/admin/businessZoneSlice'
 
@@ -31,7 +30,17 @@ const AppSidebar = () => {
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const user = useSelector((state) => state.auth.user)
   const { businesszones } = useSelector((state) => state.businesszone)
-  
+
+  // state to display setting on admin dashboard
+  const [showSetting, setShowSetting] = useState(false);
+  useEffect(() => {
+  if (user?.role === 'admin') {
+    setShowSetting(true)
+  } else {
+    setShowSetting(false)
+  }
+}, [user])
+
   useEffect(() => {
     dispatch(getBusinessZone())
   }, [dispatch])
@@ -168,11 +177,13 @@ const zoneNavEmp = useMemo(() => {
 
       <AppSidebarNav items={navigation} />
 
-      <CSidebarFooter className="border-top d-none d-lg-flex justify-content-end">
+      {showSetting && (
+         <CSidebarFooter className="border-top d-none d-lg-flex justify-content-end">
         
         <Link to='/setting' style={{textDecoration:'none', color:'white'}}><CIcon icon={cilSettings} className="me-2" /></Link>
        
       </CSidebarFooter>
+      )}
     </CSidebar>
   )
 }

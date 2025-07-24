@@ -18,12 +18,31 @@ const createProposal = async (req, res) => {
     const created_by = req.user.id;
     const approval_status = req.user.role === 'admin' ? 1 : 0;
  // Get last proposal to generate proposal_number
+  // Determine prefix based on zone_name
+    let prefix = 'GEN'; // Default fallback
+    if (zone_name.toLowerCase() === 'free zone') {
+      prefix = 'FZ';
+    } else if (zone_name.toLowerCase() === 'mainland') {
+      prefix = 'ML';
+    }
+
+    // Get the last proposal matching the same prefix
     const lastProposal = await Proposal.findOne({
+      where: {
+        proposal_number: {
+          [Op.like]: `${prefix}_PRO_%`
+        }
+      },
       order: [['id', 'DESC']]
     });
 
-    const nextNumber = lastProposal ? lastProposal.id + 1 : 1;
-    const proposal_number = `PRO_${nextNumber.toString().padStart(4, '0')}`; // e.g., LEAD_0001
+    const nextNumber = lastProposal ? parseInt(lastProposal.proposal_number.split('_').pop()) + 1 : 1;
+    const paddedNumber = nextNumber.toString().padStart(4, '0');
+    const proposal_number = `${prefix}_PRO_${paddedNumber}`;
+    // const lastProposal = await Proposal.findOne({
+    //   order: [['id', 'DESC']]
+    // });
+
     const proposal = await Proposal.create({
       lead_id,
       zone_id,
@@ -484,13 +503,34 @@ const approveProposal = async (req, res) => {
   }
 };
 
+// GET ONE
+const getProposalByUUID = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    const proposal = await Proposal.findOne({ where: { uuid } });
+    if (!proposal) {
+      return res.status(404).json({ message: 'proposal not found' });
+    }
+
+    res.status(200).json({
+      message: 'Proposal fetched successfully',
+      success: true,
+      data: proposal,
+    });
+  } catch (error) {
+    console.error('Get proposal error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createProposal,
    getAllProposals,
    getEmployeeProposals,
    getUnapprovedProposals,
    approveProposal,
-//   getProposalByUUID,
+   getProposalByUUID,
 //   getProposalByAuthorityId,
  updateProposal,
   deleteProposal,

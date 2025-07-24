@@ -73,17 +73,30 @@ function AllProposals() {
     setApprovalModalVisible(true)
   }
 
-  const handleConfirmApproval = () => {
-    if (selectedApprovalUUID && approvalAction === 'approve') {
-      dispatch(approveProposalStatus(selectedApprovalUUID)).then(() => {
-        dispatch(GetAllProposal())
-      })
-    }
-    // For disapprove, you can implement another API if available
-    setApprovalModalVisible(false)
-    setSelectedApprovalUUID(null)
-    setApprovalAction(null)
+  // const handleConfirmApproval = () => {
+  //   if (selectedApprovalUUID && approvalAction === 'approve') {
+  //     dispatch(approveProposalStatus(selectedApprovalUUID)).then(() => {
+  //       dispatch(GetAllProposal())
+  //     })
+  //   }
+  //   // For disapprove, you can implement another API if available
+  //   setApprovalModalVisible(false)
+  //   setSelectedApprovalUUID(null)
+  //   setApprovalAction(null)
+  // }
+const handleConfirmApproval = () => {
+  if (selectedApprovalUUID && approvalAction) {
+    dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+      .then(() => {
+        dispatch(GetAllProposal());
+      });
   }
+  setApprovalModalVisible(false);
+  setSelectedApprovalUUID(null);
+  setApprovalAction(null);
+};
+
+
 
   const handleCancelApproval = () => {
     setApprovalModalVisible(false)

@@ -1,6 +1,7 @@
-const { Proposal } = require('../models');
+const { Proposal, User } = require('../models');
 const { Op, where } = require('sequelize');
-
+const fs = require('fs');
+const path = require('path');
 // CREATE
 const createProposal = async (req, res) => {
   try {
@@ -97,7 +98,13 @@ const getAllProposals = async (req, res) => {
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+        },
+  ],
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -276,7 +283,21 @@ const updateProposal = async (req, res) => {
     proposal.step = step || proposal.step;
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
+    
+if (req.files && req.files.generated_pdf && proposal.proposal_number) {
+  const file = req.files.generated_pdf[0];
+  const ext = path.extname(file.originalname) || '.pdf';
 
+  const newFilename = `${proposal.proposal_number}${ext}`;
+  const newPath = path.join('uploads/proposals', newFilename);
+
+  // Rename the file from temp filename to proposal_number.pdf
+  fs.renameSync(file.path, newPath);
+
+  proposal.generated_pdf = newFilename;
+  proposal.pdf_path = newPath;
+}
+  
     proposal.updated_by = req.user.id;
     proposal.updated_at = new Date();
     proposal.last_update = new Date();
@@ -360,6 +381,12 @@ const getEmployeeProposals = async (req, res) => {
       limit,
       offset,
       order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+        },
+  ],
     });
 
     const totalPages = Math.ceil(totalRecords / limit);
@@ -503,12 +530,59 @@ const approveProposal = async (req, res) => {
   }
 };
 
+const unapproveProposal = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    // Only admin should be allowed to unapprove
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Only admins can unapprove proposals.' });
+    }
+
+    const proposal = await Proposal.findOne({ where: { uuid } });
+
+    if (!proposal) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+
+    // Already unapproved
+    if (proposal.approval_status === 0) {
+      return res.status(400).json({ message: 'Proposal is already unapproved' });
+    }
+
+    proposal.approval_status = 0; // 0 means unapproved
+    proposal.approved_by = null; // Reset approved_by
+    proposal.updated_by = req.user.id;
+    proposal.updated_at = new Date();
+    proposal.last_update = new Date();
+
+    await proposal.save();
+
+    return res.status(200).json({
+      message: 'Proposal unapproved successfully',
+      success: true,
+      data: proposal
+    });
+  } catch (error) {
+    console.error('Error unapproving proposal:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+};
+
+
 // GET ONE
 const getProposalByUUID = async (req, res) => {
   try {
     const { uuid } = req.params;
 
-    const proposal = await Proposal.findOne({ where: { uuid } });
+    const proposal = await Proposal.findOne({ where: { uuid },include: [
+        {
+          model: User,
+          as: 'creator',
+        },
+  ], });
     if (!proposal) {
       return res.status(404).json({ message: 'proposal not found' });
     }
@@ -534,5 +608,6 @@ module.exports = {
 //   getProposalByAuthorityId,
  updateProposal,
   deleteProposal,
+  unapproveProposal,
 //   getDeletedProposal,
 };

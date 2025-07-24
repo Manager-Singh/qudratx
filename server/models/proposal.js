@@ -144,6 +144,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+      generated_pdf: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+      pdf_path: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -168,12 +176,12 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     paranoid: true,
   });
-    // Proposal.associate = (models) => {
-    //   Proposal.belongsTo(models.Client, {
-    //     foreignKey: 'client_id',
-    //     as: 'client'
-    //   });
-    // };
+     Proposal.associate = (models) => {
+      Proposal.belongsTo(models.User, {
+      foreignKey: 'created_by',
+      as: 'creator',
+    });
+  };
 
   return Proposal;
 };

@@ -61,6 +61,19 @@ export const updateProposal = createAsyncThunk(
   }
 )
 
+export const approveProposalStatus = createAsyncThunk(
+  'admin/approve-proposal-status',
+  async (uuid, thunkAPI) => {
+    try {
+      const response = await putData(`/admin/proposals/${uuid}/approve`)
+      return { uuid, ...response }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message)
+    }
+  }
+)
+
+
 
 const proposalSlice = createSlice({
   name: 'proposal',
@@ -140,8 +153,35 @@ const proposalSlice = createSlice({
         state.isUpdating = false
         state.error = action.payload
       })
+      // Approve Proposal Status
+      .addCase(approveProposalStatus.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(approveProposalStatus.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.success = 'Proposal approved successfully'
 
-  
+        // Update the specific proposal in the list if needed
+        const index = state.proposals.findIndex(p => p.uuid === action.payload.uuid)
+        if (index !== -1) {
+          state.proposals[index] = {
+            ...state.proposals[index],
+            ...action.payload.data,
+          }
+        }
+
+        // Also update the current proposal (if loaded)
+        if (state.proposal && state.proposal.uuid === action.payload.uuid) {
+          state.proposal = {
+            ...state.proposal,
+            ...action.payload.data,
+          }
+        }
+      })
+      .addCase(approveProposalStatus.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })  
  },
 })
 

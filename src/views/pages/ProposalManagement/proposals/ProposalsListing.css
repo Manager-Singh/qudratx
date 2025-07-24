@@ -1,0 +1,17 @@
+.badge-width{
+    width: 92px;
+    height: 25px;
+    font-size: 13px;
+}
+
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* .sc-eqNDNG ul.dropdown-menu {
+  transform: translate(0px, 34px) !important; 
+} */

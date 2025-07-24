@@ -236,8 +236,14 @@ useEffect(() => {
 
 
 const handleNext = async () => {
-  console.log(step,"step")
- if (step === 1) {
+  console.log(step, "step");
+
+  if (step === 1) {
+    if (!selectedAuthority) {
+      showToast('warning', `Please select an authority before proceeding.`);
+      return;
+    }
+
     try {
       const data = {
         authority_id: selectedAuthority?.id,
@@ -250,7 +256,6 @@ const handleNext = async () => {
         step,
       };
 
-      console.log("Sending this data to backend:", data);
 
       const res = await dispatch(CreateProposal(data)).unwrap();
 
@@ -261,6 +266,7 @@ const handleNext = async () => {
     } catch (error) {
       console.error("Proposal creation failed:", error);
       showToast('danger', 'Failed to create proposal.');
+      return;
     }
   }
 
@@ -269,15 +275,88 @@ const handleNext = async () => {
     return;
   }
 
-  // Optionally: Call update API for each step
-  if (proposalId && step > 1) {
-    await updateProposalStep(step); // Call your backend update logic here
+  if (step === 3 && selectedActivities.length === 0) {
+    showToast('warning', `Please select at least one business activity.`);
+    return;
+  }
+
+  if (step === 10 && !selectedClient) {
+    showToast('warning', `Please select a client before proceeding.`);
+    return;
+  }
+
+  if (proposalId && step >= 2 && step <= 10) {
+    try {
+      await updateProposalStep(step);
+    } catch (error) {
+      console.error(`Error updating step ${step}:`, error);
+      return; // prevent going to next step on error
+    }
   }
 
   if (step < total_step) {
     setStep(step + 1);
   }
 };
+// update proposal 
+const updateProposalStep = async (currentStep) => {
+  try {
+    if (!proposalId) {
+      showToast('danger', 'Proposal ID missing. Cannot update.');
+      return;
+    }
+
+    const updatePayload = {
+      step: currentStep,
+    };
+
+    switch (currentStep) {
+      case 2:
+        updatePayload.package_id = selectedPackage?.id;
+        updatePayload.package_info = selectedPackage;
+        break;
+      case 3:
+        updatePayload.business_activities = selectedActivities;
+        break;
+      case 4:
+        updatePayload.business_questions = questionFormData;
+        break;
+      case 5:
+        updatePayload.what_to_include = includeExcludeList;
+        break;
+      case 6:
+        updatePayload.required_documents = requiredDocuments;
+        break;
+      case 7:
+        updatePayload.benefits = benefits;
+        updatePayload.other_benefits = otherBenefits;
+        break;
+      case 8:
+        updatePayload.scope_of_work = scopeOfWork;
+        break;
+      case 9:
+        updatePayload.notes = notes;
+        break;
+      case 10:
+        updatePayload.client_id = selectedClient?.id;
+        updatePayload.client_info = selectedClient;
+        break;
+      default:
+        break;
+    }
+
+    const response = await dispatch(UpdateProposal({ id: proposalId, data: updatePayload })).unwrap();
+
+    console.log(`✅ Step ${currentStep} updated successfully`, response);
+    showToast('success', `Step ${currentStep} saved.`);
+  } catch (error) {
+    console.error(`❌ Failed to update step ${currentStep}:`, error);
+    showToast('danger', `Error saving step ${currentStep}.`);
+    throw error;
+  }
+};
+
+
 
 
   const handleBack = () => {

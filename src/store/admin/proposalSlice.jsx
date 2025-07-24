@@ -62,8 +62,6 @@ export const updateProposal = createAsyncThunk(
 )
 
 
-
-
 const proposalSlice = createSlice({
   name: 'proposal',
   initialState: {
@@ -79,10 +77,9 @@ const proposalSlice = createSlice({
       })
       .addCase(CreateProposal.fulfilled, (state, action) => {
         state.isLoading = false
-        if (action.payload.data) {
-           state.proposal = action.payload.data
-         state.proposals.push(action.payload.data)
-        }
+           state.proposal = action.payload.proposal
+         state.proposals.push(action.payload.proposal)
+        
         
       })
       .addCase(CreateProposal.rejected, (state, action) => {

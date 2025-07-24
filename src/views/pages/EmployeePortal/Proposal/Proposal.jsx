@@ -29,7 +29,7 @@ import BusinessActivityStepSelector from '../Components/helper/BusinessActivityI
 import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
 import ProposalSummary from './steps/ProposalSummaryStep'
-import { CreateProposal } from '../../../../store/admin/proposalSlice'
+import { CreateProposal, updateProposal } from '../../../../store/admin/proposalSlice'
 import AuthorityCard from './steps/Components/AuthorityCard'
 
 
@@ -121,8 +121,15 @@ const Proposal = () => {
   const [leadData , setLeadData] =  useState(location.state?.lead || null)
   const [zoneData, setZoneData] = useState(location.state?.zone || null);
   const [proposalId, setProposalId] = useState(null);
+  const [proposalData , setProposalData] = useState(location.state?.proposal || null)
+    const [setpData , setStepdata] = useState(location.state?.step || null)
 
-  
+console.log(proposalData,"proposalData")
+console.log(setpData ,"step")
+  const {proposal} = useSelector((state)=>state.proposal)
+  useEffect(()=>{
+
+  },[])
   // toast states
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
     const showToast = (status, message) => {
@@ -197,13 +204,13 @@ useEffect(() => {
 
 
 
-  // get business activity by zone id
+
   useEffect(() => {
-    if (selectedAuthority) {
-      dispatch(getBusinessActivityByAuthorityId({ authority_id: selectedAuthority.id }));
+    if (proposal) {
+      dispatch(getBusinessActivityByAuthorityId({ authority_id:proposal.authority_id }))
       setSelectedActivities([]);
     }
-  }, [selectedAuthority?.id, dispatch]);
+  }, [ dispatch]);
 
   useEffect(() => {
     if (step === 2 && selectedAuthority) {
@@ -266,7 +273,6 @@ const max_activity_selected =selectedPackage?.activity
 
 // handle next 
 const handleNext = async () => {
-  console.log(step, "step");
 
   if (step === 1) {
     if (!selectedAuthority) {
@@ -291,7 +297,7 @@ const handleNext = async () => {
 
       console.log("Received from backend:", res);
 
-      setProposalId(res?.proposal?.id);
+      setProposalId(res?.proposal?.uuid);
       showToast('success', 'Proposal created successfully.');
     } catch (error) {
       console.error("Proposal creation failed:", error);
@@ -310,10 +316,7 @@ const handleNext = async () => {
     return;
   }
 
-  if (step === 10 && !selectedClient) {
-    showToast('warning', `Please select a client before proceeding.`);
-    return;
-  }
+  
 
   if (proposalId && step >= 2 && step <= 10) {
     try {
@@ -345,39 +348,48 @@ const updateProposalStep = async (currentStep) => {
         updatePayload.package_id = selectedPackage?.id;
         updatePayload.package_name=selectedPackage.name
         updatePayload.package_info = selectedPackage;
+        updatePayload.step = currentStep
         break;
       case 3:
         updatePayload.business_activities = selectedActivities;
+        updatePayload.step = currentStep
         break;
       case 4:
         updatePayload.business_questions = questionFormData;
+        updatePayload.step = currentStep
         break;
       case 5:
         updatePayload.what_to_include = includeExcludeList;
+        updatePayload.step = currentStep
         break;
       case 6:
         updatePayload.required_documents = requiredDocuments;
+        updatePayload.step = currentStep
         break;
       case 7:
         updatePayload.benefits = benefits;
         updatePayload.other_benefits = otherBenefits;
+        updatePayload.step = currentStep
         break;
       case 8:
         updatePayload.scope_of_work = scopeOfWork;
+        updatePayload.step = currentStep
         break;
       case 9:
         updatePayload.notes = notes;
+        updatePayload.step = currentStep
         break;
       case 10:
         updatePayload.client_id = selectedClient?.id;
         updatePayload.client_info = selectedClient;
         updatePayload. total_amount= finalTotalAmount
+        updatePayload.step = "last_step"
         break;
       default:
         break;
     }
 
-    const response = await dispatch(UpdateProposal({ id: proposalId, data: updatePayload })).unwrap();
+    const response = await dispatch(updateProposal({ uuid: proposalId, data: updatePayload })).unwrap();
 
     console.log(`✅ Step ${currentStep} updated successfully`, response);
     showToast('success', `Step ${currentStep} saved.`);
@@ -411,10 +423,6 @@ const updateProposalStep = async (currentStep) => {
   const addIncludeExclude = () => {
     setIncludeExcludeList([...includeExcludeList, { title: '', type: 'Include' }])
   }
-
-
-
-
 
 
 const generatePDF = () => {
@@ -454,7 +462,7 @@ const viewPDF = () => {
   generatePDF();
   setShowPdfSummary(true);
 }
-
+// console.log("proposal",proposal)
   return (
     <div className="container ">
       {toastData.show && (
@@ -469,7 +477,7 @@ const viewPDF = () => {
     <div className="border border-2 border-primary rounded-3 px-3 py-2 bg-white shadow-sm">
       <h4 className="mb-0 text-dark-emphasis">
         <span className="fw-medium">Proposal No:</span>{' '}
-        <span className="text-primary fw-bold">"PRO-0001"</span>
+        <span className="text-primary fw-bold">{proposal?.proposal_number}</span>
       </h4>
     </div>
    
@@ -558,7 +566,7 @@ const viewPDF = () => {
       {step === 3 && (
         <BusinessActivityStepSelector
         step={3}
-        authority_id={selectedAuthority}
+        authority_id={selectedAuthority.id}
         max_activity_selected={max_activity_selected}
         setSelectedActivities={setSelectedActivities} 
         selectedActivities={selectedActivities}

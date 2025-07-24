@@ -14,8 +14,13 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 import { getData, postDataWithImage } from '../../../utils/api'
+import { ToastExample } from '../../../components/toast/Toast'
+// Get image path
+ const imageUrl = import.meta.env.VITE_IMAGE_URL;
+
 
 const Setting = () => {
+  const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -60,7 +65,7 @@ useEffect(() => {
         // Set form state with fetched data
         setForm({
           name: data.name || '',
-          email: data.email || '',
+          email: data.email?.replace(/^"|"$/g, '') || '',
           description: data.description || '',
           logo: data.logo || '',
           icon: data.icon || '',
@@ -96,28 +101,31 @@ useEffect(() => {
   fetchData()
 }, [])
 
-
-
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+ 
+  // handle image preview if user choose new images
   const handleFileChange = (e, type) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const previewURL = URL.createObjectURL(file)
+  const file = e.target.files[0]
+  if (!file) return
 
-    if (type === 'logo') {
-      setForm((prev) => ({ ...prev, logo: file }))
-      setLogoPreview(previewURL)
-    }
+  const previewURL = URL.createObjectURL(file)
 
-    if (type === 'icon') {
-      setForm((prev) => ({ ...prev, icon: file }))
-      setIconPreview(previewURL)
-    }
+  if (type === 'logo') {
+    if (logoPreview && logoPreview.startsWith('blob')) URL.revokeObjectURL(logoPreview)
+    setForm((prev) => ({ ...prev, logo: file }))
+    setLogoPreview(previewURL)
   }
+
+  if (type === 'icon') {
+    if (iconPreview && iconPreview.startsWith('blob')) URL.revokeObjectURL(iconPreview)
+    setForm((prev) => ({ ...prev, icon: file }))
+    setIconPreview(previewURL)
+  }
+}
+
 
   const handleAddressChange = (e, index, field) => {
     const updated = [...form.address]
@@ -129,39 +137,63 @@ useEffect(() => {
     const { name, value } = e.target
     setForm({ ...form, bank_details: { ...form.bank_details, [name]: value } })
   }
-
+  
+  const showToast = (status, message) => {
+  setToastData({ show: true, status, message })
+  setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+}
  const handleSubmit = (e) => {
   e.preventDefault()
   const payload = { ...form }
 
   const formData = new FormData()
+
   for (const key in payload) {
     if (key === 'logo' || key === 'icon') {
       if (payload[key] instanceof File) {
-        formData.append(key, payload[key])
-      } else {
-        formData.append(key, '') // You may omit this if not needed
+        formData.append(key, payload[key]);
       }
+    } else if (typeof payload[key] === 'object') {
+      formData.append(key, JSON.stringify(payload[key])); // only objects are stringified
     } else {
-      formData.append(key, JSON.stringify(payload[key]))
+      formData.append(key, payload[key]); // keep plain strings untouched
     }
   }
-for (let [key, value] of formData.entries()) {
-  console.log(key, value)
-}
+
+   formData.forEach(d=>{
+    console.log("d->",d);
+  })
+
+
+    // postDataWithImage('/admin/web-setting-info', formData)
+    // .then((res) => {
+    //   console.log(res.data, "response data")
+    //   setForm(res.data)
+    // })
+    // .catch((err) => {
+    //   console.error('Update failed:', err)
+    //   alert('Update failed')
+    // })   
     postDataWithImage('/admin/web-setting-info', formData)
     .then((res) => {
-      console.log(res.data, "response data")
       setForm(res.data)
+      showToast('success', 'Settings updated successfully!')
     })
     .catch((err) => {
       console.error('Update failed:', err)
-      alert('Update failed')
+      showToast('error', err.message || 'Update failed')
     })
+
 }
+
 
   return (
     <div className="container">
+      {toastData.show && (
+      <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+        <ToastExample status={toastData.status} message={toastData.message} />
+      </div>
+    )}
       <CRow>
         <CCol md={12}>
           <CCard>
@@ -182,13 +214,30 @@ for (let [key, value] of formData.entries()) {
                 <CFormLabel className="mt-3">Description</CFormLabel>
                 <CFormTextarea name="description" rows={4} value={form.description} onChange={handleChange} />
 
+                <div className="mb-4">
                 <CFormLabel className="mt-3">Company Logo</CFormLabel>
                 <CFormInput type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} />
-                {logoPreview && <CImage src={logoPreview} height={100} className="my-2 border rounded" />}
+                {logoPreview && (
+                  <CImage
+                    src={logoPreview.startsWith('blob') ? logoPreview : `${imageUrl}${logoPreview}`}
+                    height={100}
+                    className="my-2 border rounded"
+                  />
+                )}
+              </div>
 
+              <div className="mb-4">
                 <CFormLabel className="mt-3">Company Icon</CFormLabel>
                 <CFormInput type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'icon')} />
-                {iconPreview && <CImage src={iconPreview} height={80} width={80} className="my-2 border rounded" />}
+                {iconPreview && (
+                  <CImage
+                    src={iconPreview.startsWith('blob') ? iconPreview : `${imageUrl}${iconPreview}`}
+                    height={80}
+                    width={80}
+                    className="my-2 border rounded"
+                  />
+                )}
+              </div>
 
                 <CFormLabel className="mt-4">Address</CFormLabel>
                 {form.address.map((addr, idx) => (

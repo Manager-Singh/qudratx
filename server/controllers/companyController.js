@@ -31,6 +31,7 @@ const createAndUpdateCompany = async (req, res) => {
       if (existingCompany) {
         // Update record
         existingCompany.name = name;
+        existingCompany.email = email || existingCompany.email;
         existingCompany.phone = phone || existingCompany.phone;
         existingCompany.address = parsedAddress || existingCompany.address;
         existingCompany.terms_and_conditions = terms_and_conditions || existingCompany.terms_and_conditions;

@@ -12,7 +12,7 @@ const createProposal = async (req, res) => {
       authority_id,
       authority_name,
       authority_info, 
-      approved_by, // comes from body
+      step,
     } = req.body;
 
     const created_by = req.user.id;

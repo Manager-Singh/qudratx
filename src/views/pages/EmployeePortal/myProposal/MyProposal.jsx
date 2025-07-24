@@ -7,7 +7,7 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
-import { deleteProposal, GetAllProposal } from '../../../../store/admin/proposalSlice';
+import { deleteProposal, GetAllProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
 
 function AllProposals() {
   const dispatch = useDispatch();
@@ -18,7 +18,7 @@ function AllProposals() {
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
-    dispatch(GetAllProposal());
+    dispatch(GetMyProposal());
   }, [dispatch]);
 
   const filteredData = proposals?.filter(item =>
@@ -39,7 +39,7 @@ function AllProposals() {
   const handleConfirmDelete = () => {
     if (selectedUUID) {
       dispatch(deleteProposal(selectedUUID)).then(() => {
-        dispatch(GetAllProposal());
+        dispatch(GetMyProposal());
       });
     }
     setDeleteModalVisible(false);
@@ -68,41 +68,36 @@ const ExpandedRow = ({ data }) => (
       name: 'Business Zone',
       selector: row => row.zone_name || '-',
       sortable: true,
-     minWidth: '130px',
+      minWidth: '130px',
       wrap: true,
     },
     {
       name: 'Business Authority',
       selector: row => row.authority_name || '-',
       sortable: true,
-      minWidth: '160px',
+    minWidth: '160px',
       wrap: true,
     },
     {
       name: 'Package',
       selector: row => row.package_name || '-',
       sortable: true,
-      grow: 2,
+      minWidth: '100px',
       wrap: true,
     },
     {
       name: 'Client Name',
       selector: row => row.client_info?.name || '-',
       sortable: true,
-     minWidth: '130px',
+      minWidth: '130px',
       wrap: true,
     },
-    {
-      name: 'Created By',
-      selector: row => row.created_by || '-',
-      sortable: true,
-      minWidth: '130px',
-    },
+   
     {
       name: 'Total Amount',
       selector: row => row.total_amount ? `AED ${row.total_amount}` : '-',
       sortable: true,
-   minWidth: '130px',
+      minWidth: '130px',
       wrap: true,
     },
     {
@@ -113,13 +108,13 @@ const ExpandedRow = ({ data }) => (
         return '-';
       },
       sortable: true,
-      grow: 5,
+     minWidth: '160px',
     },
     {
       name: 'Created At',
       selector: row => row.created_at ? new Date(row.created_at).toLocaleString() : '-',
       sortable: true,
-      minWidth: '170px',
+      grow: 3,
     },
     {
       name: 'Actions',

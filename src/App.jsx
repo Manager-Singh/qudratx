@@ -41,6 +41,7 @@ import EditBusinessActivity from './views/pages/ProposalManagement/businessActiv
 import EmployeeBusinessZone from './views/pages/EmployeePortal/EmployeeBusinessZone'
 import Setting from './views/pages/settings/Setting'
 import AllProposals from './views/pages/ProposalManagement/proposals/ProposalsListing'
+import MyProposal from './views/pages/EmployeePortal/myProposal/MyProposal'
 
 
 
@@ -141,10 +142,11 @@ if (isLoading) {
         
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
-      <Route path="/create-proposal/:id/:lead_id?" element={<Proposal />} />
+      <Route path="/create-proposal" element={<Proposal />} />
 
-      <Route path="/business-zones/:lead_id?" element={<EmployeeBusinessZone />} />
-      <Route path='/proposals' element={<AllProposals/>}/>
+      <Route path="/business-zones" element={<EmployeeBusinessZone />} />
+      <Route path='/proposals' element={<AllProposals/>}/>\
+      <Route path='/my-proposal' element={<MyProposal/>}/>
        </Route>
          
         </Routes>

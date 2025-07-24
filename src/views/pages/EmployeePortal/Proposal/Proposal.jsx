@@ -1,13 +1,11 @@
 
 import React, { useEffect, useState, useRef } from 'react'
-import { useParams } from 'react-router-dom'
-
+import { useLocation } from 'react-router-dom';
 import logo from '../../../../../public/download.png' 
 import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneAuthoritySlice'
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
-import CardSelector from '../Components/CardSelector/CardSelector'
 import PackageCardSelector from '../Components/PackageCardSelector/PackageCardSelector'
 import { ToastExample } from '../../../../components/toast/Toast'
 
@@ -119,13 +117,19 @@ const initialQuestionFormData = {
 
 
 const Proposal = () => {
+  const location = useLocation();
+  const [leadData , setLeadData] =  useState(location.state?.lead || null)
+  const [zoneData, setZoneData] = useState(location.state?.zone || null);
+  const [proposalId, setProposalId] = useState(null);
+
+  
   // toast states
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
     const showToast = (status, message) => {
       setToastData({ show: true, status, message })
       setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
     }
-  const { id } = useParams()
+  // const { id } = useParams()
   const [step, setStep] = useState(1)
   const businessZonesAuthority = useSelector((state) => state.businessZonesAuthority)
   const authorities = businessZonesAuthority?.authorities || []
@@ -154,7 +158,7 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const [selectedActivities, setSelectedActivities] = useState([])
   const [answers, setAnswers] = useState(Array(questions.length).fill(''))
   const [selectedPackage, setSelectedPackage] = useState(null)
-const [selectedClient, setSelectedClient] = useState(null)
+  const [selectedClient, setSelectedClient] = useState(null)
   
   // state for search
   const [activitySearch, setActivitySearch] = useState('');
@@ -164,10 +168,15 @@ const [selectedClient, setSelectedClient] = useState(null)
   const total_step = 11
 // required document 
 
+useEffect(() => {
+  if (location.state?.zone) {
+    setZoneData(location.state.zone);
+  }
+}, [location.state]);
   // get business zonne authority
   useEffect(() => {
-  if (id) {
-    dispatch(getBusinessZonesAuthorityByZoneId({ id }));
+  if (zoneData?.id) {
+    dispatch(getBusinessZonesAuthorityByZoneId({ id: zoneData.id }));
 
     // Reset form state when zone changes
     setStep(1);
@@ -182,23 +191,23 @@ const [selectedClient, setSelectedClient] = useState(null)
     setScopeOfWork(initialScopeOfWork);
     setNotes(initialNotes);
     setQuestionFormData(initialQuestionFormData);
-    setShowPdfSummary(false)
-    
+    setShowPdfSummary(false);
   }
-}, [id, dispatch]);
+}, [zoneData?.id, dispatch]);
+
 
 
   // get business activity by zone id
   useEffect(() => {
     if (selectedAuthority) {
-      dispatch(getBusinessActivityByAuthorityId({ authority_id: selectedAuthority }));
+      dispatch(getBusinessActivityByAuthorityId({ authority_id: selectedAuthority.id }));
       setSelectedActivities([]);
     }
-  }, [selectedAuthority, dispatch]);
+  }, [selectedAuthority?.id, dispatch]);
 
   useEffect(() => {
     if (step === 2 && selectedAuthority) {
-      dispatch(getPackageByAuthorityId(selectedAuthority))
+      dispatch(getPackageByAuthorityId(selectedAuthority.id))
     }
   }, [step, selectedAuthority, dispatch])
   
@@ -209,31 +218,66 @@ const [selectedClient, setSelectedClient] = useState(null)
     }
   },[])
 
-  useEffect(() => {
-   
-  }, [selectedAuthority , dispatch])
-
-  
-  
  
-  
+useEffect(() => {
+ setStep(1);
+    setSelectedActivities([]);
+    setSelectedPackage(null);
+    setSelectedClient('');
+    setIncludeExcludeList(initialIncludeExcludeList);
+    setRequiredDocuments(initialRequiredDocuments);
+    setBenefits(initialBenefits);
+    setOtherBenefits(initialOtherBenefits);
+    setScopeOfWork(initialScopeOfWork);
+    setNotes(initialNotes);
+    setQuestionFormData(initialQuestionFormData);
+    setShowPdfSummary(false);
+}, [selectedAuthority]);
 
-  const handleNext = () => {
-  if (step === 1 && !selectedAuthority) {
-     showToast('warning', `Please select an authority before proceeding.`);
-    return
+
+const handleNext = async () => {
+  console.log(step,"step")
+ if (step === 1) {
+    try {
+      const data = {
+        authority_id: selectedAuthority?.id,
+        zone_id: zoneData?.id,
+        lead_id: leadData?.id,
+        zone_name: zoneData?.name,
+        zone_info: zoneData,
+        authority_name: selectedAuthority?.name,
+        authority_info: selectedAuthority,
+        step,
+      };
+
+      console.log("Sending this data to backend:", data);
+
+      const res = await dispatch(CreateProposal(data)).unwrap();
+
+      console.log("Received from backend:", res);
+
+      setProposalId(res?.proposal?.id);
+      showToast('success', 'Proposal created successfully.');
+    } catch (error) {
+      console.error("Proposal creation failed:", error);
+      showToast('danger', 'Failed to create proposal.');
+    }
   }
 
   if (step === 2 && !selectedPackage) {
-    showToast('warning', `Please select an package before proceeding.`)
-    return
+    showToast('warning', `Please select a package before proceeding.`);
+    return;
   }
 
+  // Optionally: Call update API for each step
+  if (proposalId && step > 1) {
+    await updateProposalStep(step); // Call your backend update logic here
+  }
 
-  // Add more validations for other steps as needed...
-
-  if (step < total_step) setStep(step + 1)
-}
+  if (step < total_step) {
+    setStep(step + 1);
+  }
+};
 
 
   const handleBack = () => {
@@ -292,7 +336,7 @@ const max_activity_selected =selectedPackage?.activity
 const generatePDF = () => {
  const finalTotalAmount = calculateTotalAmount();
   const proposalData = {
-    zone_id :id,
+    zone_id :zone.id,
     zone_name :selectedPackage.authority.zone.name,
     zone_info: selectedPackage.authority.zone,
     authority_id :selectedPackage.authority.id,
@@ -315,10 +359,10 @@ const generatePDF = () => {
   }
   console.log('📝 Final Proposal:', proposalData);
   setProposalForm(proposalData);
-  // alert('PDF Generated (placeholder)');
-  // dispatch(CreateProposal(proposalData)).then((data)=>{
-  //   console.log(data,"data")
-  // })
+  alert('PDF Generated (placeholder)');
+  dispatch(CreateProposal(proposalData)).then((data)=>{
+    console.log(data,"data")
+  })
 };
 
 // preview pdf
@@ -357,44 +401,41 @@ const viewPDF = () => {
     }
   </div>
 )}
-       {step === 1 && (
-        <>
-        <div>
-          
-        </div>
-          <h4 >Select Authority</h4>
-          <div className="row">
-            {isLoading ? (
-              <p>Loading authorities...</p>
-            ) : authorities.length === 0 ? (
-              <p>No authorities available for this zone.</p>
-            ) : (
-              authorities.map((item) => (
-                <div
-                  key={item.uuid}
-                  className="col-4"
-                  onClick={() => setSelectedAuthority(item.id)}
-                >
-                  <label className={`card mt-3`}>
-      
-        </label>
-        <AuthorityCard
-         image={item.image ? `http://localhost:5000/uploads/business-zones/${item.image}` : logo}
-                    title={item.name}
-                    textAlign="center"
-                    name="card-group"
-                    type="radio"
-                    checked={selectedAuthority === item.id} // ✅ ADD THIS LINE
-                    onChange={() => setSelectedAuthority(item.id)}
-        />
-                
-
-                </div>
-              ))
-            )}
+{step === 1 && (
+  <>
+    <h4>Select Authority</h4>
+    <div className="row">
+      {isLoading ? (
+        <p>Loading authorities...</p>
+      ) : authorities.length === 0 ? (
+        <p>No authorities available for this zone.</p>
+      ) : (
+        authorities.map((item) => (
+          <div
+            key={item.uuid}
+            className="col-4"
+            onClick={() => setSelectedAuthority(item)}
+          >
+            <AuthorityCard
+              image={
+                item.image
+                  ? `http://localhost:5000/uploads/business-zones/${item.image}`
+                  : logo
+              }
+              title={item.name}
+              name="card-group"
+              type="radio"
+              checked={selectedAuthority?.id === item.id}
+              onChange={() => setSelectedAuthority(item)}
+              activity_code={item.activity_code}
+            />
           </div>
-        </>
+        ))
       )}
+    </div>
+  </>
+)}
+
 
       {step === 2 && (
         <>
@@ -432,11 +473,11 @@ const viewPDF = () => {
 
       {step === 3 && (
         <BusinessActivityStepSelector
-  step={3}
-  authority_id={selectedAuthority}
-  max_activity_selected={max_activity_selected}
-  setSelectedActivities={setSelectedActivities} 
-  selectedActivities={selectedActivities}
+        step={3}
+        authority_id={selectedAuthority}
+        max_activity_selected={max_activity_selected}
+        setSelectedActivities={setSelectedActivities} 
+        selectedActivities={selectedActivities}
 />
         // <BusinessActivityStepSelector step={3} authority_id={selectedAuthority } max_activity_selected={max_activity_selected}/>
       )}

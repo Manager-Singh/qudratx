@@ -54,6 +54,7 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
       if (data.length < PAGE_SIZE) {
         setHasMore(false);
       }
+      
 
       setBusinessActivities((prev) => {
         const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));

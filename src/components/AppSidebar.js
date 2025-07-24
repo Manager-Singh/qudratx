@@ -31,7 +31,7 @@ const AppSidebar = () => {
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const user = useSelector((state) => state.auth.user)
   const { businesszones } = useSelector((state) => state.businesszone)
-
+  
   useEffect(() => {
     dispatch(getBusinessZone())
   }, [dispatch])
@@ -50,14 +50,17 @@ const AppSidebar = () => {
 
   
 
-  const zoneNavEmp = useMemo(() => {
-    return (businesszones || []).map((zone) => ({
-      component: CNavItem,
-      name: zone.name,
-      to: `/create-proposal/${zone.id}`,
-      showhyphen: true, // for hyphen indent
-    }))
-  }, [businesszones])
+// final version
+const zoneNavEmp = useMemo(() => {
+  return (businesszones || []).map((zone) => ({
+    component: CNavItem,
+    name: zone.name,
+    to: '/create-proposal',
+    state: { zone }, // custom state!
+  }))
+}, [businesszones])
+
+
 
   const adminNav = [
     {
@@ -76,6 +79,11 @@ const AppSidebar = () => {
       icon: <CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
     ...zoneNavItems,
+    {
+      component: CNavItem,
+      name: ' Proposals',
+      to: '/proposals',
+    },
     {
       component: CNavItem,
       name: 'Business Categories',
@@ -119,7 +127,7 @@ const AppSidebar = () => {
     {
       component: CNavItem,
       name: 'My Proposals',
-      to: '/proposals',
+      to: '/my-proposal',
     },
     
     {

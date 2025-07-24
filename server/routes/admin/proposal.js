@@ -7,13 +7,13 @@ const { createProposal,
    deleteProposal,
    getUnapprovedProposals,
    approveProposal,
-  // getDeletedProposalDetail
+  getProposalByUUID
 } = require('../../controllers/proposalController');
 
 router.post('/create-proposal',createProposal)
 router.get('/get-all-proposals',getAllProposals)
 router.get('/get-my-proposals',getEmployeeProposals)
-// router.get('/get-proposal-detail-by-uuid/:uuid',getProposalDetailByUUID)
+router.get('/get-proposal-by-uuid/:uuid',getProposalByUUID)
 router.put('/update-proposal/:uuid',updateProposal)
 router.delete('/delete-proposal/:uuid',deleteProposal)
 router.get('/proposals/unapproved', getUnapprovedProposals);

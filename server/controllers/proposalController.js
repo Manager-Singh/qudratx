@@ -484,13 +484,34 @@ const approveProposal = async (req, res) => {
   }
 };
 
+// GET ONE
+const getProposalByUUID = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    const proposal = await Proposal.findOne({ where: { uuid } });
+    if (!proposal) {
+      return res.status(404).json({ message: 'proposal not found' });
+    }
+
+    res.status(200).json({
+      message: 'Proposal fetched successfully',
+      success: true,
+      data: proposal,
+    });
+  } catch (error) {
+    console.error('Get proposal error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createProposal,
    getAllProposals,
    getEmployeeProposals,
    getUnapprovedProposals,
    approveProposal,
-//   getProposalByUUID,
+   getProposalByUUID,
 //   getProposalByAuthorityId,
  updateProposal,
   deleteProposal,

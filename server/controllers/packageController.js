@@ -185,7 +185,7 @@ const getPackageByUUID = async (req, res) => {
         }
       ] });
     if (!package) {
-      return res.status(404).json({ message: 'fee not found' });
+      return res.status(404).json({ message: 'package not found' });
     }
 
     res.status(200).json({

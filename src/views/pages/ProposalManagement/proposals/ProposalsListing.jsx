@@ -84,17 +84,22 @@ function AllProposals() {
   //   setSelectedApprovalUUID(null)
   //   setApprovalAction(null)
   // }
-const handleConfirmApproval = () => {
+
+  const handleConfirmApproval = () => {
   if (selectedApprovalUUID && approvalAction) {
     dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+      .unwrap()
       .then(() => {
-        dispatch(GetAllProposal());
+        dispatch(GetAllProposal())
+      })
+      .catch((error) => {
+        console.error('Approval API error:', error)
       });
   }
-  setApprovalModalVisible(false);
-  setSelectedApprovalUUID(null);
-  setApprovalAction(null);
-};
+  setApprovalModalVisible(false)
+  setSelectedApprovalUUID(null)
+  setApprovalAction(null)
+}
 
 
 
@@ -111,7 +116,8 @@ const handleConfirmApproval = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false)
 
     const isApproved = row.approval_status === 1
-    const nextStatus = isApproved ? 'disapprove' : 'approve'
+    const nextStatus = isApproved ? 'unapprove' : 'approve'; // fix from 'disapprove' to 'unapprove'
+
 
     // to track the click on dropdown
     const [dropClick , setDropClick] = useState(false)

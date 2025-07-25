@@ -203,7 +203,7 @@ function AllProposals() {
     },
     {
       name: 'Created By',
-      selector: (row) => row.created_by || '-',
+      selector: (row) => row.creator.name || '-',
       sortable: true,
       minWidth: '130px',
     },

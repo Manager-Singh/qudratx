@@ -73,17 +73,35 @@ function AllProposals() {
     setApprovalModalVisible(true)
   }
 
+  // const handleConfirmApproval = () => {
+  //   if (selectedApprovalUUID && approvalAction === 'approve') {
+  //     dispatch(approveProposalStatus(selectedApprovalUUID)).then(() => {
+  //       dispatch(GetAllProposal())
+  //     })
+  //   }
+  //   // For disapprove, you can implement another API if available
+  //   setApprovalModalVisible(false)
+  //   setSelectedApprovalUUID(null)
+  //   setApprovalAction(null)
+  // }
+
   const handleConfirmApproval = () => {
-    if (selectedApprovalUUID && approvalAction === 'approve') {
-      dispatch(approveProposalStatus(selectedApprovalUUID)).then(() => {
+  if (selectedApprovalUUID && approvalAction) {
+    dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+      .unwrap()
+      .then(() => {
         dispatch(GetAllProposal())
       })
-    }
-    // For disapprove, you can implement another API if available
-    setApprovalModalVisible(false)
-    setSelectedApprovalUUID(null)
-    setApprovalAction(null)
+      .catch((error) => {
+        console.error('Approval API error:', error)
+      });
   }
+  setApprovalModalVisible(false)
+  setSelectedApprovalUUID(null)
+  setApprovalAction(null)
+}
+
+
 
   const handleCancelApproval = () => {
     setApprovalModalVisible(false)
@@ -98,7 +116,8 @@ function AllProposals() {
     const [dropdownOpen, setDropdownOpen] = useState(false)
 
     const isApproved = row.approval_status === 1
-    const nextStatus = isApproved ? 'disapprove' : 'approve'
+    const nextStatus = isApproved ? 'unapprove' : 'approve'; // fix from 'disapprove' to 'unapprove'
+
 
     // to track the click on dropdown
     const [dropClick , setDropClick] = useState(false)
@@ -184,7 +203,7 @@ function AllProposals() {
     },
     {
       name: 'Created By',
-      selector: (row) => row.created_by || '-',
+      selector: (row) => row.creator.name || '-',
       sortable: true,
       minWidth: '130px',
     },

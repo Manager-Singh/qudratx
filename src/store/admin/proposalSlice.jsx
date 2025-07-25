@@ -73,17 +73,32 @@ export const updateProposal = createAsyncThunk(
   }
 )
 
+// export const approveProposalStatus = createAsyncThunk(
+//   'admin/approve-proposal-status',
+//   async (uuid, thunkAPI) => {
+//     try {
+//       const response = await putData(`/admin/proposals/${uuid}/approve`)
+//       return { uuid, ...response }
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message)
+//     }
+//   }
+// )
+
 export const approveProposalStatus = createAsyncThunk(
-  'admin/approve-proposal-status',
-  async (uuid, thunkAPI) => {
+  'admin/update-proposal-status',
+  async ({ uuid, action }, thunkAPI) => {
     try {
-      const response = await putData(`/admin/proposals/${uuid}/approve`)
-      return { uuid, ...response }
+      // This will call /admin/proposals/:uuid/approve OR /admin/proposals/:uuid/unapprove
+      const response = await putData(`/admin/proposals/${uuid}/${action}`);
+      return { uuid, action, ...response };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message)
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
-)
+);
+
+
 
 
 

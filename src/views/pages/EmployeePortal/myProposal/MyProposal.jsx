@@ -135,7 +135,7 @@ const ExpandedRow = ({ data }) => (
       name: 'Actions',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to={`/create-proposal/${row.uuid}`}  title="View Proposal">
+          <Link to={`/proposal/${row.uuid}`}  title="View Proposal">
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span
@@ -155,7 +155,7 @@ const ExpandedRow = ({ data }) => (
   return (
     <div className="container">
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
-        <Link to="/add-proposal">
+        <Link to="/business-zones">
           <CButton className="custom-button">Add Proposal</CButton>
         </Link>
         <input

@@ -129,7 +129,9 @@ const Proposal = () => {
   useEffect(()=>{
     if(uuid){
       dispatch(getProposalByUUID(uuid)).then((data)=>{
-      console.log("data",data)
+    if (data.payload.success) {
+      dispatch(getBusinessZonesAuthorityByZoneId({ id:data.payload.data.zone_id}));
+    }
     })
     setProposalId(uuid)
       }else {
@@ -147,9 +149,9 @@ const Proposal = () => {
   const businessZonesAuthority = useSelector((state) => state.businessZonesAuthority)
   const authorities = businessZonesAuthority?.authorities || []
   const isLoading = businessZonesAuthority?.isLoading || false
-  const { business_activities = [], isActivityLoading = false } = useSelector(
-    (state) => state.business_activity || {}
-  );
+  // const { business_activities = [], isActivityLoading = false } = useSelector(
+  //   (state) => state.business_activity || {}
+  // );
 const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
 const [requiredDocuments, setRequiredDocuments] = useState(initialRequiredDocuments)
 const [benefits, setBenefits] = useState(initialBenefits)
@@ -255,20 +257,19 @@ useEffect(() => {
   },[])
 
  
-// useEffect(() => {
-//  setStep(1);
-//     setSelectedActivities([]);
-//     setSelectedPackage(null);
-//     setSelectedClient('');
-//     setIncludeExcludeList(initialIncludeExcludeList);
-//     setRequiredDocuments(initialRequiredDocuments);
-//     setBenefits(initialBenefits);
-//     setOtherBenefits(initialOtherBenefits);
-//     setScopeOfWork(initialScopeOfWork);
-//     setNotes(initialNotes);
-//     setQuestionFormData(initialQuestionFormData);
-//     setShowPdfSummary(false);
-// }, [selectedAuthority]);
+useEffect(() => {
+    setSelectedActivities([]);
+    setSelectedPackage(null);
+    setSelectedClient('');
+    setIncludeExcludeList(initialIncludeExcludeList);
+    setRequiredDocuments(initialRequiredDocuments);
+    setBenefits(initialBenefits);
+    setOtherBenefits(initialOtherBenefits);
+    setScopeOfWork(initialScopeOfWork);
+    setNotes(initialNotes);
+    setQuestionFormData(initialQuestionFormData);
+    setShowPdfSummary(false); 
+}, [selectedAuthority]);
 
 // calculate total
   const calculateTotalAmount = () => {
@@ -342,10 +343,9 @@ if (proposal?.uuid) {
     //  setProposalId(res?.proposal?.uuid);
       const uuid= res?.proposal?.uuid
      dispatch(getProposalByUUID(uuid))
-
     setProposalId(uuid)
      showToast('success', 'Proposal created successfully.');
-     navigate(`/create-proposal/${uuid}`)
+     navigate(`/proposal/${uuid}`)
     }
       
       
@@ -393,6 +393,7 @@ const updateProposalStep = async (currentStep) => {
         updatePayload.package_name=selectedPackage.name
         updatePayload.package_info = selectedPackage;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 3:
         updatePayload.business_activities = selectedActivities;
@@ -401,10 +402,12 @@ const updateProposalStep = async (currentStep) => {
       case 4:
         updatePayload.business_questions = questionFormData;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 5:
         updatePayload.what_to_include = includeExcludeList;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 6:
         updatePayload.required_documents = requiredDocuments;
@@ -422,6 +425,7 @@ const updateProposalStep = async (currentStep) => {
       case 9:
         updatePayload.notes = notes;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 10:
         updatePayload.client_id = selectedClient?.id;
@@ -473,17 +477,17 @@ const updateProposalStep = async (currentStep) => {
 const generatePDF = () => {
  const finalTotalAmount = calculateTotalAmount();
   const proposalData = {
-    zone_id :zone.id,
-    zone_name :selectedPackage.authority.zone.name,
-    zone_info: selectedPackage.authority.zone,
-    authority_id :selectedPackage.authority.id,
-    authority_name: selectedPackage.authority.name,
-    authority_info:selectedPackage.authority,
+    zone_id :zoneData?.id,
+    zone_name :selectedPackage?.authority.zone.name,
+    zone_info: selectedPackage?.authority.zone,
+    authority_id :selectedAuthority?.id,
+    authority_name: selectedAuthority?.name,
+    authority_info:selectedAuthority,
     business_activities:selectedActivities,
-    package_id:selectedPackage.id,
-    package_name:selectedPackage.name,
+    package_id:selectedPackage?.id,
+    package_name:selectedPackage?.name,
     package_info:selectedPackage,
-    client_id:selectedClient.id,
+    client_id:selectedClient?.id,
     client_info:selectedClient,
     total_amount:finalTotalAmount,
     business_questions:questionFormData,
@@ -507,10 +511,31 @@ const viewPDF = () => {
   generatePDF();
   setShowPdfSummary(true);
 }
-
-console.log("selectedPackage",selectedPackage)
 const max_activity_selected =selectedPackage?.activity
-console.log("max_activity_selected",max_activity_selected)
+ const proposalData = {
+    zone_id :zoneData?.id,
+    zone_name :selectedPackage?.authority.zone.name,
+    zone_info: selectedPackage?.authority.zone,
+    authority_id :selectedPackage?.authority.id,
+    authority_name: selectedPackage?.authority.name,
+    authority_info:selectedPackage?.authority,
+    business_activities:selectedActivities,
+    package_id:selectedPackage?.id,
+    package_name:selectedPackage?.name,
+    package_info:selectedPackage,
+    client_id:selectedClient?.id,
+    client_info:selectedClient,
+    total_amount:total_amount,
+    business_questions:questionFormData,
+    what_to_include:includeExcludeList,
+    required_documents:requiredDocuments,
+    benefits:benefits,
+    other_benefits:otherBenefits,
+    scope_of_work:scopeOfWork,
+    notes:notes
+  }
+  console.log('📝 Final Proposal:', proposalData);
+  console.log("proposal",proposal)
   return (
     <div className="container ">
       {toastData.show && (

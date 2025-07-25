@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Lead, { foreignKey: 'assigned_by', as: 'assignedLeads' });
     User.hasMany(models.Lead, { foreignKey: 'assigned_to', as: 'receivedLeads' });
     User.hasMany(models.Lead, { foreignKey: 'created_by', as: 'createdLeads' });
+    User.hasMany(models.Proposal, {
+    foreignKey: 'created_by',
+    as: 'proposals',
+  });
   };
 
   return User;

@@ -53,7 +53,7 @@ const AppSidebar = () => {
       component: CNavItem,
       name: zone.name,
       to: `/business-authority/${zone.uuid}`,
-      showhyphen: true, // for hyphen indent
+      // showhyphen: fasle, // for hyphen indent
     }))
   }, [businesszones])
 

@@ -97,11 +97,9 @@ const ExpandedRow = ({ data }) => (
   selector: row => {
     const step = row.step?.toString()?.trim();
 
-    if (step === 'last_step') return 'Complete';
-
+    if (step === 'last_step') return 'Completed';
     const stepNumber = parseInt(step, 10); // convert to number
-
-    if (!isNaN(stepNumber) && stepNumber < 10) return 'UnComplete';
+    if (!isNaN(stepNumber) && stepNumber < 10) return 'Draft';
 
     return '-';
   },
@@ -137,7 +135,7 @@ const ExpandedRow = ({ data }) => (
       name: 'Actions',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to='/create-proposal' state={{proposal:row ,step:row.step}} title="View Proposal">
+          <Link to={`/proposal/${row.uuid}`}  title="View Proposal">
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span
@@ -157,7 +155,7 @@ const ExpandedRow = ({ data }) => (
   return (
     <div className="container">
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
-        <Link to="/add-proposal">
+        <Link to="/business-zones">
           <CButton className="custom-button">Add Proposal</CButton>
         </Link>
         <input

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react'
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import logo from '../../../../../public/download.png' 
 import { getBusinessZonesAuthorityByZoneId } from '../../../../store/admin/zoneAuthoritySlice'
 import { getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
@@ -29,7 +29,7 @@ import BusinessActivityStepSelector from '../Components/helper/BusinessActivityI
 import Clients from './Clients'
 import BusinessQuestion from './steps/BusinessQuestion'
 import ProposalSummary from './steps/ProposalSummaryStep'
-import { CreateProposal, updateProposal } from '../../../../store/admin/proposalSlice'
+import { clearSelectedProposal, CreateProposal, getProposalByUUID, updateProposal } from '../../../../store/admin/proposalSlice'
 import AuthorityCard from './steps/Components/AuthorityCard'
 
 
@@ -121,14 +121,22 @@ const Proposal = () => {
   const [leadData , setLeadData] =  useState(location.state?.lead || null)
   const [zoneData, setZoneData] = useState(location.state?.zone || null);
   const [proposalId, setProposalId] = useState(null);
-  const [proposalData , setProposalData] = useState(location.state?.proposal || null)
-    const [setpData , setStepdata] = useState(location.state?.step || null)
+  const {uuid} = useParams()
+  const navigate = useNavigate()
 
-console.log(proposalData,"proposalData")
-console.log(setpData ,"step")
   const {proposal} = useSelector((state)=>state.proposal)
-  useEffect(()=>{
 
+  useEffect(()=>{
+    if(uuid){
+      dispatch(getProposalByUUID(uuid)).then((data)=>{
+    if (data.payload.success) {
+      dispatch(getBusinessZonesAuthorityByZoneId({ id:data.payload.data.zone_id}));
+    }
+    })
+    setProposalId(uuid)
+      }else {
+      dispatch(clearSelectedProposal())
+    }
   },[])
   // toast states
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -141,9 +149,9 @@ console.log(setpData ,"step")
   const businessZonesAuthority = useSelector((state) => state.businessZonesAuthority)
   const authorities = businessZonesAuthority?.authorities || []
   const isLoading = businessZonesAuthority?.isLoading || false
-  const { business_activities = [], isActivityLoading = false } = useSelector(
-    (state) => state.business_activity || {}
-  );
+  // const { business_activities = [], isActivityLoading = false } = useSelector(
+  //   (state) => state.business_activity || {}
+  // );
 const [includeExcludeList, setIncludeExcludeList] = useState(initialIncludeExcludeList)
 const [requiredDocuments, setRequiredDocuments] = useState(initialRequiredDocuments)
 const [benefits, setBenefits] = useState(initialBenefits)
@@ -163,10 +171,9 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
 
   const [selectedAuthority, setSelectedAuthority] = useState(null)
   const [selectedActivities, setSelectedActivities] = useState([])
-  const [answers, setAnswers] = useState(Array(questions.length).fill(''))
   const [selectedPackage, setSelectedPackage] = useState(null)
   const [selectedClient, setSelectedClient] = useState(null)
-  
+  let [total_amount ,setTotalAmount]= useState(null)
   // state for search
   const [activitySearch, setActivitySearch] = useState('');
   const {clients} = useSelector((state)=>state.client)
@@ -199,10 +206,27 @@ useEffect(() => {
     setNotes(initialNotes);
     setQuestionFormData(initialQuestionFormData);
     setShowPdfSummary(false);
+    dispatch(clearSelectedProposal())
   }
 }, [zoneData?.id, dispatch]);
 
 
+useEffect(() => {
+  if (proposal) {
+    setZoneData(proposal.zone_info);
+    setSelectedAuthority(proposal.authority_info);
+    setSelectedPackage(proposal.package_info);
+    setSelectedActivities(proposal.business_activities || []);
+    setBenefits(proposal.benefits || initialBenefits);
+    setRequiredDocuments(proposal.required_documents || initialRequiredDocuments);
+    setIncludeExcludeList(proposal.what_to_include || initialIncludeExcludeList);
+    setOtherBenefits(proposal.other_benefits || initialOtherBenefits);
+    setScopeOfWork(proposal.scope_of_work || initialScopeOfWork);
+    setQuestionFormData(proposal.business_questions || initialQuestionFormData);
+    setTotalAmount(proposal.total_amount || 0);
+    setNotes(proposal.notes || initialNotes);
+  }
+}, []);
 
 
   useEffect(() => {
@@ -211,6 +235,13 @@ useEffect(() => {
       setSelectedActivities([]);
     }
   }, [ dispatch]);
+
+    useEffect(() => {
+    if (selectedAuthority) {
+      dispatch(getBusinessActivityByAuthorityId({ authority_id: selectedAuthority.id }));
+      setSelectedActivities([]);
+    }
+  }, [selectedAuthority?.id, dispatch]);
 
   useEffect(() => {
     if (step === 2 && selectedAuthority) {
@@ -227,7 +258,6 @@ useEffect(() => {
 
  
 useEffect(() => {
- setStep(1);
     setSelectedActivities([]);
     setSelectedPackage(null);
     setSelectedClient('');
@@ -238,7 +268,7 @@ useEffect(() => {
     setScopeOfWork(initialScopeOfWork);
     setNotes(initialNotes);
     setQuestionFormData(initialQuestionFormData);
-    setShowPdfSummary(false);
+    setShowPdfSummary(false); 
 }, [selectedAuthority]);
 
 // calculate total
@@ -268,18 +298,26 @@ useEffect(() => {
 };
 
 
-const total_amount = calculateTotalAmount();
-const max_activity_selected =selectedPackage?.activity
+ total_amount = calculateTotalAmount();
+
 
 // handle next 
 const handleNext = async () => {
 
+if (proposal?.uuid) {
+      try {
+      await updateProposalStep(step);
+    } catch (error) {
+      console.error(`Error updating step ${step}:`, error);
+      return; // prevent going to next step on error
+    }
+    
+    }
   if (step === 1) {
     if (!selectedAuthority) {
       showToast('warning', `Please select an authority before proceeding.`);
       return;
     }
-
     try {
       const data = {
         authority_id: selectedAuthority?.id,
@@ -292,13 +330,25 @@ const handleNext = async () => {
         step,
       };
 
-
-      const res = await dispatch(CreateProposal(data)).unwrap();
-
-      console.log("Received from backend:", res);
-
-      setProposalId(res?.proposal?.uuid);
-      showToast('success', 'Proposal created successfully.');
+    if (proposal?.uuid) {
+      try {
+      await updateProposalStep(step);
+    } catch (error) {
+      console.error(`Error updating step ${step}:`, error);
+      return; // prevent going to next step on error
+    }
+    
+    }else{
+     const res = await dispatch(CreateProposal(data)).unwrap();
+    //  setProposalId(res?.proposal?.uuid);
+      const uuid= res?.proposal?.uuid
+     dispatch(getProposalByUUID(uuid))
+    setProposalId(uuid)
+     showToast('success', 'Proposal created successfully.');
+     navigate(`/proposal/${uuid}`)
+    }
+      
+      
     } catch (error) {
       console.error("Proposal creation failed:", error);
       showToast('danger', 'Failed to create proposal.');
@@ -311,21 +361,15 @@ const handleNext = async () => {
     return;
   }
 
-  if (step === 3 && selectedActivities.length === 0) {
-    showToast('warning', `Please select at least one business activity.`);
-    return;
-  }
-
-  
-
-  if (proposalId && step >= 2 && step <= 10) {
-    try {
-      await updateProposalStep(step);
-    } catch (error) {
-      console.error(`Error updating step ${step}:`, error);
-      return; // prevent going to next step on error
-    }
-  }
+ 
+  // if (proposalId && step >= 2 && step <= 10) {
+  //   try {
+  //     await updateProposalStep(step);
+  //   } catch (error) {
+  //     console.error(`Error updating step ${step}:`, error);
+  //     return; // prevent going to next step on error
+  //   }
+  // }
 
   if (step < total_step) {
     setStep(step + 1);
@@ -334,7 +378,7 @@ const handleNext = async () => {
 // update proposal 
 const updateProposalStep = async (currentStep) => {
   try {
-    if (!proposalId) {
+    if (!uuid) {
       showToast('danger', 'Proposal ID missing. Cannot update.');
       return;
     }
@@ -349,6 +393,7 @@ const updateProposalStep = async (currentStep) => {
         updatePayload.package_name=selectedPackage.name
         updatePayload.package_info = selectedPackage;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 3:
         updatePayload.business_activities = selectedActivities;
@@ -357,10 +402,12 @@ const updateProposalStep = async (currentStep) => {
       case 4:
         updatePayload.business_questions = questionFormData;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 5:
         updatePayload.what_to_include = includeExcludeList;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 6:
         updatePayload.required_documents = requiredDocuments;
@@ -378,6 +425,7 @@ const updateProposalStep = async (currentStep) => {
       case 9:
         updatePayload.notes = notes;
         updatePayload.step = currentStep
+        updatePayload. total_amount= finalTotalAmount
         break;
       case 10:
         updatePayload.client_id = selectedClient?.id;
@@ -388,10 +436,11 @@ const updateProposalStep = async (currentStep) => {
       default:
         break;
     }
-
+    
+    console.log('updatePayload',updatePayload)
     const response = await dispatch(updateProposal({ uuid: proposalId, data: updatePayload })).unwrap();
 
-    console.log(`✅ Step ${currentStep} updated successfully`, response);
+    // console.log(`✅ Step ${currentStep} updated successfully`, response);
     showToast('success', `Step ${currentStep} saved.`);
   } catch (error) {
     console.error(`❌ Failed to update step ${currentStep}:`, error);
@@ -428,17 +477,17 @@ const updateProposalStep = async (currentStep) => {
 const generatePDF = () => {
  const finalTotalAmount = calculateTotalAmount();
   const proposalData = {
-    zone_id :zone.id,
-    zone_name :selectedPackage.authority.zone.name,
-    zone_info: selectedPackage.authority.zone,
-    authority_id :selectedPackage.authority.id,
-    authority_name: selectedPackage.authority.name,
-    authority_info:selectedPackage.authority,
+    zone_id :zoneData?.id,
+    zone_name :selectedPackage?.authority.zone.name,
+    zone_info: selectedPackage?.authority.zone,
+    authority_id :selectedAuthority?.id,
+    authority_name: selectedAuthority?.name,
+    authority_info:selectedAuthority,
     business_activities:selectedActivities,
-    package_id:selectedPackage.id,
-    package_name:selectedPackage.name,
+    package_id:selectedPackage?.id,
+    package_name:selectedPackage?.name,
     package_info:selectedPackage,
-    client_id:selectedClient.id,
+    client_id:selectedClient?.id,
     client_info:selectedClient,
     total_amount:finalTotalAmount,
     business_questions:questionFormData,
@@ -462,7 +511,31 @@ const viewPDF = () => {
   generatePDF();
   setShowPdfSummary(true);
 }
-// console.log("proposal",proposal)
+const max_activity_selected =selectedPackage?.activity
+ const proposalData = {
+    zone_id :zoneData?.id,
+    zone_name :selectedPackage?.authority.zone.name,
+    zone_info: selectedPackage?.authority.zone,
+    authority_id :selectedPackage?.authority.id,
+    authority_name: selectedPackage?.authority.name,
+    authority_info:selectedPackage?.authority,
+    business_activities:selectedActivities,
+    package_id:selectedPackage?.id,
+    package_name:selectedPackage?.name,
+    package_info:selectedPackage,
+    client_id:selectedClient?.id,
+    client_info:selectedClient,
+    total_amount:total_amount,
+    business_questions:questionFormData,
+    what_to_include:includeExcludeList,
+    required_documents:requiredDocuments,
+    benefits:benefits,
+    other_benefits:otherBenefits,
+    scope_of_work:scopeOfWork,
+    notes:notes
+  }
+  console.log('📝 Final Proposal:', proposalData);
+  console.log("proposal",proposal)
   return (
     <div className="container ">
       {toastData.show && (

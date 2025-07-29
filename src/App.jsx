@@ -143,6 +143,7 @@ if (isLoading) {
        {/* Employee portal routes */}
        <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/create-proposal" element={<Proposal />} />
+      <Route path="/proposal/:uuid" element={<Proposal />} />
 
       <Route path="/business-zones" element={<EmployeeBusinessZone />} />
       <Route path='/proposals' element={<AllProposals/>}/>\

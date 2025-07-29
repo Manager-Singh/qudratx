@@ -198,8 +198,9 @@ useEffect(() => {
         <CCol md={12}>
           <CCard>
             <CCardHeader>
-              <strong>Edit Company Info</strong>
+              <strong>Company Info</strong>
             </CCardHeader>
+            
             <CCardBody>
               <CForm onSubmit={handleSubmit}>
                 <CFormLabel>Company Name</CFormLabel>
@@ -239,8 +240,8 @@ useEffect(() => {
                 )}
               </div>
 
-                <CFormLabel className="mt-4">Address</CFormLabel>
-                {form.address.map((addr, idx) => (
+                 <h5 className="mt-4 mb-3 fw-semibold">Address</h5>
+                {/* {form.address.map((addr, idx) => (
                   <div key={idx} className="border p-3 mb-2 rounded">
                     <CFormLabel>Type</CFormLabel>
                     <CFormInput value={addr.type} onChange={(e) => handleAddressChange(e, idx, 'type')} />
@@ -260,20 +261,75 @@ useEffect(() => {
                     <CFormLabel>Postal Code</CFormLabel>
                     <CFormInput value={addr.postal_code} onChange={(e) => handleAddressChange(e, idx, 'postal_code')} />
                   </div>
+                ))} */}
+
+                {form.address.map((addr, idx) => (
+                  <div key={idx} className="border p-3 mb-3 rounded">
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>Type</CFormLabel>
+                        <CFormInput value={addr.type} onChange={(e) => handleAddressChange(e, idx, 'type')} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>Line 1</CFormLabel>
+                        <CFormInput value={addr.line1} onChange={(e) => handleAddressChange(e, idx, 'line1')} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>City</CFormLabel>
+                        <CFormInput value={addr.city} onChange={(e) => handleAddressChange(e, idx, 'city')} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>State</CFormLabel>
+                        <CFormInput value={addr.state} onChange={(e) => handleAddressChange(e, idx, 'state')} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>Country</CFormLabel>
+                        <CFormInput value={addr.country} onChange={(e) => handleAddressChange(e, idx, 'country')} />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <CFormLabel>Postal Code</CFormLabel>
+                        <CFormInput value={addr.postal_code} onChange={(e) => handleAddressChange(e, idx, 'postal_code')} />
+                      </div>
+                    </div>
+                  </div>
                 ))}
 
-                <CFormLabel className="mt-4">Terms and Conditions</CFormLabel>
+
+
+                <h5 className="mt-4 mb-3 fw-semibold">Terms and Conditions</h5>
                 <CFormTextarea name="terms_and_conditions" rows={4} value={form.terms_and_conditions} onChange={handleChange} />
 
-                <CFormLabel className="mt-4">Bank Details</CFormLabel>
-                {['bank_title', 'account_number', 'iban_number', 'bank', 'branch', 'swift_code'].map((field) => (
+               <h5 className="mt-4 mb-3 fw-semibold">Bank Details</h5>
+                {/* {['bank_title', 'account_number', 'iban_number', 'bank', 'branch', 'swift_code'].map((field) => (
                   <div key={field}>
                     <CFormLabel className="text-capitalize">{field.replace(/_/g, ' ')}</CFormLabel>
                     <CFormInput name={field} value={form.bank_details[field]} onChange={handleBankChange} />
                   </div>
-                ))}
+                ))} */}
+                <div className="border p-3 rounded mb-3">
+                  <div className="row">
+                    {['bank_title', 'account_number', 'iban_number', 'bank', 'branch', 'swift_code'].map((field) => (
+                      <div key={field} className="col-md-6 mb-3">
+                        <CFormLabel className="text-capitalize">
+                          {field.replace(/_/g, ' ')}
+                        </CFormLabel>
+                        <CFormInput
+                          name={field}
+                          value={form.bank_details[field]}
+                          onChange={handleBankChange}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                <CButton type="submit" className="mt-4">
+
+                <CButton type="submit" className="mt-4 custom-button">
                   Update
                 </CButton>
               </CForm>

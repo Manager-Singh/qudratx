@@ -129,10 +129,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       allowNull: false,
     },
-    proposal_status: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+   proposal_status: {
+      type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: 'Proposal Sent'
     },
      proposal_number: {
       type: DataTypes.STRING,

@@ -629,6 +629,47 @@ const getProposalByUUID = async (req, res) => {
   }
 };
 
+const updateProposalStatus = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+    const { proposal_status } = req.body;
+
+    if (!uuid || !proposal_status) {
+      return res.status(400).json({
+        message: 'Proposal UUID and new status are required.',
+        success: false
+      });
+    }
+
+    const proposal = await Proposal.findOne({ where: { uuid } });
+
+    if (!proposal) {
+      return res.status(404).json({
+        message: 'Proposal not found.',
+        success: false
+      });
+    }
+
+    proposal.proposal_status = proposal_status;
+    proposal.updated_at = new Date();
+    proposal.updated_by = req.user?.id || null;
+
+    await proposal.save();
+
+    return res.status(200).json({
+      message: 'Proposal status updated successfully.',
+      success: true,
+      data: proposal
+    });
+  } catch (error) {
+    console.error('Error updating proposal status:', error);
+    return res.status(500).json({
+      message: 'Internal server error.',
+      success: false
+    });
+  }
+};
+
 module.exports = {
   createProposal,
    getAllProposals,
@@ -640,5 +681,6 @@ module.exports = {
  updateProposal,
   deleteProposal,
   unapproveProposal,
+  updateProposalStatus,
 //   getDeletedProposal,
 };

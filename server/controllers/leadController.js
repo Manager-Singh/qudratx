@@ -337,6 +337,60 @@ const getDeletedLeadDetail = async (req, res) => {
   }
 };
 
+const getLeadDetailByEmployeeID = async (req, res) => {
+  try {
+    const userId = req.user.id; // Logged-in employee's ID
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Lead.findAndCountAll({
+      where: {
+        deleted_at: null,
+        assigned_to: userId, // Only get leads assigned to this user
+      },
+      limit,
+      offset,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: Client,
+          as: 'Client',
+          attributes: { exclude: ['deleted_at'] },
+        },
+        {
+          model: User,
+          as: 'assignedBy',
+        },
+        {
+          model: User,
+          as: 'assignedTo',
+        },
+        {
+          model: User,
+          as: 'createdBy',
+        },
+      ],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(200).json({
+      message: 'Lead details fetched successfully',
+      page,
+      limit,
+      totalPages,
+      totalRecords: count,
+      data: rows,
+    });
+  } catch (error) {
+    console.error('Get leads error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 module.exports = {
   createLeadDetail,
   assignLead,
@@ -345,4 +399,5 @@ module.exports = {
   updateLeadDetail,
   deleteLeadDetail,
   getDeletedLeadDetail,
+  getLeadDetailByEmployeeID,
 };

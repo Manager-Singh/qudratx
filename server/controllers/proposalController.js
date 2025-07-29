@@ -2,6 +2,8 @@ const { Proposal, User } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const transporter = require('../config/emailConfig');
+
 // CREATE
 const createProposal = async (req, res) => {
   try {
@@ -280,11 +282,14 @@ const updateProposal = async (req, res) => {
     proposal.other_benefits = other_benefits || proposal.other_benefits;
     proposal.scope_of_work = scope_of_work || proposal.scope_of_work;
     proposal.notes = notes || proposal.notes;
-    proposal.step = step || proposal.step;
+    if (proposal.step !== 'laststep') {
+      proposal.step = step || proposal.step;
+    }
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
     
 if (req.files && req.files.generated_pdf && proposal.proposal_number) {
+
   const file = req.files.generated_pdf[0];
   const ext = path.extname(file.originalname) || '.pdf';
 
@@ -313,6 +318,32 @@ if (req.files && req.files.generated_pdf && proposal.proposal_number) {
     }
 
     await proposal.save();
+
+    if (proposal.generated_pdf && proposal.pdf_path) {
+      const clientEmail = client_info?.email || proposal.client_info?.email;
+      
+        const mailOptions = {
+          from: 'testwebtrack954@gmail.com',
+          to: clientEmail,
+          subject: `Proposal ${proposal.proposal_number} Updated`,
+          text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
+          attachments: [
+            {
+              filename: proposal.generated_pdf,
+              path: proposal.pdf_path
+            }
+          ]
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error sending proposal email:', error);
+          } else {
+            console.log('Proposal email sent:', info.response);
+          }
+        });
+      }
+
 
     return res.status(200).json({
       message: 'Proposal updated successfully',

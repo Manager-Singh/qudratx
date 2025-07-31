@@ -837,7 +837,7 @@ const handleDownloadPdf = async () => {
             <HeadingBar title="Signed for and on behalf of the Client" position="center" />
             <span>
               <strong>Name</strong>
-              <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '10px' }}>{data?.client_info.name}</p>
+              <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '10px' }}>{data?.client_info?.name}</p>
             </span>
             <span>
               <strong>Date</strong>

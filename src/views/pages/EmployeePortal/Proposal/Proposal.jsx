@@ -558,8 +558,11 @@ const max_activity_selected =selectedPackage?.activity
   }
   console.log('📝 Final Proposal:', proposalData);
   console.log("proposal",proposal)
- console.log("selectedAuthority",selectedAuthority)
-  console.log("selectedActivities",selectedActivities)
+ const HandleSendApproval =()=>{
+    dispatch(updateProposal({step:"completed"})).then((data)=>{
+      console.log(data,"data")
+    })
+ }
   return (
     <div className="container ">
       {toastData.show && (
@@ -797,9 +800,9 @@ const max_activity_selected =selectedPackage?.activity
            </CButton>
 
           
-            {/* <CButton className="custom-button" ref={pdfRef}  onClick={generatePDF}>
-                     Generate PDF
-              </CButton> */}
+             <CButton className="custom-button" ref={pdfRef}  onClick={HandleSendApproval}>
+                     Send To Approval
+              </CButton> 
            {showPdfSummary && (
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}

@@ -31,7 +31,7 @@ const createClientDetail = async (req, res) => {
       status,
       userId: req.user.id, // Make sure this column exists in your table
       last_update: new Date(),
-    });
+    },{ userId: req.user.id });
 
     return res.status(201).json({
       message: 'Client created successfully',
@@ -155,7 +155,7 @@ const updateClientDetail = async (req, res) => {
     client.updated_at = new Date();
     client.last_update = new Date();
 
-    await client.save();
+    await client.save({ userId: req.user.id });
 
     res.status(200).json({
       message: 'Client updated successfully',

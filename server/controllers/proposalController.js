@@ -58,7 +58,7 @@ const createProposal = async (req, res) => {
       step,
       created_by,
       approval_status,
-    });
+    },{ userId: req.user.id });
 
     return res.status(201).json({
       message: 'Proposal created successfully',
@@ -317,7 +317,7 @@ if (req.files && req.files.generated_pdf && proposal.proposal_number) {
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
     }
 
-    await proposal.save();
+    await proposal.save({ userId: req.user.id });
 
     if (proposal.generated_pdf && proposal.pdf_path) {
       const clientEmail = client_info?.email || proposal.client_info?.email;
@@ -546,7 +546,7 @@ const approveProposal = async (req, res) => {
     proposal.updated_at = new Date();
     proposal.last_update = new Date();
 
-    await proposal.save();
+    await proposal.save({ userId: req.user.id });
 
     return res.status(200).json({
       message: 'Proposal approved successfully',
@@ -587,7 +587,7 @@ const unapproveProposal = async (req, res) => {
     proposal.updated_at = new Date();
     proposal.last_update = new Date();
 
-    await proposal.save();
+    await proposal.save({ userId: req.user.id });
 
     return res.status(200).json({
       message: 'Proposal unapproved successfully',
@@ -654,7 +654,7 @@ const updateProposalStatus = async (req, res) => {
     proposal.updated_at = new Date();
     proposal.updated_by = req.user?.id || null;
 
-    await proposal.save();
+    await proposal.save({ userId: req.user.id });
 
     return res.status(200).json({
       message: 'Proposal status updated successfully.',

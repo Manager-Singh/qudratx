@@ -38,7 +38,7 @@ const createLeadDetail = async (req, res) => {
       last_update: new Date(),
       created_at: new Date(),
       updated_at: new Date()
-    });
+    },{ userId: req.user.id });
 
      // Reload the lead with its associated client
     const fullLead = await Lead.findOne({
@@ -87,7 +87,7 @@ const assignLead = async (req, res) => {
     lead.updated_at = new Date();
     lead.last_update = new Date();
 
-    await lead.save();
+    await lead.save({ userId: req.user.id });
 
     // Reload the lead with its associated client
     const fullLead = await Lead.findOne({
@@ -263,7 +263,7 @@ const updateLeadDetail = async (req, res) => {
     client.updated_at = new Date();
     client.last_update = new Date();
 
-    await client.save();
+    await client.save({ userId: req.user.id });
 
     res.status(200).json({
       message: 'Client updated successfully',

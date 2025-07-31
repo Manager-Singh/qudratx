@@ -12,6 +12,7 @@ const Category = require('./category')
 const SubCategory = require('./subcategory')
 const Company = require('./company')
 const Proposal = require('./proposal')
+const AuditLog = require('./auditLog')
 const {isAdmin, isEmployee } = require('../../middlewares/roleCheck')
 const authenticateJWT = require('../../middlewares/auth')
 
@@ -28,6 +29,7 @@ router.use('/admin',authenticateJWT,Category)
 router.use('/admin',authenticateJWT,SubCategory)
 router.use('/admin',authenticateJWT,Company)
 router.use('/admin',authenticateJWT,Proposal)
+router.use('/admin',authenticateJWT,AuditLog)
 
 module.exports = router;
 

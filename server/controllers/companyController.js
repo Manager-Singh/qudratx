@@ -42,7 +42,7 @@ const createAndUpdateCompany = async (req, res) => {
         existingCompany.updated_at = new Date();
         existingCompany.updated_by = req.user?.id || null;
 
-        await existingCompany.save();
+        await existingCompany.save({ userId: req.user.id });
 
         return res.status(200).json({
           message: 'Company updated successfully',
@@ -65,7 +65,7 @@ const createAndUpdateCompany = async (req, res) => {
           updated_at: new Date(),
           created_by: req.user?.id || null,
           updated_by: req.user?.id || null
-        });
+        },{ userId: req.user.id });
 
         return res.status(201).json({
           message: 'Company created successfully',

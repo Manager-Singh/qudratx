@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postData, getData ,deleteData ,putData} from '../../utils/api'
+import { postData, getData ,deleteData ,putData, putDataWithImage} from '../../utils/api'
 
 export const CreateProposal= createAsyncThunk('admin/create-proposal', async (data, thunkAPI) => {
  
@@ -66,6 +66,19 @@ export const updateProposal = createAsyncThunk(
     try {
       console.log(data, "formData being sent")
       const response = await putData(`/admin/update-proposal/${uuid}`, data)
+      return response
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message)
+    }
+  }
+)
+
+export const updateProposalPdf = createAsyncThunk(
+  'admin/update-proposalpdf',
+  async ({ uuid, data }, thunkAPI) => {
+    try {
+      console.log("formData being sent",data)
+      const response = await putDataWithImage(`/admin/update-proposal/${uuid}`, data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message)
@@ -193,6 +206,21 @@ const proposalSlice = createSlice({
         }
       })
       .addCase(updateProposal.rejected, (state, action) => {
+        state.isUpdating = false
+        state.error = action.payload
+      })
+      .addCase(updateProposalPdf.pending, (state) => {
+        state.isUpdating = true
+      })
+      .addCase(updateProposalPdf.fulfilled, (state, action) => {
+        state.isUpdating = false
+        state.success = 'Proposal updated successfully'
+        state.proposal = {
+          ...state.proposal,
+          ...action.payload.proposal, 
+        }
+      })
+      .addCase(updateProposalPdf.rejected, (state, action) => {
         state.isUpdating = false
         state.error = action.payload
       }).addCase(getProposalByUUID.pending, (state) => {

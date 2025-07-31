@@ -68,9 +68,9 @@ export const getDeletedBusinessActivities = createAsyncThunk('admin/get-deleted-
 // GET activity by UUID
 export const getBusinessActivityByAuthorityId = createAsyncThunk(
   'admin/get-activity-authority-id',
-  async ({ authority_id, page, PAGE_SIZE }, thunkAPI) => {
+  async ({ authority_id, page, limit}, thunkAPI) => {
     try {
-      const response = await getData(`/admin/get-activity-by-authority/${authority_id}?page=${page}&limit=${PAGE_SIZE}`)
+      const response = await getData(`/admin/get-activity-by-authority/${authority_id}?page=${page}&limit=${limit}`)
       return response
     } catch (error) {
       console.error('Get by Authority ID error:', error)

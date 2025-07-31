@@ -42,7 +42,7 @@ import EmployeeBusinessZone from './views/pages/EmployeePortal/EmployeeBusinessZ
 import Setting from './views/pages/settings/Setting'
 import AllProposals from './views/pages/ProposalManagement/proposals/ProposalsListing'
 import MyProposal from './views/pages/EmployeePortal/myProposal/MyProposal'
-
+import ViewProposal from './views/pages/ProposalManagement/proposals/ViewProposal';
 
 
 
@@ -139,14 +139,15 @@ if (isLoading) {
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />
        <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
         <Route path='/setting' element={<Setting/>}/>
+        <Route path='/view-proposal' element={ <ViewProposal/> }/>
         
        {/* Employee portal routes */}
-       <Route path="/dashboard" element={<Dashboard/>}/>
+      <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/create-proposal" element={<Proposal />} />
       <Route path="/proposal/:uuid" element={<Proposal />} />
 
       <Route path="/business-zones" element={<EmployeeBusinessZone />} />
-      <Route path='/proposals' element={<AllProposals/>}/>\
+      <Route path='/proposals' element={<AllProposals/>}/>
       <Route path='/my-proposal' element={<MyProposal/>}/>
        </Route>
          

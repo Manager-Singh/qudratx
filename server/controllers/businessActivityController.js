@@ -117,7 +117,7 @@ const createBusinessActivity = async (req, res) => {
         created_at: new Date(),
         updated_at: new Date(),
         last_update: new Date()
-      });
+      },{ userId: req.user.id });
 
       const fullActivity = await BusinessActivity.findOne({
         where: { id: activity.id },
@@ -247,7 +247,7 @@ const handleImportData = async (dataRows, req, res, errors) => {
         created_at: new Date(),
         updated_at: new Date(),
         last_update: new Date()
-      });
+      },{ userId: req.user.id });
  
     } catch (err) {
       errors.push({ row: index + 1, message: err.message });
@@ -495,7 +495,7 @@ const updateBusinessActivity = async (req, res) => {
     activity.updated_at = new Date();
     activity.last_update = new Date();
 
-    await activity.save();
+    await activity.save({ userId: req.user.id });
 
     return res.status(200).json({
       message: 'Business activity updated successfully',

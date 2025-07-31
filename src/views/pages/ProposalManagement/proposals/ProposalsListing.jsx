@@ -73,18 +73,6 @@ function AllProposals() {
     setApprovalModalVisible(true)
   }
 
-  // const handleConfirmApproval = () => {
-  //   if (selectedApprovalUUID && approvalAction === 'approve') {
-  //     dispatch(approveProposalStatus(selectedApprovalUUID)).then(() => {
-  //       dispatch(GetAllProposal())
-  //     })
-  //   }
-  //   // For disapprove, you can implement another API if available
-  //   setApprovalModalVisible(false)
-  //   setSelectedApprovalUUID(null)
-  //   setApprovalAction(null)
-  // }
-
   const handleConfirmApproval = () => {
   if (selectedApprovalUUID && approvalAction) {
     dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
@@ -214,10 +202,58 @@ function AllProposals() {
       minWidth: '170px',
     },
     {
+      name: 'Tracking Status',
+      cell: (row) => {
+        const statusOptions = [
+          'Client Reviewing',
+          'Follow-up Required',
+          'Proposal Accepted',
+          'Proposal Rejected',
+        ]
+
+          const handleStatusChange = (e) => {
+          const selectedStatus = e.target.value
+          dispatch(updateTrackingStatus({ id: row.uuid, proposal_status: selectedStatus }))
+            .unwrap()
+            .then(() => {
+              dispatch(GetAllProposal())
+            })
+            .catch((err) => {
+              console.error('Tracking status update error:', err)
+            })
+        }
+
+        return (
+          <select
+            className="form-select form-select-sm custom-tracking-select"
+            style={{
+              Width: '162px',
+              padding: '6px 12px',
+              borderRadius: '0.375rem',
+              border: '1px solid #ccc',
+              backgroundColor: '#17a2b8',
+              color: 'white',
+              fontWeight: 500,
+            }}
+            value={row.proposal_status || 'Proposal Sent'}
+            onChange={handleStatusChange}
+          >
+            {statusOptions.map((status, index) => (
+              <option key={index} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        )
+      },
+      sortable: true,
+      minWidth: '200px',
+    },
+    {
       name: 'Actions',
       cell: (row) => (
         <div className="d-flex gap-2">
-          <Link to={`/proposals/${row.uuid}`} title="View Proposal">
+          <Link to="/view-proposal" state={{ proposal:row}} title="View Proposal">
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span

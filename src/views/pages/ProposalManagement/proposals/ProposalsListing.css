@@ -15,3 +15,15 @@
 /* .sc-eqNDNG ul.dropdown-menu {
   transform: translate(0px, 34px) !important; 
 } */
+
+/* Ensure dropdown menu is above other rows */
+.tracking-dropdown .dropdown-menu {
+  z-index: 1050 !important; /* higher than DataTable rows */
+}
+
+/* Optional: increase max height or prevent clipping */
+.tracking-dropdown {
+  position: relative;
+  overflow: visible;
+}
+

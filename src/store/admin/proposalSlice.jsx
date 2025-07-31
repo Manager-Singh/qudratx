@@ -98,6 +98,18 @@ export const approveProposalStatus = createAsyncThunk(
   }
 );
 
+// export const updateTrackingStatus = createAsyncThunk(
+//   'proposal/updateTrackingStatus',
+//   async ({ id, proposal_status }, thunkAPI) => {
+//     try {
+//       const response = await proposalService.updateTrackingStatus(id, proposal_status)
+//       return response.data
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.response.data)
+//     }
+//   }
+// )
+
 
 
 
@@ -225,6 +237,22 @@ const proposalSlice = createSlice({
         state.isLoading = false
         state.error = action.payload
       })  
+      // update tracking status 
+      // .addCase(updateTrackingStatus.pending, (state) => {
+      //   state.isLoading = true
+      // })
+      // .addCase(updateTrackingStatus.fulfilled, (state, action) => {
+      //   state.isLoading = false
+      //   state.proposals = state.proposals.map((proposal) =>
+      //     proposal.uuid === action.payload.uuid ? { ...proposal, proposal_status: action.payload.proposal_status } : proposal
+      //   )
+      // })
+      // .addCase(updateTrackingStatus.rejected, (state, action) => {
+      //   state.isLoading = false
+      //   state.error = action.payload || 'Something went wrong'
+      // })
+
+
  },
 })
 export const { clearSelectedProposal } = proposalSlice.actions;

@@ -88,7 +88,6 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
     if (step === 3) {
       setBusinessActivities([]);
       setActivityOptions([]);
-      setSelectedActivities([]);
       setPage(1);
       setHasMore(true);
       setInitialLoad(true);

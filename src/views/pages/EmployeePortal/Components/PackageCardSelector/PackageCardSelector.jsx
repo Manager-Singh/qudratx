@@ -6,12 +6,13 @@ const PackageCardSelector = ({ item, selected, onClick }) => {
   
   return (
     <label className="card">
-      <input
-        type="checkbox"
-        className="card__input"
-        checked={selected}
-        onChange={onClick}
-      />
+     <input
+  type="radio"
+  name="package"
+  className="card__input"
+  checked={selected}
+  onChange={onClick}
+/>
       <div className="card__body rounded-2 overflow-hidden shadow">
         <div className="card__body-cover">
           <div

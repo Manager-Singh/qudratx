@@ -7,12 +7,11 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
-import { deleteProposal, GetAllProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
+import { deleteProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
 
 function AllProposals() {
   const dispatch = useDispatch();
   const { proposals, isLoading } = useSelector(state => state.proposal);
-
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
   const [filterText, setFilterText] = useState('');
@@ -21,15 +20,36 @@ function AllProposals() {
     dispatch(GetMyProposal());
   }, [dispatch]);
 
-  const filteredData = proposals?.filter(item =>
-    item.uuid?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.zone_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.authority_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.package_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.client_info?.name?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.created_by?.toLowerCase().includes(filterText.toLowerCase()) ||
-    (item.approval_status === 1 ? 'approved' : 'unapproved').includes(filterText.toLowerCase())
-  ) || [];
+  const filteredData = proposals?.filter(item => {
+  const lowerFilter = filterText.toLowerCase();
+
+  const packageAmount = item.package_name || '';
+  const totalAmount = item.total_amount ? `aed ${item.total_amount}` : '';
+
+  const status = (() => {
+    if (item.approval_status === 1) return 'approved';
+    if (item.step === 'last_step') return 'waiting for send approval';
+    if (item.step === 'completed') return 'unapproved';
+    if (item.step) return 'draft';
+    return '';
+  })();
+
+  const createdAt = item.created_at
+    ? new Date(item.created_at).toLocaleString().toLowerCase()
+    : '';
+
+  return (
+    (item.zone_name || '').toLowerCase().includes(lowerFilter) ||
+    (item.authority_name || '').toLowerCase().includes(lowerFilter) ||
+    packageAmount.toLowerCase().includes(lowerFilter) ||
+    totalAmount.toLowerCase().includes(lowerFilter) ||
+    (item.client_info?.name || '').toLowerCase().includes(lowerFilter) ||
+    status.includes(lowerFilter) ||
+    createdAt.includes(lowerFilter)
+  );
+}) || [];
+
+
 
   const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);
@@ -63,94 +83,92 @@ const ExpandedRow = ({ data }) => (
   </div>
 );
 
-  const columns = [
-    {
-      name: 'Business Zone',
-      selector: row => row.zone_name || '-',
-      sortable: true,
-      minWidth: '130px',
-      wrap: true,
-    },
-    {
-      name: 'Business Authority',
-      selector: row => row.authority_name || '-',
-      sortable: true,
-    minWidth: '160px',
-      wrap: true,
-    },
-    {
-      name: 'Package',
-      selector: row => row.package_name || '-',
-      sortable: true,
-      minWidth: '100px',
-      wrap: true,
-    },
-    {
-      name: 'Client Name',
-      selector: row => row.client_info?.name || '-',
-      sortable: true,
-      minWidth: '130px',
-      wrap: true,
-    },
+ const columns = [
   {
-  name: 'Proposal Status',
-  selector: row => {
-    const step = row.step?.toString()?.trim();
-
-    if (step === 'last_step') return 'Completed';
-    const stepNumber = parseInt(step, 10); // convert to number
-    if (!isNaN(stepNumber) && stepNumber < 10) return 'Draft';
-
-    return '-';
+    name: 'Business Zone',
+    selector: row => row.zone_name || '-',
+    sortable: true,
+    minWidth: '130px',
+    wrap: true,
   },
-  sortable: true,
-  minWidth: '130px',
-  wrap: true,
-},
+  {
+    name: 'Business Authority',
+    selector: row => row.authority_name || '-',
+    sortable: true,
+    minWidth: '160px',
+    wrap: true,
+  },
+  {
+    // Combined column: Package name and Total Amount together
+    name: 'Package & Amount',
+    selector: row => {
+      const packageName = row.package_name || '-';
+      const totalAmount = row.total_amount ? `AED ${row.total_amount}` : '-';
+      return `${packageName} / ${totalAmount}`;
+    },
+    sortable: true,
+    minWidth: '150px',
+    wrap: true,
+  },
+  {
+    name: 'Client Name',
+    selector: row => row.client_info?.name || '-',
+    sortable: true,
+    minWidth: '130px',
+    wrap: true,
+  },
+  {
+    // Combined column: Proposal and Approval status
+    name: 'Status',
+    selector: row => {
+      // Priority: if approval_status is 1, we show "Approved"
+      if (row.approval_status === 1) {
+        return 'Approved';
+      }
+      // Otherwise, if there's a step value, we decide based on it
+      if (row.step) {
+        if (row.step === 'last_step') {
+          return 'Waiting for Send Approval';
+        } else if (row.step === 'completed') {
+          return 'Unapproved';
+        } else {
+          return 'Draft';
+        }
+      }
+      return '-';
+    },
+    sortable: true,
+    minWidth: '150px',
+    wrap: true,
+  },
+  {
+    name: 'Created At',
+    selector: row => (row.created_at ? new Date(row.created_at).toLocaleString() : '-'),
+    sortable: true,
+    grow: 3,
+  },
+  {
+    name: 'Actions',
+    cell: row => (
+      <div className="d-flex gap-2">
+        <Link to={`/proposal/${row.uuid}`} title="View Proposal">
+          <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
+        </Link>
+        <span
+          onClick={() => confirmDelete(row.uuid)}
+          title="Delete Proposal"
+          style={{ cursor: 'pointer' }}
+        >
+          <CIcon icon={cilTrash} size="lg" />
+        </span>
+      </div>
+    ),
+    ignoreRowClick: true,
+    width: '120px',
+  },
+];
 
-    {
-      name: 'Total Amount',
-      selector: row => row.total_amount ? `AED ${row.total_amount}` : '-',
-      sortable: true,
-      minWidth: '130px',
-      wrap: true,
-    },
-    {
-      name: 'Approval Status',
-      selector: row => {
-        if (row.approval_status === 1) return 'Approved';
-        if (row.approval_status === 0) return 'Unapproved';
-        return '-';
-      },
-      sortable: true,
-     minWidth: '160px',
-    },
-    {
-      name: 'Created At',
-      selector: row => row.created_at ? new Date(row.created_at).toLocaleString() : '-',
-      sortable: true,
-      grow: 3,
-    },
-    {
-      name: 'Actions',
-      cell: row => (
-        <div className="d-flex gap-2">
-          <Link to={`/proposal/${row.uuid}`}  title="View Proposal">
-            <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
-          </Link>
-          <span
-            onClick={() => confirmDelete(row.uuid)}
-            title="Delete Proposal"
-            style={{ cursor: 'pointer' }}
-          >
-            <CIcon icon={cilTrash} size="lg" />
-          </span>
-        </div>
-      ),
-      ignoreRowClick: true,
-      width: '120px',
-    },
-  ];
+
 
   return (
     <div className="container">

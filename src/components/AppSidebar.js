@@ -12,13 +12,14 @@ import CIcon from '@coreui/icons-react'
 import { AppSidebarNav } from './AppSidebarNav'
 import logo from 'src/assets/brand/logo.png'
 import { Link } from 'react-router-dom'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavGroup, CNavItem, CNavTitle} from '@coreui/react'
 // Import icons for titles
 import {
   cilPeople,
   cilDescription,
   cilGroup,
-  cilSettings
+  cilSettings,
+  cilHistory
 } from '@coreui/icons'
 
 // Import your zone action
@@ -178,8 +179,9 @@ const zoneNavEmp = useMemo(() => {
       <AppSidebarNav items={navigation} />
 
       {showSetting && (
-         <CSidebarFooter className="border-top d-none d-lg-flex justify-content-end">
-        
+         <CSidebarFooter className="border-top ">
+          <Link to='/logs' style={{textDecoration:'none', color:'white'}}><CIcon icon={cilHistory} /> History & Logs</Link>
+            
         <Link to='/setting' style={{textDecoration:'none', color:'white'}}><CIcon icon={cilSettings} className="me-2" /></Link>
        
       </CSidebarFooter>

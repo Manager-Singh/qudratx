@@ -43,6 +43,7 @@ import Setting from './views/pages/settings/Setting'
 import AllProposals from './views/pages/ProposalManagement/proposals/ProposalsListing'
 import MyProposal from './views/pages/EmployeePortal/myProposal/MyProposal'
 import ViewProposal from './views/pages/ProposalManagement/proposals/ViewProposal';
+import HistoryLogs from './views/pages/history&logs/HistoryLogs'
 
 
 
@@ -140,7 +141,7 @@ if (isLoading) {
        <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
         <Route path='/setting' element={<Setting/>}/>
         <Route path='/view-proposal' element={ <ViewProposal/> }/>
-        
+        <Route path='/logs' element={<HistoryLogs/>}/>
        {/* Employee portal routes */}
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/create-proposal" element={<Proposal />} />

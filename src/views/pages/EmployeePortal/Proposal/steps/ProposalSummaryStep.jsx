@@ -410,27 +410,70 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import html2pdf from 'html2pdf.js';
-import { generateProposalPdf } from '../../../../../utils/generateProposalPdf'; // Keep if used elsewhere
 import HeadingBar from './Components/HeadingBar';
 import { getData } from '../../../../../utils/api';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateProposalPdf } from '../../../../../store/admin/proposalSlice';
 
 const ProposalSummary = ({ data, showPdf }) => {
+  console.log("data---->",data)
+  const dispatch= useDispatch()
   const proposalRef = useRef(null); // Create a ref for the element to convert
 
-  const handleDownloadPdf = () => {
-    if (proposalRef.current) {
-      const element = proposalRef.current;
-      const opt = {
-        margin: 10,
-        filename: 'proposal_summary.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().from(element).set(opt).save();
+  // const handleDownloadPdf = () => {
+  //   if (proposalRef.current) {
+  //     const element = proposalRef.current;
+  //     const opt = {
+  //       margin: 10,
+  //       filename: 'proposal_summary.pdf',
+  //       image: { type: 'jpeg', quality: 0.40 },
+  //       html2canvas: { scale: 2 },
+  //       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  //     };
+  //     html2pdf().from(element).set(opt).save();
+  //   }
+  // };
+
+ 
+
+const handleDownloadPdf = async () => {
+  if (proposalRef.current) {
+    const element = proposalRef.current;
+
+    const opt = {
+      margin: 10,
+      filename: 'proposal_summary.pdf',
+      image: { type: 'jpeg', quality: 0.4 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+      // 1. Generate PDF Blob
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+
+      // 2. Optional: Trigger local download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(pdfBlob);
+      downloadLink.download = 'proposal_summary.pdf';
+      downloadLink.click();
+
+      // 3. Upload to backend using FormData
+      const formData = new FormData();
+      formData.append('generated_pdf', pdfBlob, 'proposal_summary.pdf');
+
+      // 4. Dispatch updateProposal Redux action
+      dispatch(updateProposalPdf({
+        uuid: data.uuid, // Replace with your actual ID
+        data:formData
+      }));
+
+    } catch (error) {
+      console.error('PDF generation/upload failed:', error);
     }
-  };
+  }
+};
+
 
   // get company details and address
   const [webSetting, setWebSetting] = useState({
@@ -473,6 +516,7 @@ const ProposalSummary = ({ data, showPdf }) => {
         const res = await getData('/admin/web-setting-info');
         if (res.success) {
           const data = res.data;
+        
           setWebSetting({
             id: data.id,
             uuid: data.uuid,
@@ -523,23 +567,14 @@ const ProposalSummary = ({ data, showPdf }) => {
       {/* Add a button to trigger the PDF download */}
       <button
         onClick={handleDownloadPdf}
-        style={{
-          margin: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#4a148c',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          fontSize: '16px',
-        }}
+        className='custom-button mb-3'
       >
-        Download Proposal PDF
+       Generate PDF
       </button>
 
       <div
         id="proposal-pdf-content"
-        ref={proposalRef} // Assign the ref here
+        ref={proposalRef} 
         style={{
           padding: '20px',
           background: '#fff',
@@ -556,14 +591,15 @@ const ProposalSummary = ({ data, showPdf }) => {
           {(data?.business_activities || []).map((act, i) => (
             <li key={i} style={{ marginBottom: '20px', marginTop: '20px' }}>
               <p>
-                Activity Code:<strong> {act?.activity_code || 'N/A'}</strong>
+                <span className=''style={{marginRight:"110px"}}>Activity Code</span>:<strong className='ms-3'> {act?.activity_code}</strong>
               </p>
               <p>
-                Activity Name: <strong>{act?.activity_name || 'Unnamed Activity'}</strong>
+              <span className=''style={{marginRight:"105px"}}>Activity Name</span>:<strong className='ms-3'>{act?.activity_name}</strong>
               </p>
-              <p>
-                Activity Description:<strong> {act?.descriotion || 'N/A'}</strong>
-              </p>
+               <div className="row">
+               <div className="col-2 " style={{marginRight:"34px"}}>Activity Description</div>
+              <div className="col-9 ">: {act?.description}</div>
+  </div>
             </li>
           ))}
         </ul>
@@ -789,22 +825,22 @@ const ProposalSummary = ({ data, showPdf }) => {
           <div className="signed-single" style={{ flex: '1', minWidth: '300px', margin: '10px' }}>
             <HeadingBar title="Signed for and on behalf of FZCS" position="center" />
             <span>
-              <p>Consultant name</p>
+              <strong>Consultant name</strong>
               <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '10px' }}>{user.name}</p>
             </span>
             <span>
-              <p>Date</p>
+              <strong>Date</strong>
               <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px' }}>{new Date().toLocaleDateString()}</p>
             </span>
           </div>
           <div className="signed-single" style={{ flex: '1', minWidth: '300px', margin: '10px' }}>
             <HeadingBar title="Signed for and on behalf of the Client" position="center" />
             <span>
-              <p>Name</p>
-              <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '10px' }}>{data?.client_info.name}</p>
+              <strong>Name</strong>
+              <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '10px' }}>{data?.client_info?.name}</p>
             </span>
             <span>
-              <p>Date</p>
+              <strong>Date</strong>
               <p style={{ borderBottom: '1px solid #000', paddingBottom: '5px' }}>{new Date().toLocaleDateString()}</p>
             </span>
           </div>

@@ -192,9 +192,15 @@ useEffect(()=>{
     setTotalAmount(proposal.total_amount || 0);
     setNotes(proposal.notes || initialNotes);
     setSelectedClient(proposal.client_info)
-   
-     console.log(Array.isArray(proposal.business_activities));
-     console.log(selectedActivities ,"selectedActivitiesuperwala")
+   if (proposal.step) {
+    if (proposal.step =='last_step') {
+      setStep(11)
+    }else{
+      let Prevstep= proposal.step 
+      const newStep = ++Prevstep
+      setStep(newStep)
+    }
+   }
         }
       });
     }
@@ -417,7 +423,7 @@ const updateProposalStep = async (currentStep) => {
         updatePayload.package_name=selectedPackage.name
         updatePayload.package_info = selectedPackage;
         updatePayload.step = currentStep
-        updatePayload. total_amount= finalTotalAmount
+        updatePayload.total_amount= finalTotalAmount
         break;
       case 3:
         updatePayload.business_activities = selectedActivities;
@@ -426,12 +432,12 @@ const updateProposalStep = async (currentStep) => {
       case 4:
         updatePayload.business_questions = questionFormData;
         updatePayload.step = currentStep
-        updatePayload. total_amount= finalTotalAmount
+        updatePayload.total_amount= finalTotalAmount
         break;
       case 5:
         updatePayload.what_to_include = includeExcludeList;
         updatePayload.step = currentStep
-        updatePayload. total_amount= finalTotalAmount
+        updatePayload.total_amount= finalTotalAmount
         break;
       case 6:
         updatePayload.required_documents = requiredDocuments;
@@ -449,12 +455,12 @@ const updateProposalStep = async (currentStep) => {
       case 9:
         updatePayload.notes = notes;
         updatePayload.step = currentStep
-        updatePayload. total_amount= finalTotalAmount
+        updatePayload.total_amount= finalTotalAmount
         break;
       case 10:
         updatePayload.client_id = selectedClient?.id;
         updatePayload.client_info = selectedClient;
-        updatePayload. total_amount= finalTotalAmount
+        updatePayload.total_amount= finalTotalAmount
         updatePayload.step = "last_step"
         break;
       default:
@@ -472,10 +478,6 @@ const updateProposalStep = async (currentStep) => {
     throw error;
   }
 };
-
-
-
-
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
   }
@@ -498,38 +500,37 @@ const updateProposalStep = async (currentStep) => {
   }
 
  const pdfRef = useRef();
-const generatePDF = () => {
- const finalTotalAmount = calculateTotalAmount();
-  const proposalData = {
-    zone_id :selectedAuthority?.zone_id,
-    zone_name :selectedPackage?.authority.zone.name,
-    zone_info: selectedPackage?.authority.zone,
-    authority_id :selectedAuthority?.id,
-    authority_name: selectedAuthority?.name,
-    authority_info:selectedAuthority,
-    business_activities:selectedActivities,
-    package_id:selectedPackage?.id,
-    package_name:selectedPackage?.name,
-    package_info:selectedPackage,
-    client_id:selectedClient?.id,
-    client_info:selectedClient,
-    total_amount:finalTotalAmount,
-    business_questions:questionFormData,
-    what_to_include:includeExcludeList,
-    required_documents:requiredDocuments,
-    benefits:benefits,
-    other_benefits:otherBenefits,
-    scope_of_work:scopeOfWork,
-    notes:notes 
-  }
+// const generatePDF = () => {
+//  const finalTotalAmount = calculateTotalAmount();
+//   const proposalData = {
+//     zone_id :selectedAuthority?.zone_id,
+//     zone_name :selectedPackage?.authority.zone.name,
+//     zone_info: selectedPackage?.authority.zone,
+//     authority_id :selectedAuthority?.id,
+//     authority_name: selectedAuthority?.name,
+//     authority_info:selectedAuthority,
+//     business_activities:selectedActivities,
+//     package_id:selectedPackage?.id,
+//     package_name:selectedPackage?.name,
+//     package_info:selectedPackage,
+//     client_id:selectedClient?.id,
+//     client_info:selectedClient,
+//     total_amount:finalTotalAmount,
+//     business_questions:questionFormData,
+//     what_to_include:includeExcludeList,
+//     required_documents:requiredDocuments,
+//     benefits:benefits,
+//     other_benefits:otherBenefits,
+//     scope_of_work:scopeOfWork,
+//     notes:notes 
+//   }
  
-  console.log('📝 Final Proposal:', proposalData);
+//   console.log('📝 Final Proposal:', proposalData);
  
-};
+// };
 
 // preview pdf
 const viewPDF = () => {
-  generatePDF();
   setShowPdfSummary(true);
 }
 const max_activity_selected =selectedPackage?.activity
@@ -557,8 +558,11 @@ const max_activity_selected =selectedPackage?.activity
   }
   console.log('📝 Final Proposal:', proposalData);
   console.log("proposal",proposal)
- console.log("selectedAuthority",selectedAuthority)
-  console.log("selectedActivities",selectedActivities)
+ const HandleSendApproval =()=>{
+    dispatch(updateProposal({step:"completed"})).then((data)=>{
+      console.log(data,"data")
+    })
+ }
   return (
     <div className="container ">
       {toastData.show && (
@@ -796,13 +800,13 @@ const max_activity_selected =selectedPackage?.activity
            </CButton>
 
           
-            <CButton className="custom-button" ref={pdfRef}  onClick={generatePDF}>
-                     Generate PDF
-              </CButton>
+             <CButton className="custom-button" ref={pdfRef}  onClick={HandleSendApproval}>
+                     Send To Approval
+              </CButton> 
            {showPdfSummary && (
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}
-          <ProposalSummary data={proposalForm} />
+          <ProposalSummary data={proposal} />
         </div>
       )}
         </>

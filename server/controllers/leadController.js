@@ -1,4 +1,4 @@
-const { Lead, Client, User  } = require('../models');
+const { Lead, Client, User , Notification } = require('../models');
 const { Op, where } = require('sequelize');
 const jwt = require('jsonwebtoken');
 
@@ -99,6 +99,18 @@ const assignLead = async (req, res) => {
           attributes: { exclude: ['deleted_at'] } // filter sensitive fields
         }
       ]
+    });
+
+    //Create notification for assigned employee
+    await Notification.create({
+      user_id: assigned_to,
+      created_by: req.user.id,
+      type: 'Lead',
+      action: 'Assigned',
+      related_id: lead.id,
+      title: 'Lead Assigned',
+      message: `A new lead has been assigned to you by ${req.user.name || 'Admin'}.`,
+      is_read: false,
     });
 
     return res.status(200).json({

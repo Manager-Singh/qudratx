@@ -256,25 +256,25 @@ const updateProposal = async (req, res) => {
       return res.status(404).json({ message: 'Proposal not found' });
     }
 
-    // Update fields based on your model
+    // ❌ Block update if proposal_status is already finalized (1)
+    if (proposal.proposal_status === 1) {
+      return res.status(403).json({ message: 'Proposal has already been finalized and cannot be updated.' });
+    }
+
+    // ✅ Proceed with update
     proposal.client_id = client_id || proposal.client_id;
     proposal.client_info = client_info || proposal.client_info;
-
     proposal.zone_id = zone_id || proposal.zone_id;
     proposal.zone_name = zone_name || proposal.zone_name;
     proposal.zone_info = zone_info || proposal.zone_info;
-
     proposal.authority_id = authority_id || proposal.authority_id;
     proposal.authority_name = authority_name || proposal.authority_name;
     proposal.authority_info = authority_info || proposal.authority_info;
-
     proposal.package_id = package_id || proposal.package_id;
     proposal.package_name = package_name || proposal.package_name;
     proposal.package_info = package_info || proposal.package_info;
-
     proposal.business_activities = business_activities || proposal.business_activities;
     proposal.total_amount = total_amount || proposal.total_amount;
-
     proposal.business_questions = business_questions || proposal.business_questions;
     proposal.what_to_include = what_to_include || proposal.what_to_include;
     proposal.required_documents = required_documents || proposal.required_documents;
@@ -282,27 +282,26 @@ const updateProposal = async (req, res) => {
     proposal.other_benefits = other_benefits || proposal.other_benefits;
     proposal.scope_of_work = scope_of_work || proposal.scope_of_work;
     proposal.notes = notes || proposal.notes;
+
     if (proposal.step !== 'laststep') {
       proposal.step = step || proposal.step;
     }
+
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
-    
-if (req.files && req.files.generated_pdf && proposal.proposal_number) {
 
-  const file = req.files.generated_pdf[0];
-  const ext = path.extname(file.originalname) || '.pdf';
+    // Handle generated PDF if any
+    if (req.files && req.files.generated_pdf && proposal.proposal_number) {
+      const file = req.files.generated_pdf[0];
+      const ext = path.extname(file.originalname) || '.pdf';
+      const newFilename = `${proposal.proposal_number}${ext}`;
+      const newPath = path.join('uploads/proposals', newFilename);
 
-  const newFilename = `${proposal.proposal_number}${ext}`;
-  const newPath = path.join('uploads/proposals', newFilename);
+      fs.renameSync(file.path, newPath);
+      proposal.generated_pdf = newFilename;
+      proposal.pdf_path = newPath;
+    }
 
-  // Rename the file from temp filename to proposal_number.pdf
-  fs.renameSync(file.path, newPath);
-
-  proposal.generated_pdf = newFilename;
-  proposal.pdf_path = newPath;
-}
-  
     proposal.updated_by = req.user.id;
     proposal.updated_at = new Date();
     proposal.last_update = new Date();
@@ -312,38 +311,37 @@ if (req.files && req.files.generated_pdf && proposal.proposal_number) {
       proposal.approval_status = 1;
       proposal.approved_by = req.user.id;
     } else {
-      // Keep existing values unless provided
       proposal.approval_status = proposal.approval_status ?? 0;
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
     }
 
     await proposal.save({ userId: req.user.id });
 
+    // Send email if proposal PDF was updated
     if (proposal.generated_pdf && proposal.pdf_path) {
       const clientEmail = client_info?.email || proposal.client_info?.email;
-      
-        const mailOptions = {
-          from: 'testwebtrack954@gmail.com',
-          to: clientEmail,
-          subject: `Proposal ${proposal.proposal_number} Updated`,
-          text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
-          attachments: [
-            {
-              filename: proposal.generated_pdf,
-              path: proposal.pdf_path
-            }
-          ]
-        };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.error('Error sending proposal email:', error);
-          } else {
-            console.log('Proposal email sent:', info.response);
+      const mailOptions = {
+        from: 'testwebtrack954@gmail.com',
+        to: clientEmail,
+        subject: `Proposal ${proposal.proposal_number} Updated`,
+        text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
+        attachments: [
+          {
+            filename: proposal.generated_pdf,
+            path: proposal.pdf_path
           }
-        });
-      }
+        ]
+      };
 
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending proposal email:', error);
+        } else {
+          console.log('Proposal email sent:', info.response);
+        }
+      });
+    }
 
     return res.status(200).json({
       message: 'Proposal updated successfully',
@@ -355,6 +353,7 @@ if (req.files && req.files.generated_pdf && proposal.proposal_number) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 

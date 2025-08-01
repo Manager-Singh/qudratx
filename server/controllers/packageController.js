@@ -215,7 +215,7 @@ const updatePackage = async (req, res) => {
     }
 
     package.name = name;
-    package.dscription = description;
+    package.description = description;
     package.total_amount = total_amount;
     package.status = status;
     package.subtotal = subtotal;

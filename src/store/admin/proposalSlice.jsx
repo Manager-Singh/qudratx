@@ -229,7 +229,6 @@ const proposalSlice = createSlice({
       })
       .addCase(getProposalByUUID.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("action.payload?.data",action.payload?.data  )
         state.proposal = action.payload?.data || null;
       })
       .addCase(getProposalByUUID.rejected, (state, action) => {

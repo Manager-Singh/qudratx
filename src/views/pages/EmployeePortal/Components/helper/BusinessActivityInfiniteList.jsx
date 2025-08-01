@@ -30,16 +30,20 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
   const loadingRef = useRef(false);
 
   // Memoized fetch function
-  const fetchActivities = useCallback(async (pageNum) => {
-    if (loadingRef.current) return;
-    loadingRef.current = true;
-    setLoading(true);
-    setError(null);
+ const fetchActivities = useCallback(async (pageNum) => {
+  if (loadingRef.current) return;
+  loadingRef.current = true;
+  setLoading(true);
+  setError(null);
 
-    try {
-      const res = await dispatch(
-        getBusinessActivityByAuthorityId({ authority_id, page: pageNum, PAGE_SIZE })
-      );
+  try {
+    const res = await dispatch(
+      getBusinessActivityByAuthorityId({
+        authority_id,
+        page: pageNum,
+        limit: PAGE_SIZE, // ✅ Rename from PAGE_SIZE to limit
+      })
+    );
 
       if (res.error) {
         if (businessActivities.length > 0) {
@@ -84,16 +88,29 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
   }, [dispatch, authority_id, businessActivities.length]);
 
   // Reset state when authority_id changes
+  // useEffect(() => {
+  //   if (step === 3) {
+  //     setBusinessActivities([]);
+  //     setActivityOptions([]);
+  //     setPage(1);
+  //     setHasMore(true);
+  //     setInitialLoad(true);
+  //     loadingRef.current = false;
+  //   }
+  // }, [authority_id, step]);
   useEffect(() => {
-    if (step === 3) {
-      setBusinessActivities([]);
-      setActivityOptions([]);
-      setPage(1);
-      setHasMore(true);
-      setInitialLoad(true);
-      loadingRef.current = false;
-    }
-  }, [authority_id, step]);
+  if (step === 3) {
+    setBusinessActivities([]);
+    setActivityOptions([]);
+    setPage(1);
+    setHasMore(true);
+    setInitialLoad(true);
+    loadingRef.current = false;
+
+    // Immediately fetch page 1
+    fetchActivities(1);
+  }
+}, [authority_id, step]);
 
   // Initial load and page change effect
   useEffect(() => {

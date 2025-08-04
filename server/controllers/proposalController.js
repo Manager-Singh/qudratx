@@ -19,6 +19,7 @@ const createProposal = async (req, res) => {
     } = req.body;
 
     const created_by = req.user.id;
+    const isAdmin = req.user.role === 'admin';
     const approval_status = req.user.role === 'admin' ? 1 : 0;
  // Get last proposal to generate proposal_number
   // Determine prefix based on zone_name
@@ -59,6 +60,22 @@ const createProposal = async (req, res) => {
       created_by,
       approval_status,
     },{ userId: req.user.id });
+
+     if (!isAdmin) {
+      const admins = await User.findAll({ where: { role: 'admin' } });
+
+      for (const admin of admins) {
+        await Notification.create({
+          user_id: admin.id,
+          created_by: created_by,
+          type: 'proposal',
+          message: `New proposal (${proposal_number}) created by ${req.user.name}.`,
+          target_id: proposal.id,
+          target_type: 'proposal',
+          status: 'unread',
+        });
+      }
+    }
 
     return res.status(201).json({
       message: 'Proposal created successfully',
@@ -547,6 +564,18 @@ const approveProposal = async (req, res) => {
 
     await proposal.save({ userId: req.user.id });
 
+    if (proposal.created_by !== req.user.id) {
+      await Notification.create({
+        user_id: proposal.created_by,
+        created_by: req.user.id,
+        type: 'proposal',
+        message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
+        target_id: proposal.id,
+        target_type: 'proposal',
+        status: 'unread',
+      });
+    }
+
     return res.status(200).json({
       message: 'Proposal approved successfully',
       success: true,
@@ -588,6 +617,17 @@ const unapproveProposal = async (req, res) => {
 
     await proposal.save({ userId: req.user.id });
 
+      if (proposal.created_by !== req.user.id) {
+      await Notification.create({
+        user_id: proposal.created_by,
+        created_by: req.user.id,
+        type: 'proposal',
+        message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
+        target_id: proposal.id,
+        target_type: 'proposal',
+        status: 'unread',
+      });
+    }
     return res.status(200).json({
       message: 'Proposal unapproved successfully',
       success: true,
@@ -633,6 +673,14 @@ const updateProposalStatus = async (req, res) => {
     const { uuid } = req.params;
     const { proposal_status } = req.body;
 
+    // Ensure admin only can update
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        message: 'Only admins can update the proposal status.',
+        success: false
+      });
+    }
+
     if (!uuid || !proposal_status) {
       return res.status(400).json({
         message: 'Proposal UUID and new status are required.',
@@ -651,9 +699,25 @@ const updateProposalStatus = async (req, res) => {
 
     proposal.proposal_status = proposal_status;
     proposal.updated_at = new Date();
-    proposal.updated_by = req.user?.id || null;
+    proposal.updated_by = req.user.id;
 
     await proposal.save({ userId: req.user.id });
+
+    // Notify created_by if it's not an admin (assuming you can check role)
+    if (proposal.created_by !== req.user.id) {
+      const creator = await User.findOne({ where: { id: proposal.created_by } });
+      if (creator?.role !== 'admin') {
+        await Notification.create({
+          user_id: proposal.created_by,
+          created_by: req.user.id,
+          type: 'proposal',
+          message: `Proposal status updated to "${proposal_status}" by admin.`,
+          target_id: proposal.id,
+          target_type: 'proposal',
+          status: 'unread'
+        });
+      }
+    }
 
     return res.status(200).json({
       message: 'Proposal status updated successfully.',
@@ -668,6 +732,7 @@ const updateProposalStatus = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   createProposal,

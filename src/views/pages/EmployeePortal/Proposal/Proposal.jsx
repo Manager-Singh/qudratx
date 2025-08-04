@@ -31,10 +31,6 @@ import ProposalSummary from './steps/ProposalSummaryStep'
 import { clearSelectedProposal, CreateProposal, getProposalByUUID, updateProposal } from '../../../../store/admin/proposalSlice'
 import AuthorityCard from './steps/Components/AuthorityCard'
 
-
-
-
-
 // Constants
 const questions = [
   'What is your company name?',
@@ -118,15 +114,18 @@ const initialQuestionFormData = {
 
 const Proposal = () => {
   const location = useLocation();
-  const [leadData , setLeadData] =  useState(location.state?.lead || null)
+  const lead =  useState(location.state?.lead || null)
   const [zoneData, setZoneData] = useState(location.state?.zone || null);
   const [proposalId, setProposalId] = useState(null);
   const {uuid} = useParams()
   const navigate = useNavigate()
 
   const {proposal} = useSelector((state)=>state.proposal)
-
-  
+  const [leadData,setLeadData] = useState(lead)
+  // useEffect(()=>{
+  //   setLeadData(lead[0])
+  // },[])
+ 
   // toast states
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
     const showToast = (status, message) => {
@@ -153,8 +152,6 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
 
-  // state tp save all form data
-  const [ proposalForm , setProposalForm] = useState(null);
   
   const dispatch = useDispatch()
 
@@ -170,7 +167,12 @@ const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData
   const MultiValue = () => null
   const total_step = 11
 // required document 
-
+//  console.log("leadData",leadData.Client)
+//  console.log(lead)
+//   useEffect(()=>{
+//     setSelectedClient(leadData?.Client)
+//   },[leadData])
+//   console.log(selectedClient,"selectedClient")
 useEffect(()=>{
     if(uuid){
       dispatch(getProposalByUUID(uuid)).then((data)=>{
@@ -237,7 +239,7 @@ useEffect(() => {
     setShowPdfSummary(false);
     dispatch(clearSelectedProposal())
   }
-}, [zoneData?.id, dispatch]);
+}, [zoneData]);
 
 useEffect(() => {
     // setSelectedActivities([]);
@@ -420,7 +422,7 @@ const updateProposalStep = async (currentStep) => {
     switch (currentStep) {
       case 2:
         updatePayload.package_id = selectedPackage?.id;
-        updatePayload.package_name=selectedPackage.name
+        updatePayload.package_name=selectedPackage?.name
         updatePayload.package_info = selectedPackage;
         updatePayload.step = currentStep
         updatePayload.total_amount= finalTotalAmount
@@ -467,14 +469,20 @@ const updateProposalStep = async (currentStep) => {
         break;
     }
     
-    console.log('updatePayload',updatePayload)
+ 
     const response = await dispatch(updateProposal({ uuid: proposalId, data: updatePayload })).unwrap();
-
-    // console.log(`✅ Step ${currentStep} updated successfully`, response);
+    if (response.success) {
+      dispatch(getProposalByUUID(response?.data?.uuid))
+    }
     showToast('success', `Step ${currentStep} saved.`);
   } catch (error) {
     console.error(`❌ Failed to update step ${currentStep}:`, error);
-    showToast('danger', `Error saving step ${currentStep}.`);
+   const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      'An unknown error occurred while saving this step.';
+
+    showToast('danger', errorMessage);
     throw error;
   }
 };
@@ -556,12 +564,9 @@ const max_activity_selected =selectedPackage?.activity
     scope_of_work:scopeOfWork,
     notes:notes
   }
-  console.log('📝 Final Proposal:', proposalData);
-  console.log("proposal",proposal)
+ 
  const HandleSendApproval =()=>{
-    dispatch(updateProposal({step:"completed"})).then((data)=>{
-      console.log(data,"data")
-    })
+    dispatch(updateProposal({step:"completed"}))
  }
   return (
     <div className="container ">
@@ -800,9 +805,9 @@ const max_activity_selected =selectedPackage?.activity
            </CButton>
 
           
-             <CButton className="custom-button" ref={pdfRef}  onClick={HandleSendApproval}>
+             {/* <CButton className="custom-button" ref={pdfRef}  onClick={HandleSendApproval}>
                      Send To Approval
-              </CButton> 
+              </CButton>  */}
            {showPdfSummary && (
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}

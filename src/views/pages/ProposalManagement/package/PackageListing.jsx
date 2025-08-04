@@ -147,7 +147,7 @@ const columns = [
                     />
                   </div>
      
-      {/* <DataTable
+      <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -155,7 +155,7 @@ const columns = [
         highlightOnHover
         responsive
         striped
-      /> */}
+      />
       <div className="row ">
   {filteredData && filteredData.length > 0 ? filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>):<h5 className='text-center bg-white '>Packages Not Found </h5>}
 

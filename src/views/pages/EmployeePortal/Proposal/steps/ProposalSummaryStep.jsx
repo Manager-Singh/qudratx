@@ -416,7 +416,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateProposalPdf } from '../../../../../store/admin/proposalSlice';
 
 const ProposalSummary = ({ data, showPdf }) => {
-  console.log("data---->",data)
   const dispatch= useDispatch()
   const proposalRef = useRef(null); // Create a ref for the element to convert
 
@@ -596,10 +595,11 @@ const handleDownloadPdf = async () => {
               <p>
               <span className=''style={{marginRight:"105px"}}>Activity Name</span>:<strong className='ms-3'>{act?.activity_name}</strong>
               </p>
-               <div className="row">
-               <div className="col-2 " style={{marginRight:"34px"}}>Activity Description</div>
-              <div className="col-9 ">: {act?.description}</div>
-  </div>
+              {act?.description && <div className="row">
+               <div className="col-2" style={{marginRight:"45px"}}>Activity Description</div>: 
+              <div className="col-9 ">{act?.description}</div>
+  </div>}
+               
             </li>
           ))}
         </ul>
@@ -854,7 +854,7 @@ const handleDownloadPdf = async () => {
           <div>
             <p>
               <strong>Address</strong>: {webSetting.address.line1}, {webSetting.address.city},{' '}
-              {webSetting.address.state}, {webSetting.address.country} -{' '}
+              {webSetting.address.state} {webSetting.address.country}
               {webSetting.address.postal_code}
             </p>
             <p>

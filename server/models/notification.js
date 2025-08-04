@@ -51,14 +51,6 @@ module.exports = (sequelize, DataTypes) => {
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    last_update: {
-      type: DataTypes.DATE,
-      allowNull: true
     }
   }, {
     tableName: 'notifications',

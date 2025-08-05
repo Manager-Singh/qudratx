@@ -443,7 +443,12 @@ const handleDownloadPdf = async () => {
       margin: 10,
       filename: 'proposal_summary.pdf',
       image: { type: 'jpeg', quality: 0.4 },
-      html2canvas: { scale: 2 },
+      html2canvas: {
+      scale: 2,
+      useCORS: true,       // Enables cross-origin image rendering
+      allowTaint: true,    // Allows images from other domains
+      logging: true,       // Optional: enables console logging for debugging
+    },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
@@ -584,7 +589,24 @@ const handleDownloadPdf = async () => {
           width: '100%',
           boxShadow: '0px 4px 20px rgba(0,0,0,0.1)',
         }}
-      >
+      > 
+      <div style={{ width: '100%', height: '100%', display: 'flex', margin: 'auto' }}>
+          {data?.zone_name?.toLowerCase() === 'freezone' ? (
+            <img
+              src="https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg"
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <img
+              src="https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg"
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          )}
+        </div>
+
+        
         <HeadingBar title={`${data?.authority_name}  ${data?.zone_name}`} position="center" />
         <ul>
           {(data?.business_activities || []).map((act, i) => (

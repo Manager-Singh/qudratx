@@ -13,6 +13,8 @@ import subCategoryReducer from './admin/subCategorySlice'
 import businessActivityReducer from './admin/businessActivitySlice'
 import proposalReducer from './admin/proposalSlice'
 import DashboardReducer from './admin/dashboardSlice'
+import notificationSlice from './admin/notificationSlice';
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -28,7 +30,8 @@ const store = configureStore({
     sub_category:subCategoryReducer,
     business_activity:businessActivityReducer,
     proposal:proposalReducer,
-    dashboard:DashboardReducer
+    dashboard:DashboardReducer,
+    notification: notificationSlice,
   }, 
 })
 

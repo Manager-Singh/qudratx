@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 // CREATE
 const createLeadDetail = async (req, res) => {
   try {
-    const { client_id } = req.body;
+    const { client_id , origin } = req.body;
 
     // Validate required input
     if (!client_id) {
@@ -31,7 +31,7 @@ const createLeadDetail = async (req, res) => {
     const lead = await Lead.create({
       client_id: client.id,
       lead_number,
-      origin: 'CRM',
+      origin: origin,
       created_status: req.user.role,
       approval_status: req.user.role === 'admin' ? 'approved' : 'unapproved',
       created_by: req.user.id,
@@ -235,7 +235,7 @@ const getLeadDetailByUUID = async (req, res) => {
 const updateLeadDetail = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name, email, address, phone, company_name, notes, status } = req.body;
+    const { name, email, address, phone, company_name, notes, status, origin } = req.body;
 
     //Validate required fields
     if (!name || !email || !address) {
@@ -266,6 +266,7 @@ const updateLeadDetail = async (req, res) => {
     client.name = name;
     client.email = email;
     client.address = address;
+    client.origin = origin;
     if (phone) client.phone = phone;
     if (company_name) client.company_name = company_name;
     if (notes) client.notes = notes;

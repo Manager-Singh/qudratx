@@ -12,6 +12,7 @@ import packageReducer from './admin/packageSlice'
 import subCategoryReducer from './admin/subCategorySlice'
 import businessActivityReducer from './admin/businessActivitySlice'
 import proposalReducer from './admin/proposalSlice'
+import notificationSlice from './admin/notificationSlice';
 
 const store = configureStore({
   reducer: {
@@ -27,7 +28,8 @@ const store = configureStore({
     package:packageReducer,
     sub_category:subCategoryReducer,
     business_activity:businessActivityReducer,
-    proposal:proposalReducer
+    proposal:proposalReducer,
+    notification: notificationSlice,
   }, 
 })
 

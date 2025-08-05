@@ -12,7 +12,7 @@ import packageReducer from './admin/packageSlice'
 import subCategoryReducer from './admin/subCategorySlice'
 import businessActivityReducer from './admin/businessActivitySlice'
 import proposalReducer from './admin/proposalSlice'
-
+import DashboardReducer from './admin/dashboardSlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -27,7 +27,8 @@ const store = configureStore({
     package:packageReducer,
     sub_category:subCategoryReducer,
     business_activity:businessActivityReducer,
-    proposal:proposalReducer
+    proposal:proposalReducer,
+    dashboard:DashboardReducer
   }, 
 })
 

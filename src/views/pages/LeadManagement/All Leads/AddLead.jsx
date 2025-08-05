@@ -16,17 +16,19 @@ import {
 import Select from 'react-select'
 import { useDispatch, useSelector } from 'react-redux'
 import { ToastExample } from '../../../../components/toast/Toast'
-import { getClient } from '../../../../store/admin/clientSlice'
+import { getClient, getClientByUuid } from '../../../../store/admin/clientSlice'
 import { addLead, assignLead } from '../../../../store/admin/leadSlice'
 import AddClient from '../clients/AddClient'
 import { getEmployees } from '../../../../store/admin/employeeSlice'
 import './Lead.css'
+import { useParams } from 'react-router-dom'
 
 const originOptions = [
   { value: 'facebook', label: 'Facebook' },
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'by_call', label: 'By Call' },
   { value: 'by_email', label: 'By Mail' },
+  { value: 'in_person', label: 'In Person' }
 ]
 
 function AddLead() {
@@ -35,7 +37,7 @@ function AddLead() {
   const { employees } = useSelector((state) => state.employee)
   const { isAdding } = useSelector((state) => state.lead)
   const { user } = useSelector((state) => state.auth)
-
+  
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [validated, setValidated] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
@@ -47,13 +49,31 @@ function AddLead() {
     address: '',
     origin: '', // Optional
   })
+  const {uuid}= useParams()
+  console.log(uuid,"uuid")
 
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
   useEffect(() => {
+  if (uuid) {
+    dispatch(getClientByUuid(uuid)).then((res) => {
+      const client = res.payload?.data
+      if (client) {
+        setFormdata((prev) => ({
+          ...prev,
+          client_id: client.id.toString(),
+          name: client.name,
+          email: client.email,
+          address: client.address,
+        }))
+      }
+    })
+  } else {
     dispatch(getClient())
-    dispatch(getEmployees())
-  }, [dispatch])
+  }
+
+  dispatch(getEmployees())
+}, [dispatch, uuid])
 
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
@@ -234,8 +254,7 @@ function AddLead() {
                        
                       />
                     </CCol>
-
-                    <CCol md={6}>
+                    {user.role == "admin" &&  <CCol md={6}>
                       <CFormLabel htmlFor="employee_id">Assign to Employee</CFormLabel>
                       <Select
                         id="employee_id"
@@ -246,7 +265,8 @@ function AddLead() {
                         placeholder="Select Employee"
                         isClearable
                       />
-                    </CCol>
+                    </CCol>}
+                   
 
                     <CCol xs={12} className="d-flex justify-content-end">
                       <CButton type="submit" color="success" disabled={isAdding}>

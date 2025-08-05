@@ -147,6 +147,11 @@ const zoneNavEmp = useMemo(() => {
     },
      {
       component: CNavItem,
+      name: 'Clients',
+      to: '/clients',
+    },
+     {
+      component: CNavItem,
       name: 'All Leads',
       to: '/all-lead',
     },

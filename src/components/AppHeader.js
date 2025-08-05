@@ -41,6 +41,7 @@ const AppHeader = () => {
         headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
     })
   }, [])
+  const {user} = useSelector((state)=>state.auth)
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
@@ -53,15 +54,16 @@ const AppHeader = () => {
         </CHeaderToggler>
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
+            {user.role ==="admin" ?  <CNavLink to="/" as={NavLink}>
               Dashboard
-            </CNavLink>
+            </CNavLink> :  <CNavLink to="/dashboard" as={NavLink}>
+              Dashboard
+            </CNavLink>}
+           
           </CNavItem>
+          
           <CNavItem>
-            <CNavLink href="#">Users</CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Settings</CNavLink>
+            <CNavLink href="/setting">Settings</CNavLink>
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav className="ms-auto">

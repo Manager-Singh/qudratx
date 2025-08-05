@@ -44,6 +44,7 @@ import AllProposals from './views/pages/ProposalManagement/proposals/ProposalsLi
 import MyProposal from './views/pages/EmployeePortal/myProposal/MyProposal'
 import ViewProposal from './views/pages/ProposalManagement/proposals/ViewProposal';
 import HistoryLogs from './views/pages/history&logs/HistoryLogs'
+import AdminDashboard from './views/pages/Dashboard/AdminDashboard'
 
 
 
@@ -115,6 +116,7 @@ if (isLoading) {
        <Route path="/employees" element={<EmployeesListing/>} />
        <Route path="/add-employees" element={<AddEmployee/>} />
        <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
+        <Route path="/" element={<AdminDashboard/>}/>
        <Route path="/business-zone" element={<BusinessZone/>} />
        <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
@@ -126,7 +128,7 @@ if (isLoading) {
        <Route path="/add-business-category" element={<AddBusinessCategory/>} />
        <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
        <Route path="/business-subcategory/:uuid" element={<BusinessSubCategory/>} />
-        <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
+      <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
        <Route path="/add-business-activity/:uuid" element={<AddBusinessActivity/>} />
        <Route path="/edit-business-activity/:uuid" element={<EditBusinessActivity/>} />
        <Route path="/clients" element={<ClientListing/>} />
@@ -135,6 +137,7 @@ if (isLoading) {
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
        <Route path="/add-lead" element={<AddLead />} />
+       <Route path="/create-lead/:uuid" element={<AddLead />} />
        <Route path="/packages/:uuid" element={<PackageListing/>} />
        <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />
@@ -146,12 +149,10 @@ if (isLoading) {
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/create-proposal" element={<Proposal />} />
       <Route path="/proposal/:uuid" element={<Proposal />} />
-
       <Route path="/business-zones" element={<EmployeeBusinessZone />} />
       <Route path='/proposals' element={<AllProposals/>}/>
       <Route path='/my-proposal' element={<MyProposal/>}/>
        </Route>
-         
         </Routes>
       </Suspense>
    </BrowserRouter>

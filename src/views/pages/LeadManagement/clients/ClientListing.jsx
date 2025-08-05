@@ -3,7 +3,7 @@ import { CButton,CTooltip } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash,cilDescription } from '@coreui/icons';
+import { cilTrash} from '@coreui/icons';
 import { FaCircle } from 'react-icons/fa';
 import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +11,6 @@ import './client-style.css'
 import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react'
-import { addLead } from '../../../../store/admin/leadSlice';
 import { FaRegEdit } from "react-icons/fa";
 
 function ClientListing() {
@@ -86,7 +85,7 @@ const columns = [
         <CTooltip content="Generate Lead" placement="top">
       <button className="icon-button"onClick={() => {
   setVisible(true)
-  setid(row.id)
+  setid(row.uuid)
 }}
 >
         <FaRegEdit  style={{ cursor: 'pointer', color: '#333', }} size={20}/>
@@ -132,12 +131,13 @@ const columns = [
 
   const handleConfirm = ()=>{
     setVisible(false)
-    dispatch(addLead({ client_id:id})).then((data)=>{
-      if (data.payload.success){
-       const uuid = data.payload.data.uuid
-        navigate(`/view-lead/${uuid}`)
-      }
-    })
+     navigate(`/create-lead/${id}`)
+    // dispatch(addLead({ client_id:id})).then((data)=>{
+    //   if (data.payload.success){
+    //    const uuid = data.payload.data.uuid
+    //     navigate(`/view-lead/${uuid}`)
+    //   }
+    // })
     
   }
   

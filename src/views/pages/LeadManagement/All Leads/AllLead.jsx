@@ -18,14 +18,12 @@ function AllLead() {
 
   const [filterText, setFilterText] = useState('');
 const user = useSelector(state => state.auth.user)
-console.log(user,"user")
+
   useEffect(() => {
     if (user.role==="admin") {
        dispatch(getLead());
     }else {
-      dispatch(getEmployeeLead()).then((data)=>{
-        console.log(data,"data")
-      })
+      dispatch(getEmployeeLead())
     }
 
    
@@ -125,32 +123,23 @@ console.log(user,"user")
       name: 'Action',
       cell: row => (
         <div className="d-flex gap-2">
-          <Link to='/business-zones' state={{ lead: row }} title="Create Porposal">
-            <FaRegEdit  style={{ cursor: 'pointer', color: '#333', }} size={20}/>
-           
+          <Link to='/business-zones' state={{ lead: row }} title="Create Proposal">
+            <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
-           <Link  title="View Lead">
-          
-            <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} />
+          <Link title="View Lead">
+            <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span
-            onClick={() => confirmDelete(row.uuid)} // <-- Trigger modal
+            onClick={() => confirmDelete(row.uuid)}
             title="Delete Lead"
             style={{ cursor: 'pointer' }}
           >
             <CIcon icon={cilTrash} size="lg" />
-        </span>
-        <ConfirmDeleteModal
-          visible={deleteModalVisible}
-          onCancel={handleCancelDelete}
-          onConfirm={handleConfirmDelete}
-          title="Confirm Delete"
-          message="Are you sure you want to delete this lead?"
-        />
+          </span>
         </div>
       ),
       ignoreRowClick: true,
-      width: '100px',
+      width: '120px',
     },
   ];
 
@@ -178,6 +167,13 @@ console.log(user,"user")
         striped
         progressPending={isLoading}
         noDataComponent="No leads found"
+      />
+      <ConfirmDeleteModal
+        visible={deleteModalVisible}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this lead?"
       />
     </div>
   );

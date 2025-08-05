@@ -103,16 +103,21 @@ const getAllProposals = async (req, res) => {
 
     const where = {
       deleted_at: null,
-      zone_name: { [Op.like]: `%${search}%` } ,
-      authority_name: { [Op.like]: `%${search}%` },
-      package_name: { [Op.like]: `%${search}%` }
+      employee_approval: 1, //Only proposals approved by employee
+      [Op.or]: [
+        { zone_name: { [Op.like]: `%${search}%` } },
+        { authority_name: { [Op.like]: `%${search}%` } },
+        { package_name: { [Op.like]: `%${search}%` } },
+      ]
     };
-// filter by status if provided
+
+    // ✅ Filter by status if provided
     if (status === 'active') {
       where.status = true;
     } else if (status === 'inactive') {
       where.status = false;
     }
+
     const { count, rows } = await Proposal.findAndCountAll({
       where,
       limit,
@@ -123,24 +128,25 @@ const getAllProposals = async (req, res) => {
           model: User,
           as: 'creator',
         },
-  ],
+      ],
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'proposals fetched successfully',
+      message: 'Proposals fetched successfully',
       page,
       limit,
       totalPages,
       totalRecords: count,
-      data: rows
+      data: rows,
     });
   } catch (error) {
     console.error('Get proposals error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // const getProposalByAuthorityId = async (req, res) => {
 //   try {

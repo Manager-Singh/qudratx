@@ -1,4 +1,4 @@
-const { Proposal, User } = require('../models');
+const { Proposal, User, Notification } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const path = require('path');

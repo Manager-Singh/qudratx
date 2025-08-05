@@ -600,6 +600,9 @@ const approveProposal = async (req, res) => {
 const unapproveProposal = async (req, res) => {
   try {
     const { uuid } = req.params;
+      const {
+      reason,
+    } = req.body;
 
     // Only admin should be allowed to unapprove
     if (req.user.role !== 'admin') {
@@ -618,6 +621,7 @@ const unapproveProposal = async (req, res) => {
     }
 
     proposal.approval_status = 0; // 0 means unapproved
+    proposal.reason = reason;
     proposal.approved_by = null; // Reset approved_by
     proposal.updated_by = req.user.id;
     proposal.updated_at = new Date();

@@ -260,7 +260,8 @@ const updateProposal = async (req, res) => {
       status,
       proposal_status,
       step,
-      approved_by: bodyApprovedBy
+      approved_by: bodyApprovedBy,
+      employee_approval,
     } = req.body;
 
     if (!uuid) {
@@ -299,6 +300,7 @@ const updateProposal = async (req, res) => {
     proposal.other_benefits = other_benefits || proposal.other_benefits;
     proposal.scope_of_work = scope_of_work || proposal.scope_of_work;
     proposal.notes = notes || proposal.notes;
+    proposal.employee_approval = employee_approval || proposal.employee_approval;
 
     if (proposal.step !== 'laststep') {
       proposal.step = step || proposal.step;

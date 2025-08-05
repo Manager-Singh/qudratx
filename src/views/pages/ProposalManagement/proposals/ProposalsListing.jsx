@@ -12,7 +12,7 @@ import CIcon from '@coreui/icons-react'
 import { cilTrash , cilCaretBottom } from '@coreui/icons'
 import { FaEye } from 'react-icons/fa'
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'
-import { deleteProposal, GetAllProposal } from '../../../../store/admin/proposalSlice'
+import { deleteProposal, GetAllProposal, updateTrackingStatus } from '../../../../store/admin/proposalSlice'
 import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import "./ProposalsListing.css";
 
@@ -98,58 +98,90 @@ function AllProposals() {
   }
 
   const columns = [
- {
+//  {
+//   name: 'Approval Status',
+//   cell: (row) => {
+//     const [dropdownOpen, setDropdownOpen] = useState(false)
+
+//     const isApproved = row.approval_status === 1
+//     const nextStatus = isApproved ? 'unapprove' : 'approve'; // fix from 'disapprove' to 'unapprove'
+
+
+//     // to track the click on dropdown
+//     const [dropClick , setDropClick] = useState(false)
+
+//     useEffect(()=>{
+//       setDropdownOpen(!dropdownOpen)
+//     }, [dropClick])
+
+//     return (
+//       <CDropdown
+//         className="d-inline-block"
+//         onVisibleChange={(visible) => setDropdownOpen(visible)}
+//         onClick={ () => setDropClick(!dropClick)}
+//       >
+//         <CDropdownToggle
+//           color="transparent"
+//           className="border-0 bg-transparent p-0 d-flex align-items-center gap-2"
+//           caret={false}
+//         >
+//           <CBadge
+//             color={isApproved ? 'success' : 'warning'}
+//             className="text-white text-capitalize px-3 py-2 d-flex align-items-center gap-1"
+//           >
+//             {isApproved ? 'Approved' : 'Unapproved'}
+//             <CIcon
+//               icon={cilCaretBottom}
+//               className={`transition-icon ${dropdownOpen ? 'rotate-180' : ''}`}
+//             />
+//           </CBadge>
+//         </CDropdownToggle>
+
+//         <CDropdownMenu  style={{ minWidth: '120px'}}>
+//           <CDropdownItem
+//             onClick={() => confirmApproval(row.uuid, nextStatus)}
+//             className={`text-white rounded drop-button  ${
+//               isApproved ? 'bg-warning' : 'bg-success'
+//             }`}
+//             style={{ fontWeight: '400', cursor:"pointer" }}
+//           >
+//             {isApproved ? 'Disapprove' : 'Approve'}
+//           </CDropdownItem>
+//         </CDropdownMenu>
+//       </CDropdown>
+//     )
+//   },
+//   sortable: true,
+//   grow: 5,
+// },
+{
   name: 'Approval Status',
   cell: (row) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-
-    const isApproved = row.approval_status === 1
-    const nextStatus = isApproved ? 'unapprove' : 'approve'; // fix from 'disapprove' to 'unapprove'
-
-
-    // to track the click on dropdown
-    const [dropClick , setDropClick] = useState(false)
-
-    useEffect(()=>{
-      setDropdownOpen(!dropdownOpen)
-    }, [dropClick])
+    const isApproved = row.approval_status === 1;
 
     return (
-      <CDropdown
-        className="d-inline-block"
-        onVisibleChange={(visible) => setDropdownOpen(visible)}
-        onClick={ () => setDropClick(!dropClick)}
+      <select
+        className="form-select form-select-sm custom-tracking-select"
+       style={{
+        width: '162px',
+        padding: '6px 12px',
+        borderRadius: '0.375rem',
+        border: '1px solid #ccc',
+        backgroundColor: isApproved ? '#d4edda' : '#fff9db', // light green or light yellow
+        color: isApproved ? '#155724' : '#b58900',           // dark green or dark yellow
+        fontWeight: 500,
+      }}
+        value={isApproved ? 'Approved' : 'Unapproved'}
+        onChange={(e) => {
+          const selected = e.target.value;
+          const newStatus = selected === 'Approved' ? 'approve' : 'unapprove';
+          confirmApproval(row.uuid, newStatus);
+        }}
       >
-        <CDropdownToggle
-          color="transparent"
-          className="border-0 bg-transparent p-0 d-flex align-items-center gap-2"
-          caret={false}
-        >
-          <CBadge
-            color={isApproved ? 'success' : 'warning'}
-            className="text-white text-capitalize px-3 py-2 d-flex align-items-center gap-1"
-          >
-            {isApproved ? 'Approved' : 'Unapproved'}
-            <CIcon
-              icon={cilCaretBottom}
-              className={`transition-icon ${dropdownOpen ? 'rotate-180' : ''}`}
-            />
-          </CBadge>
-        </CDropdownToggle>
-
-        <CDropdownMenu  style={{ minWidth: '120px'}}>
-          <CDropdownItem
-            onClick={() => confirmApproval(row.uuid, nextStatus)}
-            className={`text-white rounded drop-button  ${
-              isApproved ? 'bg-warning' : 'bg-success'
-            }`}
-            style={{ fontWeight: '400', cursor:"pointer" }}
-          >
-            {isApproved ? 'Disapprove' : 'Approve'}
-          </CDropdownItem>
-        </CDropdownMenu>
-      </CDropdown>
-    )
+        <option value="Approved">Approved</option>
+        <option value="Unapproved">Unapproved</option>
+      </select>
+    );
   },
   sortable: true,
   grow: 5,
@@ -201,40 +233,111 @@ function AllProposals() {
       sortable: true,
       minWidth: '170px',
     },
+    // {
+    //   name: 'Tracking Status',
+    //   cell: (row) => {
+    //     const statusOptions = [
+    //       'Client Reviewing',
+    //       'Follow-up Required',
+    //       'Proposal Accepted',
+    //       'Proposal Rejected',
+    //     ]
+
+    //       const handleStatusChange = (e) => {
+    //       const selectedStatus = e.target.value
+    //       dispatch(updateTrackingStatus({ uuid: row.uuid, proposal_status: selectedStatus }))
+    //         .unwrap()
+    //         .then(() => {
+    //           dispatch(GetAllProposal())
+    //         })
+    //         .catch((err) => {
+    //           console.error('Tracking status update error:', err)
+    //         })
+    //     }
+
+    //     return (
+    //       <select
+    //         className="form-select form-select-sm custom-tracking-select"
+    //         style={{
+    //           Width: '162px',
+    //           padding: '6px 12px',
+    //           borderRadius: '0.375rem',
+    //           border: '1px solid #ccc',
+    //           backgroundColor: '#17a2b8',
+    //           color: 'white',
+    //           fontWeight: 500,
+    //         }}
+    //         value={row.proposal_status || 'Proposal Sent'}
+    //         onChange={handleStatusChange}
+    //       >
+    //         {statusOptions.map((status, index) => (
+    //           <option key={index} value={status}>
+    //             {status}
+    //           </option>
+    //         ))}
+    //       </select>
+    //     )
+    //   },
+    //   sortable: true,
+    //   minWidth: '200px',
+    // },
     {
-      name: 'Tracking Status',
-      cell: (row) => {
-        const statusOptions = [
-          'Client Reviewing',
-          'Follow-up Required',
-          'Proposal Accepted',
-          'Proposal Rejected',
-        ]
+  name: 'Tracking Status',
+  cell: (row) => {
+    // Inline functional component to allow state/hooks
+    const StatusDropdownWithModal = () => {
+      const dispatch = useDispatch()
+      const [approvalModalVisible, setApprovalModalVisible] = useState(false)
+      const [selectedStatus, setSelectedStatus] = useState('')
+      const [approvalAction, setApprovalAction] = useState('')
 
-          const handleStatusChange = (e) => {
-          const selectedStatus = e.target.value
-          dispatch(updateTrackingStatus({ id: row.uuid, proposal_status: selectedStatus }))
-            .unwrap()
-            .then(() => {
-              dispatch(GetAllProposal())
-            })
-            .catch((err) => {
-              console.error('Tracking status update error:', err)
-            })
-        }
+      const statusOptions = [
+        'Client Reviewing',
+        'Follow-up Required',
+        'Proposal Accepted',
+        'Proposal Rejected',
+      ]
 
-        return (
+      const handleStatusChange = (e) => {
+        const newStatus = e.target.value
+        setSelectedStatus(newStatus)
+        setApprovalAction('change status')
+        setApprovalModalVisible(true)
+      }
+
+      const handleConfirmApproval = () => {
+        dispatch(updateTrackingStatus({ uuid: row.uuid, proposal_status: selectedStatus }))
+          .unwrap()
+          .then(() => {
+            dispatch(GetAllProposal())
+          })
+          .catch((err) => {
+            console.error('Tracking status update error:', err)
+          })
+        setApprovalModalVisible(false)
+      }
+
+      const handleCancelApproval = () => {
+        setApprovalModalVisible(false)
+      }
+
+      const getConfirmColor = (action) => {
+        return action.includes('Rejected') ? 'danger' : 'primary'
+      }
+
+      return (
+        <>
           <select
             className="form-select form-select-sm custom-tracking-select"
             style={{
-              Width: '162px',
-              padding: '6px 12px',
-              borderRadius: '0.375rem',
-              border: '1px solid #ccc',
-              backgroundColor: '#17a2b8',
-              color: 'white',
-              fontWeight: 500,
-            }}
+            width: '162px',
+            padding: '6px 12px',
+            borderRadius: '0.375rem',
+            border: '1px solid #ccc',
+            backgroundColor: '#d1ecf1', // soft light blue
+            color: '#0c5460',           // dark teal/blue
+            fontWeight: 500,
+          }}
             value={row.proposal_status || 'Proposal Sent'}
             onChange={handleStatusChange}
           >
@@ -244,11 +347,25 @@ function AllProposals() {
               </option>
             ))}
           </select>
-        )
-      },
-      sortable: true,
-      minWidth: '200px',
-    },
+
+          <ConfirmDeleteModal
+            visible={approvalModalVisible}
+            onConfirm={handleConfirmApproval}
+            onCancel={handleCancelApproval}
+            message={`Are you sure you want to change status to "${selectedStatus}"?`}
+            title="Confirm Status Change"
+            confirmLabel="Confirm"
+            confirmColor={getConfirmColor(selectedStatus)}
+          />
+        </>
+      )
+    }
+
+    return <StatusDropdownWithModal />
+  },
+  sortable: true,
+  minWidth: '200px',
+},
     {
       name: 'Actions',
       cell: (row) => (

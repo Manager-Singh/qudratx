@@ -1,8 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postData, getData ,deleteData ,putData, putDataWithImage} from '../../utils/api'
+import {
+  postData,
+  getData,
+  deleteData,
+  putData,
+  putDataWithImage,
+  patchData,
+} from '../../utils/api'
 
-export const CreateProposal= createAsyncThunk('admin/create-proposal', async (data, thunkAPI) => {
- 
+export const CreateProposal = createAsyncThunk('admin/create-proposal', async (data, thunkAPI) => {
   try {
     const response = await postData('/admin/create-proposal', data)
     return response
@@ -12,9 +18,7 @@ export const CreateProposal= createAsyncThunk('admin/create-proposal', async (da
   }
 })
 
-
-export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
- 
+export const GetMyProposal = createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
   try {
     const response = await getData('/admin/get-my-proposals', data)
     return response
@@ -24,33 +28,30 @@ export const GetMyProposal= createAsyncThunk('admin/get-my-proposals', async (da
   }
 })
 
+export const GetAllProposal = createAsyncThunk(
+  'admin/get-all-proposals',
+  async (data, thunkAPI) => {
+    try {
+      const response = await getData('/admin/get-all-proposals', data)
+      return response
+    } catch (error) {
+      console.error('Create  error:', error)
+      return thunkAPI.rejectWithValue(error.message)
+    }
+  },
+)
 
-export const GetAllProposal= createAsyncThunk('admin/get-all-proposals', async (data, thunkAPI) => {
- 
+export const getProposalByUUID = createAsyncThunk('proposal/getByUUID', async (uuid, thunkAPI) => {
   try {
-    const response = await getData('/admin/get-all-proposals', data)
+    const response = await getData(`/admin/get-proposal-by-uuid/${uuid}`)
     return response
   } catch (error) {
-    console.error('Create  error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+    console.error('Fetch Proposal By UUID Error:', error)
+    return thunkAPI.rejectWithValue(error.message || 'Failed to fetch proposal')
   }
 })
 
-export const getProposalByUUID = createAsyncThunk(
-  'proposal/getByUUID',
-  async (uuid, thunkAPI) => {
-    try {
-      const response = await getData(`/admin/get-proposal-by-uuid/${uuid}`);
-      return response; 
-    } catch (error) {
-      console.error('Fetch Proposal By UUID Error:', error);
-      return thunkAPI.rejectWithValue(error.message || 'Failed to fetch proposal');
-    }
-  }
-)
-
-
-export const  deleteProposal = createAsyncThunk('admin/delete-proposal', async (uuid, thunkAPI) => {
+export const deleteProposal = createAsyncThunk('admin/delete-proposal', async (uuid, thunkAPI) => {
   try {
     const response = await deleteData(`/admin/delete-proposal/${uuid}`)
     return response
@@ -59,31 +60,30 @@ export const  deleteProposal = createAsyncThunk('admin/delete-proposal', async (
   }
 })
 
-
 export const updateProposal = createAsyncThunk(
   'admin/update-proposal',
   async ({ uuid, data }, thunkAPI) => {
     try {
-      console.log(data, "formData being sent")
+      console.log(data, 'formData being sent')
       const response = await putData(`/admin/update-proposal/${uuid}`, data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message)
     }
-  }
+  },
 )
 
 export const updateProposalPdf = createAsyncThunk(
   'admin/update-proposalpdf',
   async ({ uuid, data }, thunkAPI) => {
     try {
-      console.log("formData being sent",data)
+      console.log('formData being sent', data)
       const response = await putDataWithImage(`/admin/update-proposal/${uuid}`, data)
       return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message)
     }
-  }
+  },
 )
 
 // export const approveProposalStatus = createAsyncThunk(
@@ -103,13 +103,13 @@ export const approveProposalStatus = createAsyncThunk(
   async ({ uuid, action }, thunkAPI) => {
     try {
       // This will call /admin/proposals/:uuid/approve OR /admin/proposals/:uuid/unapprove
-      const response = await putData(`/admin/proposals/${uuid}/${action}`);
-      return { uuid, action, ...response };
+      const response = await putData(`/admin/proposals/${uuid}/${action}`)
+      return { uuid, action, ...response }
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.message)
     }
-  }
-);
+  },
+)
 
 // export const updateTrackingStatus = createAsyncThunk(
 //   'proposal/updateTrackingStatus',
@@ -123,22 +123,32 @@ export const approveProposalStatus = createAsyncThunk(
 //   }
 // )
 
-
-
-
+// update proposal status
+export const updateTrackingStatus = createAsyncThunk(
+  'proposal/updateTrackingStatus',
+  async ({ uuid, proposal_status }, thunkAPI) => {
+    try {
+      const response = await patchData(`/admin/update-proposal-status/${uuid}`, { proposal_status })
+      return { uuid, proposal_status }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message || 'Failed to update tracking status')
+    }
+  },
+)
 
 const proposalSlice = createSlice({
   name: 'proposal',
   initialState: {
-    proposals: [],  
-    proposal:null,
+    proposals: [],
+    proposal: null,
     isLoading: true,
   },
-   reducers: {
+  reducers: {
     clearSelectedProposal: (state) => {
-      state.proposal = null;
-      state.isLoading = false;
-    }},
+      state.proposal = null
+      state.isLoading = false
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(CreateProposal.pending, (state) => {
@@ -148,12 +158,10 @@ const proposalSlice = createSlice({
         state.isLoading = false
         state.proposal = action.payload.proposal
         state.proposals.push(action.payload.proposal)
-        
-        
       })
       .addCase(CreateProposal.rejected, (state, action) => {
         state.isLoading = false
-     })
+      })
 
       // GetMyProposal
       .addCase(GetMyProposal.pending, (state) => {
@@ -162,14 +170,14 @@ const proposalSlice = createSlice({
       })
       .addCase(GetMyProposal.fulfilled, (state, action) => {
         state.isLoading = false
-        state.proposals = action.payload.data 
+        state.proposals = action.payload.data
       })
       .addCase(GetMyProposal.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })
       // get all proposal
-       .addCase(GetAllProposal.pending, (state) => {
+      .addCase(GetAllProposal.pending, (state) => {
         state.isLoading = true
         state.error = null
       })
@@ -182,19 +190,18 @@ const proposalSlice = createSlice({
         state.error = action.payload
       })
 
-       .addCase(deleteProposal.pending, (state) => {
+      .addCase(deleteProposal.pending, (state) => {
         state.isLoading = true
       })
       .addCase(deleteProposal.fulfilled, (state, action) => {
         state.isLoading = false
-        state.proposals = state.proposals.filter(item => item.uuid !== action.uuid)
-
+        state.proposals = state.proposals.filter((item) => item.uuid !== action.uuid)
       })
       .addCase(deleteProposal.rejected, (state, action) => {
         state.isLoading = false
       })
       // Update proposal
-     .addCase(updateProposal.pending, (state) => {
+      .addCase(updateProposal.pending, (state) => {
         state.isUpdating = true
       })
       .addCase(updateProposal.fulfilled, (state, action) => {
@@ -202,7 +209,7 @@ const proposalSlice = createSlice({
         state.success = 'Proposal updated successfully'
         state.proposal = {
           ...state.proposal,
-          ...action.payload.proposal, 
+          ...action.payload.proposal,
         }
       })
       .addCase(updateProposal.rejected, (state, action) => {
@@ -217,23 +224,24 @@ const proposalSlice = createSlice({
         state.success = 'Proposal updated successfully'
         state.proposal = {
           ...state.proposal,
-          ...action.payload.proposal, 
+          ...action.payload.proposal,
         }
       })
       .addCase(updateProposalPdf.rejected, (state, action) => {
         state.isUpdating = false
         state.error = action.payload
-      }).addCase(getProposalByUUID.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+      })
+      .addCase(getProposalByUUID.pending, (state) => {
+        state.isLoading = true
+        state.error = null
       })
       .addCase(getProposalByUUID.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.proposal = action.payload?.data || null;
+        state.isLoading = false
+        state.proposal = action.payload?.data || null
       })
       .addCase(getProposalByUUID.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload || 'Something went wrong';
+        state.isLoading = false
+        state.error = action.payload || 'Something went wrong'
       })
       // Approve Proposal Status
       .addCase(approveProposalStatus.pending, (state) => {
@@ -244,7 +252,7 @@ const proposalSlice = createSlice({
         state.success = 'Proposal approved successfully'
 
         // Update the specific proposal in the list if needed
-        const index = state.proposals.findIndex(p => p.uuid === action.payload.uuid)
+        const index = state.proposals.findIndex((p) => p.uuid === action.payload.uuid)
         if (index !== -1) {
           state.proposals[index] = {
             ...state.proposals[index],
@@ -263,8 +271,8 @@ const proposalSlice = createSlice({
       .addCase(approveProposalStatus.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
-      })  
-      // update tracking status 
+      })
+      // update tracking status
       // .addCase(updateTrackingStatus.pending, (state) => {
       //   state.isLoading = true
       // })
@@ -278,9 +286,28 @@ const proposalSlice = createSlice({
       //   state.isLoading = false
       //   state.error = action.payload || 'Something went wrong'
       // })
+      .addCase(updateTrackingStatus.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateTrackingStatus.fulfilled, (state, action) => {
+        state.isLoading = false
 
+        const { uuid, proposal_status } = action.payload
+        const proposalIndex = state.proposals.findIndex((p) => p.uuid === uuid)
 
- },
+        if (proposalIndex !== -1) {
+          state.proposals[proposalIndex].proposal_status = proposal_status
+        }
+
+        if (state.proposal && state.proposal.uuid === uuid) {
+          state.proposal.proposal_status = proposal_status
+        }
+      })
+      .addCase(updateTrackingStatus.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+  },
 })
-export const { clearSelectedProposal } = proposalSlice.actions;
+export const { clearSelectedProposal } = proposalSlice.actions
 export default proposalSlice.reducer

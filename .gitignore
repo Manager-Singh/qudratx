@@ -29,3 +29,6 @@ yarn-debug.log*
 yarn-error.log*
 
 /server/config/config.json
+
+# clound flare tunnel config
+cloudflared-linux-amd64.deb

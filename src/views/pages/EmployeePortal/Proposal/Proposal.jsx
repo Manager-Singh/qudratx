@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { getPackageByAuthorityId } from '../../../../store/admin/packageSlice'
 import PackageCardSelector from '../Components/PackageCardSelector/PackageCardSelector'
 import { ToastExample } from '../../../../components/toast/Toast'
-
+const baseImageUrl = import.meta.env.VITE_IMAGE_URL;
 
 import './proposal.css'
 import {
@@ -92,8 +92,8 @@ const initialScopeOfWork = [
   { name: 'Family sponsor process FZCS' },
 ];
 
-const initialNotes = `• This package license for one year and visa for 2 years, Medical & Work Protection Insurance is not included.
-• Package renewal AED 21150/- VISA FREE FOR LIFE, as long as license valid.
+const initialNotes = `• This package license for one year and visa for ___ years, Medical & Work Protection Insurance is not included.
+• Package renewal AED _______ /- VISA FREE FOR LIFE, as long as license valid.
 • In case of any rejection by government, free zone refund money after deduction of specific amount.
 • FZCS will not be responsible in case of any delay or change by government.`;
 
@@ -146,13 +146,27 @@ const [benefits, setBenefits] = useState(initialBenefits)
 const [otherBenefits, setOtherBenefits] = useState(initialOtherBenefits)
 const [scopeOfWork, setScopeOfWork] = useState(initialScopeOfWork)
 const [notes, setNotes] = useState(initialNotes)
-const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData)
+// const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData)
+const initialQuestionFormData = {
+  partners: '',
+  visas: '',
+  visaAmount: '',
+  tenancy: 'no',  // <-- default "No" selected here
+  tenancyAmount: '',
+  withLocalPartner: 'without',
+  localPartnerAmount: '',
+  language: 'arabic',
+  languageAmount: '',
+  companyType: '',
+  companyTypeAmount: '',
+};
+
+const [questionFormData, setQuestionFormData] = useState(initialQuestionFormData);
 
   const [showPdfSummary, setShowPdfSummary] = useState(false);
   // get package state from redux
   const {packages , isPackageLoading} = useSelector((state) => state.package);
 
-  
   const dispatch = useDispatch()
 
   const [selectedAuthority, setSelectedAuthority] = useState(null)
@@ -334,22 +348,94 @@ useEffect(() => {
 
 
 // handle next 
-const handleNext = async () => {
+// const handleNext = async () => {
 
-if (proposal?.uuid) {
-      try {
+// if (proposal?.uuid) {
+//       try {
+//       await updateProposalStep(step);
+//     } catch (error) {
+//       console.error(`Error updating step ${step}:`, error);
+//       return; // prevent going to next step on error
+//     }
+    
+//     }
+//   if (step === 1) {
+//     if (!selectedAuthority) {
+//       showToast('warning', `Please select an authority before proceeding.`);
+//       return;
+//     }
+//     try {
+//       const data = {
+//         authority_id: selectedAuthority?.id,
+//         zone_id: selectedAuthority?.zone?.id,
+//         lead_id: leadData?.id,
+//         zone_name: selectedAuthority?.zone?.name,
+//         zone_info: selectedAuthority?.zone,
+//         authority_name: selectedAuthority?.name,
+//         authority_info: selectedAuthority,
+//         step,
+//       };
+
+//     if (proposal?.uuid) {
+//       try {
+//       await updateProposalStep(step);
+//     } catch (error) {
+//       console.error(`Error updating step ${step}:`, error);
+//       return; // prevent going to next step on error
+//     }
+    
+//     }else{
+//      const res = await dispatch(CreateProposal(data)).unwrap();
+//     //  setProposalId(res?.proposal?.uuid);
+//       const uuid= res?.proposal?.uuid
+//      dispatch(getProposalByUUID(uuid))
+//     setProposalId(uuid)
+//      showToast('success', 'Proposal created successfully.');
+//      navigate(`/proposal/${uuid}`)
+//     }
+      
+      
+//     } catch (error) {
+//       console.error("Proposal creation failed:", error);
+//       showToast('danger', 'Failed to create proposal.');
+//       return;
+//     }
+//   }
+
+//   if (step === 2 && !selectedPackage) {
+//     showToast('warning', `Please select a package before proceeding.`);
+//     return;
+//   }
+
+//   // if (proposalId && step >= 2 && step <= 10) {
+//   //   try {
+//   //     await updateProposalStep(step);
+//   //   } catch (error) {
+//   //     console.error(`Error updating step ${step}:`, error);
+//   //     return; // prevent going to next step on error
+//   //   }
+//   // }
+
+//   if (step < total_step) {
+//     setStep(step + 1);
+//   }
+// };
+const handleNext = async () => {
+  if (proposal?.uuid) {
+    try {
       await updateProposalStep(step);
     } catch (error) {
       console.error(`Error updating step ${step}:`, error);
-      return; // prevent going to next step on error
+      return;
     }
-    
-    }
+  }
+
   if (step === 1) {
     if (!selectedAuthority) {
       showToast('warning', `Please select an authority before proceeding.`);
       return;
     }
+
     try {
       const data = {
         authority_id: selectedAuthority?.id,
@@ -362,25 +448,15 @@ if (proposal?.uuid) {
         step,
       };
 
-    if (proposal?.uuid) {
-      try {
-      await updateProposalStep(step);
-    } catch (error) {
-      console.error(`Error updating step ${step}:`, error);
-      return; // prevent going to next step on error
-    }
-    
-    }else{
-     const res = await dispatch(CreateProposal(data)).unwrap();
-    //  setProposalId(res?.proposal?.uuid);
-      const uuid= res?.proposal?.uuid
-     dispatch(getProposalByUUID(uuid))
-    setProposalId(uuid)
-     showToast('success', 'Proposal created successfully.');
-     navigate(`/proposal/${uuid}`)
-    }
-      
-      
+      if (!proposal?.uuid) {
+        const res = await dispatch(CreateProposal(data)).unwrap();
+        const uuid = res?.proposal?.uuid;
+        dispatch(getProposalByUUID(uuid));
+        setProposalId(uuid);
+        showToast('success', 'Proposal created successfully.');
+        navigate(`/proposal/${uuid}`);
+        return; // early return since navigation occurs
+      }
     } catch (error) {
       console.error("Proposal creation failed:", error);
       showToast('danger', 'Failed to create proposal.');
@@ -393,21 +469,86 @@ if (proposal?.uuid) {
     return;
   }
 
- 
-  // if (proposalId && step >= 2 && step <= 10) {
-  //   try {
-  //     await updateProposalStep(step);
-  //   } catch (error) {
-  //     console.error(`Error updating step ${step}:`, error);
-  //     return; // prevent going to next step on error
-  //   }
-  // }
+  // ✅ STEP 4 — Full Business Question Validation
+ if (step === 4) {
+  const {
+    partners,
+    visas,
+    visaAmount,
+    tenancy,
+    tenancyAmount,
+    withLocalPartner,
+    localPartnerAmount,
+    language,
+    languageAmount,
+    companyType,
+    companyTypeAmount,
+  } = questionFormData;
+
+  
+  const zoneName = packages[0]?.authority?.zone.name?.toLowerCase().trim();
+  const isMainland = zoneName === 'mainland';
+  console.log("zoneName:", zoneName, "isMainland:", isMainland);
+
+
+  // Validate required partners and visas
+  if (!partners || isNaN(partners)) {
+    showToast('warning', 'Please enter number of partners.');
+    return; 
+  }
+
+  if (!visas || isNaN(visas)) {
+    showToast('warning', 'Please enter number of visas.');
+    return;
+  }
+
+  // If visas entered, visaAmount required
+  if (visas && (!visaAmount || isNaN(visaAmount))) {
+    showToast('warning', 'Please enter visa amount.');
+    return;
+  }
+
+  if (isMainland) {
+    // tenancyAmount required if tenancy yes
+    if (tenancy === 'yes' && (!tenancyAmount || isNaN(tenancyAmount))) {
+      showToast('warning', 'Please enter tenancy amount.');
+      return;
+    }
+
+    // localPartnerAmount required if withLocalPartner with
+    if (withLocalPartner === 'with' && (!localPartnerAmount || isNaN(localPartnerAmount))) {
+      showToast('warning', 'Please enter local partner fee.');
+      return;
+    }
+
+    // languageAmount required if language english
+    if (language === 'english' && (!languageAmount || isNaN(languageAmount))) {
+      showToast('warning', 'Please enter company name language amount.');
+      return;
+    }
+
+    // companyType required
+    if (!companyType || companyType.trim() === '') {
+      showToast('warning', 'Please select a company type.');
+      return;
+    }
+
+    // companyTypeAmount required if companyType selected
+    if (!companyTypeAmount || isNaN(companyTypeAmount)) {
+      showToast('warning', 'Please enter company type fee.');
+      return;
+    }
+  }
+}
+
 
   if (step < total_step) {
     setStep(step + 1);
   }
 };
-// update proposal 
+
+
+// update proposal  
 const updateProposalStep = async (currentStep) => {
   try {
     if (!uuid) {
@@ -616,7 +757,7 @@ const max_activity_selected =selectedPackage?.activity
             <AuthorityCard
               image={
                 item.image
-                  ? `http://localhost:5000/uploads/business-zones/${item.image}`
+                  ? `${baseImageUrl}${item.image}`
                   : logo
               }
               title={item.name}
@@ -655,12 +796,12 @@ const max_activity_selected =selectedPackage?.activity
               <PackageCardSelector
                item={item}
               selected={selectedPackage?.id === item.id}
-         onClick={() =>
-         setSelectedPackage((prev) =>
-      prev?.id === item.id ? null : item
-    )
-  }
-/>
+                      onClick={() =>
+                      setSelectedPackage((prev) =>
+                    prev?.id === item.id ? null : item
+                  )
+                }
+              />
                 </div>
               ))
             )}

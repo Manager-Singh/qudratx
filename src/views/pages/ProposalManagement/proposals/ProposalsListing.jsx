@@ -15,10 +15,14 @@ import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDele
 import { deleteProposal, GetAllProposal, updateTrackingStatus } from '../../../../store/admin/proposalSlice'
 import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import "./ProposalsListing.css";
+import DisapproveProposalModal from '../components/DisapproveProposalModal'
+import { getNotifications } from '../../../../store/admin/notificationSlice'
+
 
 function AllProposals() {
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
+ 
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [selectedUUID, setSelectedUUID] = useState(null)
@@ -29,6 +33,16 @@ function AllProposals() {
   const [selectedApprovalUUID, setSelectedApprovalUUID] = useState(null)
   const [approvalAction, setApprovalAction] = useState(null) // 'approve' or 'disapprove'
   const [openDropdownUUID, setOpenDropdownUUID] = useState(null)
+
+  const [disapprovalMessage, setDisapprovalMessage] = useState('')
+
+ const { notifications} = useSelector(state => state.notification)
+
+   useEffect(() => {
+    dispatch(getNotifications())
+  }, [dispatch])
+
+  console.log("noty->",notifications);
 
   useEffect(() => {
     dispatch(GetAllProposal())
@@ -67,26 +81,61 @@ function AllProposals() {
   }
 
   //approval confirmation
+  // const confirmApproval = (uuid, action) => {
+  //   setSelectedApprovalUUID(uuid)
+  //   setApprovalAction(action)
+  //   setApprovalModalVisible(true)
+  // }
   const confirmApproval = (uuid, action) => {
-    setSelectedApprovalUUID(uuid)
-    setApprovalAction(action)
-    setApprovalModalVisible(true)
+  setSelectedApprovalUUID(uuid)
+  setApprovalAction(action)
+  if (action === 'disapprove') {
+    setDisapprovalMessage('') // clear previous message
   }
+  setApprovalModalVisible(true)
+}
 
-  const handleConfirmApproval = () => {
+
+//   const handleConfirmApproval = () => {
+//   if (selectedApprovalUUID && approvalAction) {
+//     dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+//       .unwrap()
+//       .then(() => {
+//         dispatch(GetAllProposal())
+//       })
+//       .catch((error) => {
+//         console.error('Approval API error:', error)
+//       });
+//   }
+//   setApprovalModalVisible(false)
+//   setSelectedApprovalUUID(null)
+//   setApprovalAction(null)
+// }
+const handleConfirmApproval = (message = '') => {
   if (selectedApprovalUUID && approvalAction) {
-    dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+    const payload = {
+      uuid: selectedApprovalUUID,
+      action: approvalAction,
+    }
+
+    if (approvalAction === 'disapprove') {
+      payload.message = message
+    }
+
+    dispatch(approveProposalStatus(payload))
       .unwrap()
       .then(() => {
         dispatch(GetAllProposal())
       })
       .catch((error) => {
         console.error('Approval API error:', error)
-      });
+      })
   }
+
   setApprovalModalVisible(false)
   setSelectedApprovalUUID(null)
   setApprovalAction(null)
+  setDisapprovalMessage('')
 }
 
 
@@ -98,89 +147,34 @@ function AllProposals() {
   }
 
   const columns = [
-//  {
-//   name: 'Approval Status',
-//   cell: (row) => {
-//     const [dropdownOpen, setDropdownOpen] = useState(false)
-
-//     const isApproved = row.approval_status === 1
-//     const nextStatus = isApproved ? 'unapprove' : 'approve'; // fix from 'disapprove' to 'unapprove'
-
-
-//     // to track the click on dropdown
-//     const [dropClick , setDropClick] = useState(false)
-
-//     useEffect(()=>{
-//       setDropdownOpen(!dropdownOpen)
-//     }, [dropClick])
-
-//     return (
-//       <CDropdown
-//         className="d-inline-block"
-//         onVisibleChange={(visible) => setDropdownOpen(visible)}
-//         onClick={ () => setDropClick(!dropClick)}
-//       >
-//         <CDropdownToggle
-//           color="transparent"
-//           className="border-0 bg-transparent p-0 d-flex align-items-center gap-2"
-//           caret={false}
-//         >
-//           <CBadge
-//             color={isApproved ? 'success' : 'warning'}
-//             className="text-white text-capitalize px-3 py-2 d-flex align-items-center gap-1"
-//           >
-//             {isApproved ? 'Approved' : 'Unapproved'}
-//             <CIcon
-//               icon={cilCaretBottom}
-//               className={`transition-icon ${dropdownOpen ? 'rotate-180' : ''}`}
-//             />
-//           </CBadge>
-//         </CDropdownToggle>
-
-//         <CDropdownMenu  style={{ minWidth: '120px'}}>
-//           <CDropdownItem
-//             onClick={() => confirmApproval(row.uuid, nextStatus)}
-//             className={`text-white rounded drop-button  ${
-//               isApproved ? 'bg-warning' : 'bg-success'
-//             }`}
-//             style={{ fontWeight: '400', cursor:"pointer" }}
-//           >
-//             {isApproved ? 'Disapprove' : 'Approve'}
-//           </CDropdownItem>
-//         </CDropdownMenu>
-//       </CDropdown>
-//     )
-//   },
-//   sortable: true,
-//   grow: 5,
-// },
 {
   name: 'Approval Status',
   cell: (row) => {
     const isApproved = row.approval_status === 1;
 
     return (
-      <select
-        className="form-select form-select-sm custom-tracking-select"
-       style={{
-        width: '162px',
-        padding: '6px 12px',
-        borderRadius: '0.375rem',
-        border: '1px solid #ccc',
-        backgroundColor: isApproved ? '#d4edda' : '#fff9db', // light green or light yellow
-        color: isApproved ? '#155724' : '#b58900',           // dark green or dark yellow
-        fontWeight: 500,
-      }}
-        value={isApproved ? 'Approved' : 'Unapproved'}
-        onChange={(e) => {
-          const selected = e.target.value;
-          const newStatus = selected === 'Approved' ? 'approve' : 'unapprove';
-          confirmApproval(row.uuid, newStatus);
-        }}
-      >
-        <option value="Approved">Approved</option>
-        <option value="Unapproved">Unapproved</option>
-      </select>
+     <select
+  className="form-select form-select-sm custom-tracking-select"
+  style={{
+    width: '162px',
+    padding: '6px 12px',
+    borderRadius: '0.375rem',
+    border: '1px solid #ccc',
+    backgroundColor: isApproved ? '#d4edda' : '#fff9db',
+    color: isApproved ? '#155724' : '#b58900',
+    fontWeight: 500,
+  }}
+  value={isApproved ? 'Approved' : 'Unapproved'}
+  onChange={(e) => {
+    const selected = e.target.value;
+    const newStatus = selected === 'Approved' ? 'approve' : 'disapprove'; // ✅ FIXED
+    confirmApproval(row.uuid, newStatus);
+  }}
+>
+  <option value="Approved">Approved</option>
+  <option value="Unapproved">Unapproved</option>
+</select>
+
     );
   },
   sortable: true,
@@ -233,54 +227,6 @@ function AllProposals() {
       sortable: true,
       minWidth: '170px',
     },
-    // {
-    //   name: 'Tracking Status',
-    //   cell: (row) => {
-    //     const statusOptions = [
-    //       'Client Reviewing',
-    //       'Follow-up Required',
-    //       'Proposal Accepted',
-    //       'Proposal Rejected',
-    //     ]
-
-    //       const handleStatusChange = (e) => {
-    //       const selectedStatus = e.target.value
-    //       dispatch(updateTrackingStatus({ uuid: row.uuid, proposal_status: selectedStatus }))
-    //         .unwrap()
-    //         .then(() => {
-    //           dispatch(GetAllProposal())
-    //         })
-    //         .catch((err) => {
-    //           console.error('Tracking status update error:', err)
-    //         })
-    //     }
-
-    //     return (
-    //       <select
-    //         className="form-select form-select-sm custom-tracking-select"
-    //         style={{
-    //           Width: '162px',
-    //           padding: '6px 12px',
-    //           borderRadius: '0.375rem',
-    //           border: '1px solid #ccc',
-    //           backgroundColor: '#17a2b8',
-    //           color: 'white',
-    //           fontWeight: 500,
-    //         }}
-    //         value={row.proposal_status || 'Proposal Sent'}
-    //         onChange={handleStatusChange}
-    //       >
-    //         {statusOptions.map((status, index) => (
-    //           <option key={index} value={status}>
-    //             {status}
-    //           </option>
-    //         ))}
-    //       </select>
-    //     )
-    //   },
-    //   sortable: true,
-    //   minWidth: '200px',
-    // },
     {
   name: 'Tracking Status',
   cell: (row) => {
@@ -438,7 +384,7 @@ function AllProposals() {
       />
       
       {/* for confirmation of approval / disapproval */}
-      <ConfirmDeleteModal
+      {/* <ConfirmDeleteModal
         visible={approvalModalVisible}
         onConfirm={handleConfirmApproval}
         onCancel={handleCancelApproval}
@@ -446,7 +392,27 @@ function AllProposals() {
         title={`${approvalAction}`}
         confirmLabel={approvalAction ? approvalAction.charAt(0).toUpperCase() + approvalAction.slice(1) : 'Confirm'}
         confirmColor={getConfirmColor(approvalAction)}
-      />
+      /> */} 
+      {approvalAction === 'disapprove' ? (
+        <DisapproveProposalModal
+          visible={approvalModalVisible}
+          onCancel={handleCancelApproval}
+          onConfirm={handleConfirmApproval}
+          message={disapprovalMessage}
+          onMessageChange={setDisapprovalMessage}
+        />
+      ) : (
+        <ConfirmDeleteModal
+          visible={approvalModalVisible}
+          onConfirm={handleConfirmApproval}
+          onCancel={handleCancelApproval}
+          message={`Are you sure you want to approve this proposal?`}
+          title="Approve Proposal"
+          confirmLabel="Approve"
+          confirmColor="success"
+        />
+      )}
+
     </div>
   )
 }

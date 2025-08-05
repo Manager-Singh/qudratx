@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLead, deleteLead } from '../../../../store/admin/leadSlice';
+import { getLead, deleteLead, getEmployeeLead } from '../../../../store/admin/leadSlice';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,7 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash ,cilDescription} from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
-
+import { FaRegEdit } from "react-icons/fa";
 
 function AllLead() {
   const dispatch = useDispatch();
@@ -17,9 +17,18 @@ function AllLead() {
   const [selectedUUID, setSelectedUUID] = useState(null);
 
   const [filterText, setFilterText] = useState('');
-
+const user = useSelector(state => state.auth.user)
+console.log(user,"user")
   useEffect(() => {
-    dispatch(getLead());
+    if (user.role==="admin") {
+       dispatch(getLead());
+    }else {
+      dispatch(getEmployeeLead()).then((data)=>{
+        console.log(data,"data")
+      })
+    }
+
+   
   }, [dispatch]);
 
   // Filter by relevant fields
@@ -57,13 +66,13 @@ function AllLead() {
       selector: row => row.origin || '-',
       sortable: true,
     },
-    {
-      name: 'Created Status',
-      selector: row => row.created_status || '-',
-      sortable: true,
-      wrap:true,
-      grow:3,
-    },
+    // {
+    //   name: 'Created Status',
+    //   selector: row => row.created_status || '-',
+    //   sortable: true,
+    //   wrap:true,
+    //   grow:3,
+    // },
     {
       name: 'Lead Status',
       selector: row => row.lead_status || '-',
@@ -71,27 +80,25 @@ function AllLead() {
       wrap:true,
       grow:3,
     },
-    {
-      name: 'Assigned To',
-      selector: row => row.assignedTo?.name !== null ? row.assignedTo?.name  : 'Unassigned',
-      sortable: true,
-      wrap:true,
-      grow:3,
-    },
-    {
-      name: 'Assigned By',
-      selector: row => row.assignedBy?.name !== null ? row.assignedBy?.name : '-',
-      sortable: true,
-      wrap:true,
-      grow:3,
-    },
-    {
+      ...(user.role === 'admin'
+    ? [
+        {
+          name: 'Assigned To',
+          selector: row => row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
+          sortable: true,
+          wrap: true,
+          grow: 3,
+        },
+        {
       name: 'Created By',
       selector: row => row.createdBy?.name || '-',
       sortable: true,
       wrap:true,
       grow:3,
     },
+      ]
+    : []),
+   
     {
       name: 'Approval Status',
       selector: row => row.approval_status || '-',
@@ -119,8 +126,8 @@ function AllLead() {
       cell: row => (
         <div className="d-flex gap-2">
           <Link to='/business-zones' state={{ lead: row }} title="Create Porposal">
-            <CIcon icon={cilDescription} size="lg" style={{ cursor: 'pointer', color: '#333', }} />
-            {/* <FaEye style={{ cursor: 'pointer', color: '#333', }} size={20} /> */}
+            <FaRegEdit  style={{ cursor: 'pointer', color: '#333', }} size={20}/>
+           
           </Link>
            <Link  title="View Lead">
           

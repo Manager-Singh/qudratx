@@ -22,9 +22,15 @@ import AddClient from '../clients/AddClient'
 import { getEmployees } from '../../../../store/admin/employeeSlice'
 import './Lead.css'
 
+const originOptions = [
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'by_call', label: 'By Call' },
+  { value: 'by_email', label: 'By Mail' },
+]
+
 function AddLead() {
   const dispatch = useDispatch()
-
   const { clients, isLoading: clientLoading } = useSelector((state) => state.client)
   const { employees } = useSelector((state) => state.employee)
   const { isAdding } = useSelector((state) => state.lead)
@@ -39,6 +45,7 @@ function AddLead() {
     name: '',
     email: '',
     address: '',
+    origin: '', // Optional
   })
 
   const [selectedEmployee, setSelectedEmployee] = useState(null)
@@ -57,12 +64,13 @@ function AddLead() {
     if (selectedOption) {
       const selectedClient = clients.find((c) => c.id === selectedOption.value)
       if (selectedClient) {
-        setFormdata({
+        setFormdata((prev) => ({
+          ...prev,
           client_id: selectedClient.id.toString(),
           name: selectedClient.name,
           email: selectedClient.email,
           address: selectedClient.address,
-        })
+        }))
       }
     } else {
       setFormdata({
@@ -70,41 +78,40 @@ function AddLead() {
         name: '',
         email: '',
         address: '',
+        origin: '',
       })
       setSelectedEmployee(null)
     }
   }
 
   const handleClientAdded = (newClient) => {
-    setFormdata({
+    setFormdata((prev) => ({
+      ...prev,
       client_id: newClient.id?.toString() || '',
       name: newClient.name || '',
       email: newClient.email || '',
       address: newClient.address || '',
-    })
+    }))
     setModalVisible(false)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const form = e.currentTarget
-  
+
     if (form.checkValidity() === false || !formdata.client_id) {
       e.stopPropagation()
       setValidated(true)
       return
     }
-  
+
     try {
-      // Create the lead
       const res = await dispatch(addLead(formdata)).unwrap()
       const leadId = res.data?.id?.toString() || ''
 
       showToast('success', res.message || 'Lead added successfully!')
-      
-      // If employee is selected, assign the lead
+
       if (selectedEmployee && user?.id && leadId) {
-        console.log("inside")
         const assignData = {
           lead_id: leadId,
           assigned_to: selectedEmployee.value.toString(),
@@ -112,28 +119,27 @@ function AddLead() {
           updated_by: user.id.toString(),
           status: 'inactive',
         }
-  
+
         const assignRes = await dispatch(assignLead(assignData)).unwrap()
         showToast('success', assignRes.message || 'Lead assigned successfully!')
       }
-  
+
       // Reset form
       setFormdata({
         client_id: '',
         name: '',
         email: '',
         address: '',
+        origin: '',
       })
       setSelectedEmployee(null)
       setValidated(false)
-  
     } catch (err) {
       showToast('error', err.message || 'Error adding or assigning lead.')
     }
-  
+
     setValidated(true)
   }
-  
 
   const handleModalClose = () => {
     setModalVisible(false)
@@ -197,23 +203,40 @@ function AddLead() {
 
                 {formdata.client_id && (
                   <>
-                    <CCol md={4}>
+                    <CCol md={6}>
                       <CFormLabel>Client Name</CFormLabel>
                       <CFormInput value={formdata.name} disabled readOnly />
                     </CCol>
-                    <CCol md={4}>
+                    <CCol md={6}>
                       <CFormLabel>Email</CFormLabel>
                       <CFormInput value={formdata.email} disabled readOnly />
                     </CCol>
-                    <CCol md={4}>
+                    <CCol md={6}>
                       <CFormLabel>Address</CFormLabel>
                       <CFormInput value={formdata.address} disabled readOnly />
                     </CCol>
 
                     <CCol md={6}>
-                      <CFormLabel htmlFor="employee_id">
-                        Assign to Employee 
-                      </CFormLabel>
+                      <CFormLabel htmlFor="origin">Origin</CFormLabel>
+                      <Select
+                        id="origin"
+                        name="origin"
+                        value={originOptions.find((opt) => opt.value === formdata.origin) || null}
+                        onChange={(selectedOption) =>
+                          setFormdata((prev) => ({
+                            ...prev,
+                            origin: selectedOption?.value || '',
+                          }))
+                        }
+                        options={originOptions}
+                        placeholder="Select Origin "
+                        isClearable
+                       
+                      />
+                    </CCol>
+
+                    <CCol md={6}>
+                      <CFormLabel htmlFor="employee_id">Assign to Employee</CFormLabel>
                       <Select
                         id="employee_id"
                         name="employee_id"
@@ -245,7 +268,6 @@ function AddLead() {
           <AddClient onSubmit={handleClientAdded} />
         </CModalBody>
       </CModal>
-
     </div>
   )
 }

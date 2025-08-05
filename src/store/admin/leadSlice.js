@@ -22,6 +22,15 @@
         return thunkAPI.rejectWithValue(error.message)
     }
     })
+     export const getEmployeeLead = createAsyncThunk('admin/get-lead-detail-by-employeeId', async (_, thunkAPI) => {
+    try {
+        const response = await getData('/admin/get-lead-detail-by-employeeId')
+        return response
+    } catch (error) {
+        console.error('Get leads error:', error)
+        return thunkAPI.rejectWithValue(error.message)
+    }
+    })
 
     // Delete Lead
     export const deleteLead = createAsyncThunk('admin/delete-lead', async (uuid, thunkAPI) => {
@@ -113,6 +122,18 @@
             state.isLoading = false
             state.leads = []
         })
+        .addCase(getEmployeeLead.pending, (state) => {
+            state.isLoading = true
+        })
+        .addCase(getEmployeeLead.fulfilled, (state, action) => {
+            state.isLoading = false
+            state.leads = action.payload.data
+        })
+        .addCase(getEmployeeLead.rejected, (state) => {
+            state.isLoading = false
+            state.leads = []
+        })
+
 
         // Delete
         .addCase(deleteLead.pending, (state) => {

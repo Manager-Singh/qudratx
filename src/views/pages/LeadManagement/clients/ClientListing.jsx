@@ -12,6 +12,8 @@ import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react'
 import { addLead } from '../../../../store/admin/leadSlice';
+import { FaRegEdit } from "react-icons/fa";
+
 function ClientListing() {
 const [visible, setVisible] = useState(false)
 const navigate = useNavigate()
@@ -65,6 +67,7 @@ const columns = [
     name: 'Company Name',
     selector: row => row.company_name,
     sortable: true,
+    width:"140px"
   },
   {
     name: 'Notes',
@@ -86,7 +89,7 @@ const columns = [
   setid(row.id)
 }}
 >
-        <CIcon icon={cilDescription} size="lg" />
+        <FaRegEdit  style={{ cursor: 'pointer', color: '#333', }} size={20}/>
       </button>
     </CTooltip>
        

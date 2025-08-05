@@ -12,7 +12,7 @@ const AppFooter = () => {
       </div>
       <div className="ms-auto">
         <span className="me-1">Powered by</span>
-        <a href="" target="_blank" rel="noopener noreferrer">
+        <a href="https://qudratxdigital.com/" target="_blank" rel="noopener noreferrer">
          Qudratx Taqniya
         </a>
       </div>

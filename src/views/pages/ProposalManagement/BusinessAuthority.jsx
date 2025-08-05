@@ -16,6 +16,7 @@ import DataTable from 'react-data-table-component'
 import { getBusinessZoneByUuid } from '../../../store/admin/businessZoneSlice'
 import AddAuthorityPopUp from './components/AddAuthorityPopUp'
 import { ToastExample } from '../../../components/toast/Toast'
+const baseImageUrl = import.meta.env.VITE_IMAGE_URL;
 
 function BusinessAuthority() {
   const { uuid } = useParams()
@@ -116,7 +117,7 @@ function BusinessAuthority() {
     selector: (row) =>
       row.image ? (
         <img
-          src={`http://localhost:5000/uploads/business-zones/${row.image}`}
+          src={`${baseImageUrl}${row.image}`}
           alt="Authority"
           style={{ width: '160px', height: 'auto', objectFit: 'contain', borderRadius: '4px' }}
           onError={(e) => {
@@ -181,7 +182,7 @@ function BusinessAuthority() {
                 status: row.status,
                 image: null,
               })
-              setImagePreview(row.image ? `http://localhost:5000/uploads/business-zones/${row.image}` : null)
+              setImagePreview(row.image ? `${baseImageUrl}${row.image}` : null)
               setVisible(true)
             }}
             title="Edit"

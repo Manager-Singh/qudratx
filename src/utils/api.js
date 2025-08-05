@@ -1,8 +1,9 @@
 import axios from 'axios'
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // change to your backend URL
+  baseURL: `${apiUrl}`, // change to your backend URL
   headers: {
     'Content-Type': 'application/json',
   },
@@ -101,5 +102,15 @@ export const deleteData = async (url) => {
     return res.data
   } catch (error) {
     handleError(error)
+  }
+}
+
+
+export const patchData = async (url, data) => {
+  try{
+  const res = await api.patch(url, data)
+  return res.data
+  } catch (error) {
+    handleError(error);
   }
 }

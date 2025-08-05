@@ -44,6 +44,9 @@ export default defineConfig(() => {
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },
+      allowedHosts:[
+        "30482eb0607f.ngrok-free.app"
+      ]
     },
   }
 })

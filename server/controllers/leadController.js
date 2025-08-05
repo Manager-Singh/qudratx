@@ -361,7 +361,10 @@ const getLeadDetailByEmployeeID = async (req, res) => {
     const { count, rows } = await Lead.findAndCountAll({
       where: {
         deleted_at: null,
-        assigned_to: userId, // Only get leads assigned to this user
+        [Op.or]: [
+          { assigned_to: userId },
+          { created_by: userId }
+        ]
       },
       limit,
       offset,
@@ -402,6 +405,7 @@ const getLeadDetailByEmployeeID = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 module.exports = {

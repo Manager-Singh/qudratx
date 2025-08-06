@@ -119,7 +119,8 @@ const Proposal = () => {
   const [proposalId, setProposalId] = useState(null);
   const {uuid} = useParams()
   const navigate = useNavigate()
-
+  const {user} = useSelector((state)=>state.auth)
+  
   const {proposal} = useSelector((state)=>state.proposal)
   const [leadData,setLeadData] = useState(lead)
   // useEffect(()=>{
@@ -941,7 +942,7 @@ const max_activity_selected =selectedPackage?.activity
                      Preview PDF
            </CButton>
 
-          {proposal.employee_approval == 0 && <CButton className="custom-button"   onClick={HandleSendApproval}>
+          {proposal?.employee_approval == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
                      Send To Approval
               </CButton> }
              

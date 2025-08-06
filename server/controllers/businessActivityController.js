@@ -352,6 +352,7 @@ const getBusinessActivityByUUID = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 const getBusinessActivityByAuthorityId = async (req, res) => {
   try {
     const { authority_id } = req.params;
@@ -367,10 +368,15 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
       deleted_at: null,
     };
 
+    // Search by activity_name OR activity_code
     if (search) {
-      where.activity_name = { [Op.like]: `%${search}%` };
+      where[Op.or] = [
+        { activity_name: { [Op.like]: `%${search}%` } },
+        { activity_code: { [Op.like]: `%${search}%` } }
+      ];
     }
 
+    // Filter by status
     if (status === 'active') {
       where.status = true;
     } else if (status === 'inactive') {
@@ -416,6 +422,7 @@ const getBusinessActivityByAuthorityId = async (req, res) => {
     });
   }
 };
+
 
 // UPDATE
 const updateBusinessActivity = async (req, res) => {

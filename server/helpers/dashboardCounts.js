@@ -1,60 +1,87 @@
+const { Lead, Proposal, User, Client } = require('../models');
 const { Op } = require('sequelize');
-const { Lead, Proposal, Client, User } = require('../models'); // Adjust path if needed
 
 const getDashboardCountsHelper = async (user) => {
-  const isAdmin = user.role === 'admin';
+  try {
+    let leadWhere = { deleted_at: null };
+    let proposalWhere = { deleted_at: null };
+    let unapprovedProposalWhere = { deleted_at: null, approval_status: 0 };
+    let pendingProposalWhere = { deleted_at: null, approval_status: 2 };
+    let newLeadsWhere = null;
 
-  // LEAD COUNT
-  const leadWhere = {
-    deleted_at: null,
-  };
-  if (!isAdmin) {
-    leadWhere[Op.or] = [
-      { created_by: user.id },
-      { assigned_to: user.id },
-    ];
+    if (user.role === 'employee') {
+      // Employee-specific filtering
+      leadWhere = {
+        deleted_at: null,
+        [Op.or]: [
+          { created_by: user.id },
+          { assigned_to: user.id }
+        ]
+      };
+
+      proposalWhere = {
+        deleted_at: null,
+        employee_approval: 1,
+        created_by: user.id
+      };
+
+      unapprovedProposalWhere = {
+        deleted_at: null,
+        approval_status: 0,
+        employee_approval: 1,
+        created_by: user.id
+      };
+
+      pendingProposalWhere = {
+        deleted_at: null,
+        approval_status: 2,
+        employee_approval: 1,
+        created_by: user.id
+      };
+    } else if (user.role === 'admin') {
+      // Admin will see new leads
+      newLeadsWhere = {
+        deleted_at: null,
+        lead_status: 'Waiting to Send Proposal'
+      };
+    }
+
+    const [
+      totalLeads,
+      totalProposals,
+      unapprovedProposals,
+      pendingProposals,
+      totalClients,
+      totalEmployees,
+      activeEmployees,
+      newLeads // Only fetched if admin
+    ] = await Promise.all([
+      Lead.count({ where: leadWhere }),
+      Proposal.count({ where: proposalWhere }),
+      Proposal.count({ where: unapprovedProposalWhere }),
+      Proposal.count({ where: pendingProposalWhere }),
+      Client.count({ where: { deleted_at: null } }),
+      User.count({ where: { role: 'employee', deleted_at: null } }),
+      User.count({ where: { role: 'employee', login_status: 1, deleted_at: null } }),
+      user.role === 'admin'
+        ? Lead.count({ where: newLeadsWhere })
+        : Promise.resolve(0) // If not admin, return 0
+    ]);
+
+    return {
+      totalLeads,
+      totalProposals,
+      unapprovedProposals,
+      pendingProposals,
+      totalClients,
+      totalEmployees,
+      activeEmployees,
+      newLeads
+    };
+  } catch (error) {
+    console.error('Error in getDashboardCountsHelper:', error);
+    throw error;
   }
-  const leadCount = await Lead.count({ where: leadWhere });
-
-  // PROPOSAL COUNT
-  const proposalWhere = {
-    deleted_at: null,
-  };
-  if (!isAdmin) {
-    proposalWhere[Op.or] = [
-      { created_by: user.id },
-      { updated_by: user.id },
-    ];
-  }
-  const proposalCount = await Proposal.count({ where: proposalWhere });
-
-  // CLIENT COUNT
-  const clientCount = await Client.count({
-    where: { deleted_at: null },
-  });
-
-  // USER COUNT
-  const userCount = await User.count({
-    where: { deleted_at: null },
-  });
-
-  // EMPLOYEE COUNT
-  const employeeCount = await User.count({
-    where: {
-      role: 'employee',
-      deleted_at: null,
-    },
-  });
-
-  return {
-    totalLeads: leadCount,
-    totalProposals: proposalCount,
-    totalClients: clientCount,
-    totalUsers: userCount,
-    totalEmployees: employeeCount,
-  };
 };
 
-module.exports = {
-  getDashboardCountsHelper,
-};
+module.exports={getDashboardCountsHelper};

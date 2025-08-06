@@ -707,7 +707,15 @@ const max_activity_selected =selectedPackage?.activity
   }
  
  const HandleSendApproval =()=>{
-    dispatch(updateProposal({step:"completed"}))
+  const data={
+  employee_approval:1
+  }
+    dispatch(updateProposal({uuid:proposal.uuid,data})).then((data)=>{
+      if (data.payload.success) {
+         showToast('success', 'Proposal Send For Approval.');
+        dispatch(getProposalByUUID(proposal.uuid))
+      }
+    })
  }
   return (
     <div className="container ">
@@ -927,28 +935,17 @@ const max_activity_selected =selectedPackage?.activity
       {step === 11 && (
         <>
           <h4>Review & Generate PDF</h4>
-          {/* <p>
-            <strong>Authority:</strong> {selectedAuthority}
-          </p> */}
-         
-          {/* <p>
-            <strong>Answers:</strong> {answers.join(' | ')}
-          </p> */}
-          {/* <p>
-            <strong>Package:</strong> {selectedPackage}
-          </p> */}
-          {/* <p>
-            <strong>Client:</strong> {selectedClient}
-          </p> */}
+          
          
           <CButton className="custom-button me-3"  onClick={viewPDF}>
                      Preview PDF
            </CButton>
 
-          
-             {/* <CButton className="custom-button" ref={pdfRef}  onClick={HandleSendApproval}>
+          {proposal.employee_approval == 0 && <CButton className="custom-button"   onClick={HandleSendApproval}>
                      Send To Approval
-              </CButton>  */}
+              </CButton> }
+             
+          
            {showPdfSummary && (
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}

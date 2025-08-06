@@ -100,16 +100,17 @@ export const updateProposalPdf = createAsyncThunk(
 
 export const approveProposalStatus = createAsyncThunk(
   'admin/update-proposal-status',
-  async ({ uuid, action }, thunkAPI) => {
+  async ({ uuid, action, reason }, thunkAPI) => {
     try {
-      // This will call /admin/proposals/:uuid/approve OR /admin/proposals/:uuid/unapprove
-      const response = await putData(`/admin/proposals/${uuid}/${action}`)
+      // Send `reason` in the body
+      const response = await putData(`/admin/proposals/${uuid}/${action}`, { reason })
       return { uuid, action, ...response }
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message)
     }
   },
 )
+
 
 // export const updateTrackingStatus = createAsyncThunk(
 //   'proposal/updateTrackingStatus',

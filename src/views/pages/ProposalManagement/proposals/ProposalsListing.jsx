@@ -80,12 +80,6 @@ function AllProposals() {
     setSelectedUUID(null)
   }
 
-  //approval confirmation
-  // const confirmApproval = (uuid, action) => {
-  //   setSelectedApprovalUUID(uuid)
-  //   setApprovalAction(action)
-  //   setApprovalModalVisible(true)
-  // }
   const confirmApproval = (uuid, action) => {
   setSelectedApprovalUUID(uuid)
   setApprovalAction(action)
@@ -95,23 +89,33 @@ function AllProposals() {
   setApprovalModalVisible(true)
 }
 
-
-//   const handleConfirmApproval = () => {
+// const handleConfirmApproval = (message = '') => {
 //   if (selectedApprovalUUID && approvalAction) {
-//     dispatch(approveProposalStatus({ uuid: selectedApprovalUUID, action: approvalAction }))
+//     const payload = {
+//       uuid: selectedApprovalUUID,
+//       action: approvalAction,
+//     }
+
+//     if (approvalAction === 'disapprove') {
+//       payload.message = message
+//     }
+
+//     dispatch(approveProposalStatus(payload))
 //       .unwrap()
 //       .then(() => {
 //         dispatch(GetAllProposal())
 //       })
 //       .catch((error) => {
 //         console.error('Approval API error:', error)
-//       });
+//       })
 //   }
+
 //   setApprovalModalVisible(false)
 //   setSelectedApprovalUUID(null)
 //   setApprovalAction(null)
+//   setDisapprovalMessage('')
 // }
-const handleConfirmApproval = (message = '') => {
+const handleConfirmApproval = () => {
   if (selectedApprovalUUID && approvalAction) {
     const payload = {
       uuid: selectedApprovalUUID,
@@ -119,7 +123,7 @@ const handleConfirmApproval = (message = '') => {
     }
 
     if (approvalAction === 'disapprove') {
-      payload.message = message
+      payload.reason = disapprovalMessage // ✅ Use `reason` to match backend
     }
 
     dispatch(approveProposalStatus(payload))
@@ -132,6 +136,7 @@ const handleConfirmApproval = (message = '') => {
       })
   }
 
+  // Reset modal state
   setApprovalModalVisible(false)
   setSelectedApprovalUUID(null)
   setApprovalAction(null)

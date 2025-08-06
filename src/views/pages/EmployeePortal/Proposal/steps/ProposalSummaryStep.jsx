@@ -417,7 +417,7 @@ import { updateProposalPdf } from '../../../../../store/admin/proposalSlice';
 
 const ProposalSummary = ({ data, showPdf }) => {
   const dispatch= useDispatch()
-  const proposalRef = useRef(null); // Create a ref for the element to convert
+  const proposalRef = useRef(null);
 
   // const handleDownloadPdf = () => {
   //   if (proposalRef.current) {
@@ -569,13 +569,16 @@ const handleDownloadPdf = async () => {
   return (
     <div>
       {/* Add a button to trigger the PDF download */}
-      <button
+      {
+        data.approval_status == 1 && <button
         onClick={handleDownloadPdf}
         className='custom-button mb-3'
       >
        Generate PDF
       </button>
-
+        
+      }
+      
       <div
         id="proposal-pdf-content"
         ref={proposalRef} 

@@ -117,7 +117,8 @@ import { FaUserFriends, FaClipboardList, FaUsers, FaChartLine, FaClock } from 'r
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
-import DashboardBarChart from './DashboardBarChart'
+
+import DashboardLineChart from './DashboardLineChart'
 
 const DashboardCard = ({ title, value, icon, color, change, description, trend }) => (
   <CCard className="shadow-sm border-0 h-100">
@@ -189,12 +190,25 @@ const Dashboard = () => {
           />
           </Link>
         </CCol>
+         <CCol xs={12} md={6} xl={4}>
+             <Link to="/all-lead" className="text-decoration-none text-dark">
+          <DashboardCard
+            title="New Leads"
+            value={data.newLeads}
+            icon={<FaChartLine />}
+            color="#c17cff"
+            change="+8.7%"
+            description="Potential customers"
+            trend="up"
+          />
+          </Link>
+        </CCol>
 
-        {/* <CCol xs={12} md={6} xl={4}>
+        <CCol xs={12} md={6} xl={4}>
              <Link to="#" className="text-decoration-none text-dark">
           <DashboardCard
             title="Unapproved Proposals"
-            value={data.unapprovals}
+            value={data.unapprovedProposals}
             icon={<FaClock />}
             color="#ff5722"
             change="-2.1%"
@@ -202,7 +216,20 @@ const Dashboard = () => {
             trend="down"
           />
           </Link>
-        </CCol> */}
+        </CCol>
+         <CCol xs={12} md={6} xl={4}>
+             <Link to="#" className="text-decoration-none text-dark">
+          <DashboardCard
+            title="Pending Proposals"
+            value={data.pendingProposals}
+            icon={<FaClock />}
+            color="#ff5722"
+            change="-2.1%"
+            description="Pending approval"
+            trend="down"
+          />
+          </Link>
+        </CCol>
 
         <CCol xs={12} md={6} xl={4}>
              <Link to="/clients" className="text-decoration-none text-dark">
@@ -218,7 +245,15 @@ const Dashboard = () => {
           </Link>
         </CCol>
       </CRow>
-      {/* <DashboardBarChart data={data} /> */}
+      <div className="my-4">
+  <CCard className="shadow-sm border-0">
+    <CCardBody>
+      <h5 className="fw-bold mb-3">Overview Chart</h5>
+      <DashboardLineChart data={data}/>
+    </CCardBody>
+  </CCard>
+</div>
+     
     </div>
   )
 }

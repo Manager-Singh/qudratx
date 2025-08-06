@@ -125,13 +125,17 @@ const ExpandedRow = ({ data }) => (
       if (row.approval_status === 1) {
         return 'Approved';
       }
-      // Otherwise, if there's a step value, we decide based on it
+      // if (row.approval_status === 0) {
+      //   return 'UnApproved';
+      // }
+      if (row.employee_approval==1) {
+        return ' Approval Pending';
+      }
       if (row.step) {
         if (row.step === 'last_step') {
           return 'Waiting for Send Approval';
-        } else if (row.step === 'completed') {
-          return 'Unapproved';
-        } else {
+        }
+        else {
           return 'Draft';
         }
       }

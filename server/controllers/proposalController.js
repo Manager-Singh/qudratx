@@ -20,7 +20,7 @@ const createProposal = async (req, res) => {
 
     const created_by = req.user.id;
     const isAdmin = req.user.role === 'admin';
-    const approval_status = req.user.role === 'admin' ? 1 : 0;
+    const approval_status = req.user.role === 'admin' ? 1 : 2;
  // Get last proposal to generate proposal_number
   // Determine prefix based on zone_name
     let prefix = 'GEN'; // Default fallback
@@ -336,7 +336,7 @@ const updateProposal = async (req, res) => {
       proposal.approval_status = 1;
       proposal.approved_by = req.user.id;
     } else {
-      proposal.approval_status = proposal.approval_status ?? 0;
+      proposal.approval_status = proposal.approval_status ?? 2;
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
     }
 

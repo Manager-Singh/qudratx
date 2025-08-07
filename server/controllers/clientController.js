@@ -117,39 +117,45 @@ const updateClientDetail = async (req, res) => {
     const { uuid } = req.params;
     const { name, email, address, phone, company_name, notes, status } = req.body;
 
-    //Validate required fields
+    // Validate required fields
     if (!name || !email || !address) {
       return res.status(400).json({ message: 'Name, Email, and Address are required' });
     }
 
-    //Find the client being updated
+    // Find the client being updated
     const client = await Client.findOne({ where: { uuid } });
 
     if (!client) {
       return res.status(404).json({ message: 'Client not found' });
     }
 
-    //Check if email already exists in another client
+    // Check if email already exists in another client
     const emailExists = await Client.findOne({
       where: {
         email,
         uuid: { [Op.ne]: uuid }, // Exclude current client
-        deleted_at: null         // Optional: skip deleted clients
-      }
+        deleted_at: null,
+      },
     });
 
     if (emailExists) {
       return res.status(400).json({ message: 'Email already in use by another client' });
     }
 
-    //Update fields
+    // Update required fields
     client.name = name;
     client.email = email;
     client.address = address;
-    if (phone) client.phone = phone;
-    if (company_name) client.company_name = company_name;
-    if (notes) client.notes = notes;
-    if (typeof status === 'boolean') client.status = status;
+
+    // Update optional fields, even if empty string
+    client.phone = phone !== undefined ? phone : client.phone;
+    client.company_name = company_name !== undefined ? company_name : client.company_name;
+    client.notes = notes !== undefined ? notes : client.notes;
+
+    // Update status if boolean value is passed
+    if (typeof status === 'boolean') {
+      client.status = status;
+    }
 
     client.updated_by = req.user.id;
     client.updated_at = new Date();
@@ -160,7 +166,7 @@ const updateClientDetail = async (req, res) => {
     res.status(200).json({
       message: 'Client updated successfully',
       success: true,
-      data: client
+      data: client,
     });
 
   } catch (error) {

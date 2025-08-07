@@ -31,13 +31,12 @@ const markNotificationsAsRead = async (ids) => {
 
     const whereClause = {
       user_id: userId,
-      is_read: 0, // only unread
-      deleted_at: null
+      is_read: 0, 
     };
 
     if (ids) {
       const idArray = Array.isArray(ids) ? ids : [ids];
-      whereClause.id = { [Op.in]: idArray };
+      whereClause.uuid = { [Op.in]: idArray };
     } else if (type) {
       whereClause.type = type; // e.g., 'proposal'
     } else {

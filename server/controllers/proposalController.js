@@ -321,6 +321,7 @@ const updateProposal = async (req, res) => {
 
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
+    if (proposal.step == 'laststep') {
     if (!isAdmin) {
       const admins = await User.findAll({ where: { role: 'admin' } });
 
@@ -336,6 +337,7 @@ const updateProposal = async (req, res) => {
         });
       }
     }
+  }
     // Handle generated PDF if any
     if (req.files && req.files.generated_pdf && proposal.proposal_number) {
       const file = req.files.generated_pdf[0];

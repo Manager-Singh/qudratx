@@ -29,9 +29,9 @@ const dashboardSlice = createSlice({
      })
     .addCase(getDashboardData.fulfilled, (state, action) => {
     state.isLoading = false
-    console.log(action.payload.data,"dfghjkldfghjkl;")
+    
     state.DasboardData = action.payload.data
-      state.Notification = action.payload.data
+      state.Notification = action.payload.data.notifications
   })
       .addCase(getDashboardData.rejected, (state) => {
     state.isLoading = false

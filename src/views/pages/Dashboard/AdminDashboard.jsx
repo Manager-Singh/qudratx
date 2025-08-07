@@ -11,7 +11,7 @@ const DashboardCard = ({ title, value, icon, color, change, description, trend }
     <CCardBody className="d-flex justify-content-between align-items-center">
       <div>
         <h6 className="text-muted">{title}</h6>
-        {/* <h3 className="fw-bold">{value.toLocaleString()}</h3> */}
+        <h3 className="fw-bold">{value}</h3>
         {/* <p className={`mb-0 ${trend === 'up' ? 'text-success' : 'text-danger'}`}>
           {trend === 'up' ? '↑' : '↓'} {change} vs last month
         </p> */}
@@ -30,7 +30,7 @@ const DashboardCard = ({ title, value, icon, color, change, description, trend }
 const AdminDashboard = () => {
   const dispatch= useDispatch()
   const {DasboardData} = useSelector((state)=>state.dashboard)
-  
+ 
   useEffect(()=>{
     dispatch(getDashboardData())
   },[dispatch])

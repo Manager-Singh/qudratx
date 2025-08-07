@@ -206,7 +206,7 @@ function AllProposals() {
     },
     {
       name: 'Created By',
-      selector: (row) => row.creator.name || '-',
+      selector: (row) => row?.creator?.name || '-',
       sortable: true,
       minWidth: '130px',
     },

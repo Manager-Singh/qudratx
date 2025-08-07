@@ -315,13 +315,13 @@ const updateProposal = async (req, res) => {
       proposal.employee_approval = employee_approval ?? proposal.employee_approval;
     }
 
-    if (proposal.step !== 'laststep') {
+    if (proposal.step !== 'last_step') {
       proposal.step = step || proposal.step;
     }
 
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
-  if (step === 'laststep') {
+  if (step === 'last_step') {
   const isAdmin = req.user.role === 'admin';
 
   if (!isAdmin) {

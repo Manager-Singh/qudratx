@@ -321,23 +321,26 @@ const updateProposal = async (req, res) => {
 
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
-    if (proposal.step == 'laststep') {
-    if (!isAdmin) {
-      const admins = await User.findAll({ where: { role: 'admin' } });
+  if (step === 'laststep') {
+  const isAdmin = req.user.role === 'admin';
 
-      for (const admin of admins) {
-        await Notification.create({
-          user_id: admin.id,
-          created_by: proposal.created_by,
-          type: 'Proposal',
-          title: 'Proposal for Approval',
-          action: 'proposal for approval',
-          message: `${req.user.name} send a proposal (${proposal.proposal_number}) for approval.`,
-          related_id: uuid,
-        });
-      }
+  if (!isAdmin) {
+    const admins = await User.findAll({ where: { role: 'admin' } });
+
+    for (const admin of admins) {
+      await Notification.create({
+        user_id: admin.id,
+        created_by: req.user.id, // the one who triggered the action
+        type: 'Proposal',
+        title: 'Proposal for Approval',
+        action: 'proposal_for_approval',
+        message: `${req.user.name} sent a proposal (${proposal.proposal_number}) for approval.`,
+        related_id: uuid,
+      });
     }
   }
+}
+
     // Handle generated PDF if any
     if (req.files && req.files.generated_pdf && proposal.proposal_number) {
       const file = req.files.generated_pdf[0];

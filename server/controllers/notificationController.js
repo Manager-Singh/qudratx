@@ -25,7 +25,7 @@ const getNotifications = async (req, res) => {
 };
 
 const markNotificationsAsRead = async (ids) => {
-  try {
+ try {
     const { ids, type } = req.body;
     const userId = req.user.id; // assuming you're using authentication middleware
 

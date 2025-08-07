@@ -329,10 +329,10 @@ const updateProposal = async (req, res) => {
           user_id: admin.id,
           created_by: proposal.created_by,
           type: 'proposal',
+          title: 'Proposal for Approval',
+          action: 'proposal for approval',
           message: `${req.user.name} send a proposal (${proposal.proposal_number}) for approval.`,
-          target_id: proposal.id,
-          target_type: 'proposal',
-          status: 'unread',
+          related_id: proposal.id,
         });
       }
     }
@@ -598,10 +598,10 @@ const approveProposal = async (req, res) => {
         user_id: proposal.created_by,
         created_by: req.user.id,
         type: 'proposal',
+         action: 'Approved',
+         title: 'Proposal Approved',
         message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
-        target_id: proposal.id,
-        target_type: 'proposal',
-        status: 'unread',
+        related_id: proposal.id,
       });
     }
 
@@ -655,10 +655,10 @@ const unapproveProposal = async (req, res) => {
         user_id: proposal.created_by,
         created_by: req.user.id,
         type: 'proposal',
+        title: 'Proposal Unapproved',
+        action:'Unapproved',
         message: `Your proposal (${proposal.proposal_number}) has been unapproved by admin.`,
-        target_id: proposal.id,
-        target_type: 'proposal',
-        status: 'unread',
+        related_id: proposal.id,
       });
     }
     return res.status(200).json({
@@ -744,10 +744,10 @@ const updateProposalStatus = async (req, res) => {
           user_id: proposal.created_by,
           created_by: req.user.id,
           type: 'proposal',
+           title: 'Proposal Status Update',
+           action: 'Status Updated',
           message: `Proposal status updated to "${proposal_status}" by admin.`,
-          target_id: proposal.id,
-          target_type: 'proposal',
-          status: 'unread'
+          related_id: proposal.id,
         });
       }
     }

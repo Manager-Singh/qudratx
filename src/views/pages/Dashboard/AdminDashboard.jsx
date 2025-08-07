@@ -29,7 +29,7 @@ const DashboardCard = ({ title, value, icon, color, change, description, trend }
 
 const AdminDashboard = () => {
   const dispatch= useDispatch()
-  const {data} = useSelector((state)=>state.dashboard)
+  const {DasboardData} = useSelector((state)=>state.dashboard)
   
   useEffect(()=>{
     dispatch(getDashboardData())
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
              <Link to="/proposals" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Proposals"
-            value={data.totalProposals}
+            value={DasboardData?.totalProposals}
             icon={<FaClipboardList />}
             color="#5b5bd6"
             change="+12.5%"
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
              <Link to="/employees" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Employees"
-            value={data.totalEmployees}
+            value={DasboardData?.totalEmployees}
             icon={<FaUserFriends />}
             color="#10d876"
             change="+3.2%"
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
              <Link to="/all-lead" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Leads"
-            value={data.totalLeads}
+            value={DasboardData?.totalLeads}
             icon={<FaChartLine />}
             color="#c17cff"
             change="+8.7%"
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
                      <Link to="/all-lead" className="text-decoration-none text-dark">
                   <DashboardCard
                     title="New Leads"
-                    value={data.newLeads}
+                    value={DasboardData?.newLeads}
                     icon={<FaChartLine />}
                     color="#c17cff"
                     change="+8.7%"
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
                             <Link to="#" className="text-decoration-none text-dark">
                          <DashboardCard
                            title="Unapproved Proposals"
-                           value={data.unapprovedProposals}
+                           value={DasboardData?.unapprovedProposals}
                            icon={<FaClock />}
                            color="#ff5722"
                            change="-2.1%"
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
                      <Link to="#" className="text-decoration-none text-dark">
                   <DashboardCard
                     title="Pending Proposals"
-                    value={data.pendingProposals}
+                    value={DasboardData?.pendingProposals}
                     icon={<FaClock />}
                     color="#ff5722"
                     change="-2.1%"
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
              <Link to="/clients" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Clients"
-            value={data.totalClients}
+            value={DasboardData?.totalClients}
             icon={<FaUsers />}
             color="#00bcd4"
            
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
   <CCard className="shadow-sm border-0">
     <CCardBody>
       <h5 className="fw-bold mb-3">Overview Chart</h5>
-      <DashboardLineChart data={data}/>
+      <DashboardLineChart data={DasboardData}/>
     </CCardBody>
   </CCard>
 </div>

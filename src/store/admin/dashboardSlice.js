@@ -17,7 +17,8 @@ export const getDashboardData = createAsyncThunk('admin/get-all-count', async (_
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState: {
-    data: [],
+    DasboardData: [],
+    Notification:[],
     isLoading: true,
   },
   reducers: {},
@@ -28,7 +29,9 @@ const dashboardSlice = createSlice({
      })
     .addCase(getDashboardData.fulfilled, (state, action) => {
     state.isLoading = false
-    state.data = action.payload.data
+    console.log(action.payload.data,"dfghjkldfghjkl;")
+    state.DasboardData = action.payload.data
+      state.Notification = action.payload.data
   })
       .addCase(getDashboardData.rejected, (state) => {
     state.isLoading = false

@@ -189,7 +189,7 @@ function BusinessActivity() {
   const dispatch = useDispatch()
   const { authority } = useSelector((state) => state.businessZonesAuthority)
   const { business_activities } = useSelector((state) => state.business_activity)
-
+  const [search ,setSearch]=useState("")
   useEffect(() => {
     if (uuid) {
       const authority_uuid = uuid
@@ -221,25 +221,50 @@ function BusinessActivity() {
     })
   }
 
+ const handleSearch =(e)=>{
+setSearch(e.target.value)
+  const authority_uuid = uuid
+      dispatch(getBusinessZonesAuthorityByUuid({ authority_uuid })).then((data) => {
+        if (data.payload.success) {
+          const authority_id = data.payload.data.id
+          dispatch(getBusinessActivityByAuthorityId({ authority_id,search:e.target.value})).then((data)=>{
+            if (data.payload.success) {
+              setTotal(data?.payload?.totalRecords)
+            }
+          })
+        }
+      })
+ }
+
   const columns = [
     {
       name: 'Master Number',
       selector: (row) => row.activity_master_number || 'N/A',
+      width:"150px",
       sortable: true,
     },
     {
       name: 'Activity Code',
       selector: (row) => row.activity_code || 'N/A',
+      width:"150px",
       sortable: true,
     },
     {
       name: 'Activity Name',
       selector: (row) => row.activity_name || 'N/A',
+      
       sortable: true,
+       wrap: true, // enables wrapping
+  grow:2, // allows this column to take more space
+  style: {
+    whiteSpace: 'normal', // allows line-breaks
+    lineHeight: '1.4',     // better readability
+  },
     },
     {
       name: 'Category/Type',
       selector: (row) => row.category || 'N/A',
+      width:"150px",
       sortable: true,
     },
     {
@@ -250,7 +275,7 @@ function BusinessActivity() {
         </span>
       ),
       sortable: true,
-      width: '120px',
+      width: '140px',
     },
     {
       name: 'Actions',
@@ -295,8 +320,8 @@ function BusinessActivity() {
           type="text"
           className="form-control w-25"
           placeholder="Search by code or master number"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
+          value={search}
+          onChange={handleSearch}
         />
       </div>
 

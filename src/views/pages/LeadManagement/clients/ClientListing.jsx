@@ -33,12 +33,12 @@ const showToast = (status, message) => {
 const columns = [
   {
     name: 'Name',
-    selector: row => row.name,
+    selector: row => row.name || 'N/A',
     sortable: true,
   },
   {
     name: 'Status',
-    selector: row => row.status,
+    selector: row => row.status ? 'Active' : 'Inactive',
     cell: row => (
       <FaCircle
         color={row.status ? 'green' : 'red'}
@@ -49,59 +49,70 @@ const columns = [
   },
   {
     name: 'Address',
-    selector: row => row.address,
+    selector: row => row.address || 'N/A',
+    wrap: true,
+    grow: 2,
     sortable: true,
   },
   {
     name: 'Email',
-    selector: row => row.email,
+    selector: row => row.email || 'N/A',
+    wrap: true,
+    grow: 2,
     sortable: true,
   },
-    {
-    name: 'phone',
-    selector: row => row.phone,
+  {
+    name: 'Phone',
+    selector: row => row.phone || 'N/A',
     sortable: true,
   },
   {
     name: 'Company Name',
-    selector: row => row.company_name,
+    selector: row => row.company_name || 'N/A',
     sortable: true,
-    width:"140px"
+    width: '140px',
   },
   {
     name: 'Notes',
-    selector: row => row.notes,
+    selector: row => row.notes || 'N/A',
     sortable: false,
+    wrap: true,
+    grow: 2,
   },
   {
     name: 'Created At',
-    selector: row => new Date(row.created_at).toLocaleString(),
+    selector: row => row.created_at 
+      ? new Date(row.created_at).toLocaleString() 
+      : 'N/A',
     sortable: true,
+    wrap:true,
+    width:"110px"
   },
   {
     name: 'Action',
     cell: row => (
-      <div className='d-flex gap-2'>
+      <div className="d-flex gap-2">
         <CTooltip content="Generate Lead" placement="top">
-      <button className="icon-button"onClick={() => {
-  setVisible(true)
-  setid(row.uuid)
-}}
->
-        <FaRegEdit  style={{ cursor: 'pointer', color: '#333', }} size={20}/>
-      </button>
-    </CTooltip>
-       
+          <button
+            className="icon-button"
+            onClick={() => {
+              setVisible(true);
+              setid(row.uuid);
+            }}
+          >
+            <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
+          </button>
+        </CTooltip>
+
         <span
-          color="light"
-          variant="ghost"
-          size="sm"
           onClick={() => handleDelete(row.uuid)}
           className="p-0"
           title="Delete"
+          style={{ cursor: 'pointer' }}
         >
           <CIcon icon={cilTrash} size="lg" />
         </span>
+
         <Link to={`/edit-client/${row.uuid}`}>
           <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
         </Link>
@@ -111,6 +122,7 @@ const columns = [
     width: '150px',
   },
 ];
+
 
    const filteredData = clients.filter(item =>
   item.name.toLowerCase().includes(filterText.toLowerCase()) ||

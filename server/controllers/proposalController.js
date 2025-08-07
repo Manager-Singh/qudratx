@@ -61,21 +61,21 @@ const createProposal = async (req, res) => {
       approval_status,
     },{ userId: req.user.id });
 
-     if (!isAdmin) {
-      const admins = await User.findAll({ where: { role: 'admin' } });
+    //  if (!isAdmin) {
+    //   const admins = await User.findAll({ where: { role: 'admin' } });
 
-      for (const admin of admins) {
-        await Notification.create({
-          user_id: admin.id,
-          created_by: created_by,
-          type: 'proposal',
-          message: `New proposal (${proposal_number}) created by ${req.user.name}.`,
-          target_id: proposal.id,
-          target_type: 'proposal',
-          status: 'unread',
-        });
-      }
-    }
+    //   for (const admin of admins) {
+    //     await Notification.create({
+    //       user_id: admin.id,
+    //       created_by: created_by,
+    //       type: 'proposal',
+    //       message: `New proposal (${proposal_number}) created by ${req.user.name}.`,
+    //       target_id: proposal.id,
+    //       target_type: 'proposal',
+    //       status: 'unread',
+    //     });
+    //   }
+    // }
 
     return res.status(201).json({
       message: 'Proposal created successfully',
@@ -270,6 +270,8 @@ const updateProposal = async (req, res) => {
       employee_approval,
     } = req.body;
 
+    const isAdmin = req.user.role === 'admin';
+
     if (!uuid) {
       return res.status(400).json({ message: 'Proposal UUID is required' });
     }
@@ -306,7 +308,12 @@ const updateProposal = async (req, res) => {
     proposal.other_benefits = other_benefits || proposal.other_benefits;
     proposal.scope_of_work = scope_of_work || proposal.scope_of_work;
     proposal.notes = notes || proposal.notes;
-    proposal.employee_approval = employee_approval || proposal.employee_approval;
+     if (req.user.role === 'admin') {
+      proposal.employee_approval = 1;
+    } else {
+      // Use provided value or keep existing
+      proposal.employee_approval = employee_approval ?? proposal.employee_approval;
+    }
 
     if (proposal.step !== 'laststep') {
       proposal.step = step || proposal.step;
@@ -314,7 +321,21 @@ const updateProposal = async (req, res) => {
 
     proposal.status = typeof status === 'boolean' ? status : proposal.status;
     proposal.proposal_status = typeof proposal_status === 'boolean' ? proposal_status : proposal.proposal_status;
+    if (!isAdmin) {
+      const admins = await User.findAll({ where: { role: 'admin' } });
 
+      for (const admin of admins) {
+        await Notification.create({
+          user_id: admin.id,
+          created_by: proposal.created_by,
+          type: 'proposal',
+          message: `${req.user.name} send a proposal (${proposal.proposal_number}) for approval.`,
+          target_id: proposal.id,
+          target_type: 'proposal',
+          status: 'unread',
+        });
+      }
+    }
     // Handle generated PDF if any
     if (req.files && req.files.generated_pdf && proposal.proposal_number) {
       const file = req.files.generated_pdf[0];
@@ -634,7 +655,7 @@ const unapproveProposal = async (req, res) => {
         user_id: proposal.created_by,
         created_by: req.user.id,
         type: 'proposal',
-        message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
+        message: `Your proposal (${proposal.proposal_number}) has been unapproved by admin.`,
         target_id: proposal.id,
         target_type: 'proposal',
         status: 'unread',

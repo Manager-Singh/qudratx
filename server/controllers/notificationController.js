@@ -24,8 +24,42 @@ const getNotifications = async (req, res) => {
   }
 };
 
+const markNotificationsAsRead = async (ids) => {
+  try {
+    // Normalize to array if single ID is passed
+    const idArray = Array.isArray(ids) ? ids : [ids];
+
+    // Update is_read = 1 for the given IDs
+    const result = await Notification.update(
+      { is_read: 1 },
+      {
+        where: {
+          id: {
+            [Op.in]: idArray
+          },
+          deleted_at: null // optional safeguard
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: `${result[0]} notification(s) marked as read.`
+    };
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    return {
+      success: false,
+      message: 'Error occurred while updating notifications.',
+      error
+    };
+  }
+};
+
+
 
 
 module.exports = {
-  getNotifications
+  getNotifications,
+  markNotificationsAsRead,
 };

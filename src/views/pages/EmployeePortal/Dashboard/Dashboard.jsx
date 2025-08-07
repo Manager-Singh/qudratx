@@ -117,7 +117,7 @@ import { FaUserFriends, FaClipboardList, FaUsers, FaChartLine, FaClock } from 'r
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
-
+ import { CButton } from '@coreui/react';
 import DashboardLineChart from './DashboardLineChart'
 
 const DashboardCard = ({ title, value, icon, color, change, description, trend }) => (
@@ -143,20 +143,21 @@ const DashboardCard = ({ title, value, icon, color, change, description, trend }
 
 const Dashboard = () => {
   const dispatch= useDispatch()
-  const {data} = useSelector((state)=>state.dashboard)
-  console.log("data",data)
+  const {DasboardData} = useSelector((state)=>state.dashboard)
+
   useEffect(()=>{
     dispatch(getDashboardData())
     
   },[dispatch])
   return (
-    <div className="p-4">
+    <div className="p-2">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 className="fw-bold">FZCS Dashboard</h3>
           <p className="text-muted mb-0">Welcome back! Here's what's happening with your business today.</p>
         </div>
         <div className="d-flex gap-2">
+           <Link to='/business-zones'> <CButton className='custom-button '>Create Proposal</CButton></Link> 
           <button className="btn btn-outline-dark">👁 View Reports</button>
           <button className="btn btn-dark">📊 Analytics</button>
         </div>
@@ -167,7 +168,7 @@ const Dashboard = () => {
              <Link to="/my-proposal" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Proposals"
-            value={data.totalProposals}
+            value={DasboardData?.totalProposals}
             icon={<FaClipboardList />}
             color="#5b5bd6"
             change="+12.5%"
@@ -181,7 +182,7 @@ const Dashboard = () => {
              <Link to="/all-lead" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Leads"
-            value={data.totalLeads}
+            value={DasboardData?.totalLeads}
             icon={<FaChartLine />}
             color="#c17cff"
             change="+8.7%"
@@ -194,7 +195,7 @@ const Dashboard = () => {
              <Link to="/all-lead" className="text-decoration-none text-dark">
           <DashboardCard
             title="New Leads"
-            value={data.newLeads}
+            value={DasboardData?.newLeads}
             icon={<FaChartLine />}
             color="#c17cff"
             change="+8.7%"
@@ -208,7 +209,7 @@ const Dashboard = () => {
              <Link to="#" className="text-decoration-none text-dark">
           <DashboardCard
             title="Unapproved Proposals"
-            value={data.unapprovedProposals}
+            value={DasboardData?.unapprovedProposals}
             icon={<FaClock />}
             color="#ff5722"
             change="-2.1%"
@@ -221,7 +222,7 @@ const Dashboard = () => {
              <Link to="#" className="text-decoration-none text-dark">
           <DashboardCard
             title="Pending Proposals"
-            value={data.pendingProposals}
+            value={DasboardData?.pendingProposals}
             icon={<FaClock />}
             color="#ff5722"
             change="-2.1%"
@@ -235,7 +236,7 @@ const Dashboard = () => {
              <Link to="/clients" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Clients"
-            value={data.totalClients}
+            value={DasboardData?.totalClients}
             icon={<FaUsers />}
             color="#00bcd4"
             change="+4.9%"
@@ -249,7 +250,10 @@ const Dashboard = () => {
   <CCard className="shadow-sm border-0">
     <CCardBody>
       <h5 className="fw-bold mb-3">Overview Chart</h5>
-      <DashboardLineChart data={data}/>
+     
+         <DashboardLineChart data={DasboardData}/>
+      
+     
     </CCardBody>
   </CCard>
 </div>

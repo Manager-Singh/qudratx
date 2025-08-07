@@ -22,7 +22,7 @@ function EmployeeBusinessZone() {
         {businesszones.map((zone) => (
           <Link to="/create-proposal"
          state={{ zone, lead }}
-         className="col-md-4 mb-3" key={zone.id}>
+         className="col-md-4 mb-3 text-decoration-none" key={zone.id}>
             <CCard style={{backgroundColor:"#2f1051" , color:"#ffffde"}}>
               <CCardBody className="text-center">
                 <CCardTitle>{zone.name}</CCardTitle>

@@ -1,4 +1,4 @@
-const { Lead, Proposal, User, Client } = require('../models');
+const { Lead, Proposal, User, Client, Notification } = require('../models');
 const { Op } = require('sequelize');
 
 const getDashboardCountsHelper = async (user) => {
@@ -46,6 +46,16 @@ const getDashboardCountsHelper = async (user) => {
       };
     }
 
+    // Notification filters
+    const notificationWhere = {
+      user_id: user.id,
+    };
+
+    const unreadNotificationWhere = {
+      user_id: user.id,
+      is_read: 0,
+    };
+
     const [
       totalLeads,
       totalProposals,
@@ -54,7 +64,9 @@ const getDashboardCountsHelper = async (user) => {
       totalClients,
       totalEmployees,
       activeEmployees,
-      newLeads // Only fetched if admin
+      newLeads,
+      notifications,
+      unreadNotificationCount
     ] = await Promise.all([
       Lead.count({ where: leadWhere }),
       Proposal.count({ where: proposalWhere }),
@@ -65,7 +77,9 @@ const getDashboardCountsHelper = async (user) => {
       User.count({ where: { role: 'employee', login_status: 1, deleted_at: null } }),
       user.role === 'admin'
         ? Lead.count({ where: newLeadsWhere })
-        : Promise.resolve(0) // If not admin, return 0
+        : Promise.resolve(0),
+      Notification.findAll({ where: notificationWhere, order: [['created_at', 'DESC']] }),
+      Notification.count({ where: unreadNotificationWhere })
     ]);
 
     return {
@@ -76,12 +90,15 @@ const getDashboardCountsHelper = async (user) => {
       totalClients,
       totalEmployees,
       activeEmployees,
-      newLeads
+      newLeads,
+      notifications,
+      unreadNotificationCount
     };
   } catch (error) {
     console.error('Error in getDashboardCountsHelper:', error);
     throw error;
   }
 };
+
 
 module.exports={getDashboardCountsHelper};

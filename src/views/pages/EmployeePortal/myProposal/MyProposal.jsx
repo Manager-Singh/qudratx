@@ -73,11 +73,11 @@ function AllProposals() {
 const ExpandedRow = ({ data }) => (
   <div className="p-4 bg-gray-50 rounded-md border border-gray-200 shadow-sm">
     <div className="flex items-center space-x-2 text-sm text-gray-700">
-      <span className="fw-medium">Last Updated: </span>
+      <span className="fw-medium">Reason for unapprove:</span>
       <span>
-        {data.last_update
-          ? new Date(data.last_update).toLocaleString()
-          : 'Not updated'}
+        {data.reason
+          ? data.reason
+          : 'N/A'}
       </span>
     </div>
   </div>
@@ -125,10 +125,13 @@ const ExpandedRow = ({ data }) => (
       if (row.approval_status === 1) {
         return 'Approved';
       }
-      // if (row.approval_status === 0) {
-      //   return 'UnApproved';
+      if (row.approval_status === 0) {
+        return 'UnApproved';
+      }
+      //  if (row.approval_status === 2) {
+      //   return 'Pending';
       // }
-      if (row.employee_approval==1) {
+      if (row.employee_approval == 1) {
         return ' Approval Pending';
       }
       if (row.step) {

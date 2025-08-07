@@ -16,7 +16,7 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
-
+   const [searchInput, setSearchInput] = useState('');
   const [businessActivities, setBusinessActivities] = useState([]);
   const [activityOptions, setActivityOptions] = useState([]);
   const [page, setPage] = useState(1);
@@ -30,20 +30,78 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
   const loadingRef = useRef(false);
 
   // Memoized fetch function
- const fetchActivities = useCallback(async (pageNum) => {
-  if (loadingRef.current) return;
-  loadingRef.current = true;
-  setLoading(true);
-  setError(null);
+//  const fetchActivities = useCallback(async (pageNum) => {
+//   if (loadingRef.current) return;
+//   loadingRef.current = true;
+//   setLoading(true);
+//   setError(null);
 
-  try {
-    const res = await dispatch(
-      getBusinessActivityByAuthorityId({
-        authority_id,
-        page: pageNum,
-        limit: PAGE_SIZE, // ✅ Rename from PAGE_SIZE to limit
-      })
-    );
+//   try {
+//     const res = await dispatch(
+//       getBusinessActivityByAuthorityId({
+//         authority_id,
+//         page: pageNum,
+//         limit: PAGE_SIZE, // ✅ Rename from PAGE_SIZE to limit
+//       })
+//     );
+
+//       if (res.error) {
+//         if (businessActivities.length > 0) {
+//           setHasMore(false);
+//           return;
+//         }
+//         throw new Error(res.error.message || 'Failed to load');
+//       }
+
+//       const data = res.payload?.data || [];
+
+//       if (data.length < PAGE_SIZE) {
+//         setHasMore(false);
+//       }
+      
+
+//       setBusinessActivities((prev) => {
+//         const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));
+//         return [...prev, ...newItems];
+//       });
+
+//       const newOptions = data.map((item) => ({
+//         value: item.id,
+//         label: `(${item.activity_code}) ${item.activity_name}`,
+//         code: item.activity_code,
+//         data: item // Store the full object here
+//       }));
+
+//       setActivityOptions((prev) => {
+//         const combined = [...prev, ...newOptions];
+//         return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+//       });
+//     } catch (err) {
+//       console.error('Error fetching activities:', err);
+//       setError('Failed to load activities. Please try again.');
+//       setHasMore(false);
+//     } finally {
+//       loadingRef.current = false;
+//       setLoading(false);
+//       setInitialLoad(false);
+//     }
+//   }, [dispatch, authority_id, businessActivities.length]);
+const fetchActivities = useCallback(
+  async (pageNum, search = '', replaceOptions = false) => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await dispatch(
+        getBusinessActivityByAuthorityId({
+          authority_id,
+          page: pageNum,
+          limit: PAGE_SIZE,
+          search,
+        })
+      );
 
       if (res.error) {
         if (businessActivities.length > 0) {
@@ -58,21 +116,22 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
       if (data.length < PAGE_SIZE) {
         setHasMore(false);
       }
-      
 
+      // Always accumulate businessActivities (for card grid)
       setBusinessActivities((prev) => {
         const newItems = data.filter((item) => !prev.some((existing) => existing.id === item.id));
-        return [...prev, ...newItems];
+        return pageNum === 1 ? newItems : [...prev, ...newItems];
       });
 
       const newOptions = data.map((item) => ({
         value: item.id,
         label: `(${item.activity_code}) ${item.activity_name}`,
         code: item.activity_code,
-        data: item // Store the full object here
+        data: item,
       }));
 
       setActivityOptions((prev) => {
+        if (replaceOptions) return newOptions;
         const combined = [...prev, ...newOptions];
         return Array.from(new Map(combined.map((o) => [o.value, o])).values());
       });
@@ -85,7 +144,10 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
       setLoading(false);
       setInitialLoad(false);
     }
-  }, [dispatch, authority_id, businessActivities.length]);
+  },
+  [dispatch, authority_id]
+);
+
 
   // Reset state when authority_id changes
   // useEffect(() => {
@@ -161,24 +223,28 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
       }
     });
   };
-
-  const handleActivityChange = (selectedOptions) => {
-    const selectedItems = selectedOptions
-      .map((opt) => businessActivities.find((act) => act.id === opt.value))
-      .filter(Boolean);
-    
-    if (selectedItems.length <= max_activity_selected) {
-      setSelectedActivities(selectedItems);
-    } else {
-      showToast('warning', `You can select up to ${max_activity_selected} activities only`);
-    }
+   const handleMenuScrollToBottom = () => {
+     if (hasMore && !loadingRef.current) {
+      setPage(prev => prev + 1);
+   }
   };
+  
 
-  const removeSelectedActivity = (id) => {
-    setSelectedActivities((prev) => prev.filter((item) => item.id !== id));
-  };
+   const handleActivityChange = (selectedOptions) => {
+     const selectedItems = selectedOptions
+       .map((opt) => businessActivities.find((act) => act.id === opt.value))
+       .filter(Boolean);
+     if (selectedItems.length <= max_activity_selected) {
+       setSelectedActivities(selectedItems);
+     } else {
+       showToast('warning', `You can select up to ${max_activity_selected} activities only`);
+     }
+   }
+   const removeSelectedActivity = (id) => {
+     setSelectedActivities((prev) => prev.filter((item) => item.id !== id));
+   }
+   if (step !== 3) return null;
 
-  if (step !== 3) return null;
 
   return (
     <div className="d-flex flex-column" style={{ height: '60vh' }}>
@@ -190,25 +256,26 @@ const BusinessActivityStepSelector = ({ step, authority_id, max_activity_selecte
       {/* Header + select */}
       <div>
         <h4>Select Business Activities</h4>
-        <Select
+         <Select
           isMulti
           options={activityOptions}
-          value={activityOptions.filter((opt) =>
-            selectedActivities.some(item => item.id === opt.value)
-          )}
+          value={activityOptions.filter((opt) => selectedActivities.some(item => item.id === opt.value))}
           onChange={handleActivityChange}
           placeholder="Search by name or code..."
           className="mb-3"
           components={{ MultiValue: () => null }}
-          filterOption={(option, inputValue) => {
-            const label = option.label?.toLowerCase() || '';
-            const code = option.data?.code?.toLowerCase() || '';
-            const input = inputValue.toLowerCase();
-            return label.includes(input) || code.includes(input);
-          }}
+          inputValue={searchInput}
+        onInputChange={(value) => {
+  setSearchInput(value);
+  setPage(1);
+  setBusinessActivities([]);
+  setHasMore(true);
+  fetchActivities(1, value, true); // 🔁 Replace options with searched data
+}}
+          onMenuScrollToBottom={handleMenuScrollToBottom}
           isLoading={loading}
           loadingMessage={() => 'Loading...'}
-          noOptionsMessage={() => 'No activities found'}
+          noOptionsMessage={() => searchInput ? 'No results found' : 'Start typing to search'}
         />
 
         {/* Selected badges */}
@@ -562,4 +629,3 @@ export default BusinessActivityStepSelector;
 // };
 
 // export default BusinessActivityStepSelector;
-

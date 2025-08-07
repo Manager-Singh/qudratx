@@ -1,17 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CCard, CCardBody, CRow, CCol } from '@coreui/react'
 import { FaUserFriends, FaClipboardList, FaUsers, FaChartLine, FaClock } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { getDashboardData } from '../../../store/admin/dashboardSlice'
+import DashboardLineChart from '../EmployeePortal/Dashboard/DashboardLineChart'
 
 const DashboardCard = ({ title, value, icon, color, change, description, trend }) => (
   <CCard className="shadow-sm border-0 h-100">
     <CCardBody className="d-flex justify-content-between align-items-center">
       <div>
         <h6 className="text-muted">{title}</h6>
-        <h3 className="fw-bold">{value.toLocaleString()}</h3>
-        <p className={`mb-0 ${trend === 'up' ? 'text-success' : 'text-danger'}`}>
+        {/* <h3 className="fw-bold">{value.toLocaleString()}</h3> */}
+        {/* <p className={`mb-0 ${trend === 'up' ? 'text-success' : 'text-danger'}`}>
           {trend === 'up' ? '↑' : '↓'} {change} vs last month
-        </p>
+        </p> */}
         <small className="text-muted">{description}</small>
       </div>
       <div
@@ -25,6 +28,12 @@ const DashboardCard = ({ title, value, icon, color, change, description, trend }
 )
 
 const AdminDashboard = () => {
+  const dispatch= useDispatch()
+  const {data} = useSelector((state)=>state.dashboard)
+  
+  useEffect(()=>{
+    dispatch(getDashboardData())
+  },[dispatch])
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -43,7 +52,7 @@ const AdminDashboard = () => {
              <Link to="/proposals" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Proposals"
-            value={2847}
+            value={data.totalProposals}
             icon={<FaClipboardList />}
             color="#5b5bd6"
             change="+12.5%"
@@ -57,7 +66,7 @@ const AdminDashboard = () => {
              <Link to="/employees" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Employees"
-            value={1234}
+            value={data.totalEmployees}
             icon={<FaUserFriends />}
             color="#10d876"
             change="+3.2%"
@@ -71,7 +80,7 @@ const AdminDashboard = () => {
              <Link to="/all-lead" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Leads"
-            value={5678}
+            value={data.totalLeads}
             icon={<FaChartLine />}
             color="#c17cff"
             change="+8.7%"
@@ -81,34 +90,71 @@ const AdminDashboard = () => {
           </Link>
         </CCol>
 
+        
         <CCol xs={12} md={6} xl={4}>
-             <Link to="#" className="text-decoration-none text-dark">
-          <DashboardCard
-            title="Unapproved Proposals"
-            value={156}
-            icon={<FaClock />}
-            color="#ff5722"
-            change="-2.1%"
-            description="Pending approval"
-            trend="down"
-          />
-          </Link>
-        </CCol>
+                     <Link to="/all-lead" className="text-decoration-none text-dark">
+                  <DashboardCard
+                    title="New Leads"
+                    value={data.newLeads}
+                    icon={<FaChartLine />}
+                    color="#c17cff"
+                    change="+8.7%"
+                    description="Potential customers"
+                    trend="up"
+                  />
+                  </Link>
+                </CCol>
+               
+                       <CCol xs={12} md={6} xl={4}>
+                            <Link to="#" className="text-decoration-none text-dark">
+                         <DashboardCard
+                           title="Unapproved Proposals"
+                           value={data.unapprovedProposals}
+                           icon={<FaClock />}
+                           color="#ff5722"
+                           change="-2.1%"
+                           description="Pending approval"
+                           trend="down"
+                         />
+                         </Link>
+                       </CCol>
+         <CCol xs={12} md={6} xl={4}>
+                     <Link to="#" className="text-decoration-none text-dark">
+                  <DashboardCard
+                    title="Pending Proposals"
+                    value={data.pendingProposals}
+                    icon={<FaClock />}
+                    color="#ff5722"
+                    change="-2.1%"
+                    description="Pending approval"
+                    trend="down"
+                  />
+                  </Link>
+                </CCol>
 
         <CCol xs={12} md={6} xl={4}>
              <Link to="/clients" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Clients"
-            value={876}
+            value={data.totalClients}
             icon={<FaUsers />}
             color="#00bcd4"
-            change="+4.9%"
+           
             description="Active clients"
-            trend="up"
+            
           />
           </Link>
         </CCol>
       </CRow>
+       <div className="my-4">
+  <CCard className="shadow-sm border-0">
+    <CCardBody>
+      <h5 className="fw-bold mb-3">Overview Chart</h5>
+      <DashboardLineChart data={data}/>
+    </CCardBody>
+  </CCard>
+</div>
+     
     </div>
   )
 }

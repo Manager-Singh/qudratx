@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { getData } from '../../utils/api'
 
 
-export const getDashboardData = createAsyncThunk('admin/get-employee', async (_, thunkAPI) => {
+export const getDashboardData = createAsyncThunk('admin/get-all-count', async (_, thunkAPI) => {
   try {
-    const response = await getData('/admin/get-employee')
+    const response = await getData('/admin/get-all-count')
     return response
   } catch (error) {
     console.error('Get employees error:', error)

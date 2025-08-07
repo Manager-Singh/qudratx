@@ -128,13 +128,13 @@ function AllProposals() {
   }
 
   const columns = [
-    {
+{
   name: 'Approval Status',
   cell: (row) => {
+    const isPending = row.approval_status === 2
     const isApproved = row.approval_status === 1
 
-    // Show 'Approved' if 1, else show 'Unapproved' for both 0 and 2 (Pending)
-    const currentStatusLabel = isApproved ? 'Approved' : 'Unapproved'
+    const currentValue = isPending ? 'Pending' : isApproved ? 'Approved' : 'Unapproved'
 
     return (
       <select
@@ -144,17 +144,23 @@ function AllProposals() {
           padding: '6px 12px',
           borderRadius: '0.375rem',
           border: '1px solid #ccc',
-          backgroundColor: isApproved ? '#d4edda' : '#fff9db',
-          color: isApproved ? '#155724' : '#b58900',
+          backgroundColor: isApproved ? '#d4edda' : isPending ? '#fff3cd' : '#fff9db',
+          color: isApproved ? '#155724' : isPending ? '#856404' : '#b58900',
           fontWeight: 500,
         }}
-        value={currentStatusLabel}
+        value={currentValue}
         onChange={(e) => {
           const selected = e.target.value
           const newStatus = selected === 'Approved' ? 'approve' : 'unapprove'
           confirmApproval(row.uuid, newStatus)
         }}
       >
+        {/* Show "Pending" as disabled option if status is pending */}
+        {isPending && (
+          <option value="Pending" disabled>
+            Pending
+          </option>
+        )}
         <option value="Approved">Approved</option>
         <option value="Unapproved">Unapproved</option>
       </select>

@@ -19,6 +19,7 @@ const dashboardSlice = createSlice({
   initialState: {
     DasboardData: [],
     Notification:[],
+    unreadNotificationCount: 0,
     isLoading: true,
   },
   reducers: {},
@@ -31,7 +32,8 @@ const dashboardSlice = createSlice({
     state.isLoading = false
     
     state.DasboardData = action.payload.data
-      state.Notification = action.payload.data.notifications
+    state.Notification = action.payload.data.notifications
+    state.unreadNotificationCount = action.payload.data.unreadNotificationCount
   })
       .addCase(getDashboardData.rejected, (state) => {
     state.isLoading = false

@@ -332,7 +332,7 @@ const updateProposal = async (req, res) => {
           title: 'Proposal for Approval',
           action: 'proposal for approval',
           message: `${req.user.name} send a proposal (${proposal.proposal_number}) for approval.`,
-          related_id: proposal.id,
+          related_id: proposal.uuid,
         });
       }
     }
@@ -601,7 +601,7 @@ const approveProposal = async (req, res) => {
          action: 'Approved',
          title: 'Proposal Approved',
         message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
-        related_id: proposal.id,
+        related_id: proposal.uuid,
       });
     }
 
@@ -658,7 +658,7 @@ const unapproveProposal = async (req, res) => {
         title: 'Proposal Unapproved',
         action:'Unapproved',
         message: `Your proposal (${proposal.proposal_number}) has been unapproved by admin.`,
-        related_id: proposal.id,
+        related_id: proposal.uuid,
       });
     }
     return res.status(200).json({
@@ -747,7 +747,7 @@ const updateProposalStatus = async (req, res) => {
            title: 'Proposal Status Update',
            action: 'Status Updated',
           message: `Proposal status updated to "${proposal_status}" by admin.`,
-          related_id: proposal.id,
+          related_id: proposal.uuid,
         });
       }
     }

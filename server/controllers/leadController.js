@@ -107,7 +107,7 @@ const assignLead = async (req, res) => {
       created_by: req.user.id,
       type: 'Lead',
       action: 'Assigned',
-      related_id: lead.id,
+      related_id: lead.uuid,
       title: 'Lead Assigned',
       message: `A new lead has been assigned to you by ${req.user.name || 'Admin'}.`,
       is_read: false,

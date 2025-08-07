@@ -24,7 +24,7 @@ const getNotifications = async (req, res) => {
   }
 };
 
-const markNotificationsAsRead = async (ids) => {
+const markNotificationsAsRead = async (req, res) => {
  try {
     const { ids, type } = req.body;
     const userId = req.user.id; // assuming you're using authentication middleware
@@ -47,7 +47,7 @@ const markNotificationsAsRead = async (ids) => {
       { is_read: 1 },
       { where: whereClause }
     );
-
+ 
     return res.status(200).json({
       success: true,
       message: `${updatedCount} notification(s) marked as read.`

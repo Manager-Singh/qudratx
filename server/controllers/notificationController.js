@@ -26,33 +26,40 @@ const getNotifications = async (req, res) => {
 
 const markNotificationsAsRead = async (ids) => {
   try {
-    // Normalize to array if single ID is passed
-    const idArray = Array.isArray(ids) ? ids : [ids];
+    const { ids, type } = req.body;
+    const userId = req.user.id; // assuming you're using authentication middleware
 
-    // Update is_read = 1 for the given IDs
-    const result = await Notification.update(
+    const whereClause = {
+      user_id: userId,
+      is_read: 0, // only unread
+      deleted_at: null
+    };
+
+    if (ids) {
+      const idArray = Array.isArray(ids) ? ids : [ids];
+      whereClause.id = { [Op.in]: idArray };
+    } else if (type) {
+      whereClause.type = type; // e.g., 'proposal'
+    } else {
+      return res.status(400).json({ message: 'Either ids or type must be provided' });
+    }
+
+    const [updatedCount] = await Notification.update(
       { is_read: 1 },
-      {
-        where: {
-          id: {
-            [Op.in]: idArray
-          },
-          deleted_at: null // optional safeguard
-        }
-      }
+      { where: whereClause }
     );
 
-    return {
+    return res.status(200).json({
       success: true,
-      message: `${result[0]} notification(s) marked as read.`
-    };
+      message: `${updatedCount} notification(s) marked as read.`
+    });
   } catch (error) {
     console.error('Error marking notifications as read:', error);
-    return {
+    return res.status(500).json({
       success: false,
-      message: 'Error occurred while updating notifications.',
+      message: 'Error updating notifications',
       error
-    };
+    });
   }
 };
 

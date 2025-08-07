@@ -328,11 +328,11 @@ const updateProposal = async (req, res) => {
         await Notification.create({
           user_id: admin.id,
           created_by: proposal.created_by,
-          type: 'proposal',
+          type: 'Proposal',
           title: 'Proposal for Approval',
           action: 'proposal for approval',
           message: `${req.user.name} send a proposal (${proposal.proposal_number}) for approval.`,
-          related_id: proposal.uuid,
+          related_id: uuid,
         });
       }
     }
@@ -597,11 +597,11 @@ const approveProposal = async (req, res) => {
       await Notification.create({
         user_id: proposal.created_by,
         created_by: req.user.id,
-        type: 'proposal',
+        type: 'Proposal',
          action: 'Approved',
          title: 'Proposal Approved',
         message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
-        related_id: proposal.uuid,
+        related_id: uuid,
       });
     }
 
@@ -654,11 +654,11 @@ const unapproveProposal = async (req, res) => {
       await Notification.create({
         user_id: proposal.created_by,
         created_by: req.user.id,
-        type: 'proposal',
+        type: 'Proposal',
         title: 'Proposal Unapproved',
         action:'Unapproved',
         message: `Your proposal (${proposal.proposal_number}) has been unapproved by admin.`,
-        related_id: proposal.uuid,
+        related_id: uuid,
       });
     }
     return res.status(200).json({
@@ -743,11 +743,11 @@ const updateProposalStatus = async (req, res) => {
         await Notification.create({
           user_id: proposal.created_by,
           created_by: req.user.id,
-          type: 'proposal',
+          type: 'Proposal',
            title: 'Proposal Status Update',
            action: 'Status Updated',
           message: `Proposal status updated to "${proposal_status}" by admin.`,
-          related_id: proposal.uuid,
+          related_id: uuid,
         });
       }
     }

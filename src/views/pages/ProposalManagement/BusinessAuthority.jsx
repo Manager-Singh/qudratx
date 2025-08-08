@@ -16,26 +16,26 @@ import DataTable from 'react-data-table-component'
 import { getBusinessZoneByUuid } from '../../../store/admin/businessZoneSlice'
 import AddAuthorityPopUp from './components/AddAuthorityPopUp'
 import { ToastExample } from '../../../components/toast/Toast'
+
 const baseImageUrl = import.meta.env.VITE_IMAGE_URL;
 
 function BusinessAuthority() {
   const { uuid } = useParams()
   const dispatch = useDispatch()
 
-  const [formData, setFormData] = useState({
-    name: '',
-    status: 1,
-    image: null,
-  })
-
+  const [formData, setFormData] = useState({ name: '', status: 1, image: null })
   const [imagePreview, setImagePreview] = useState(null)
-  const [filterText, setFilterText] = useState('')
   const [visible, setVisible] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
   const [selectedAuthority, setSelectedAuthority] = useState(null)
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
 
-  const { authorities } = useSelector((state) => state.businessZonesAuthority)
+  // Pagination & Search states
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+
+  const { authorities, total } = useSelector((state) => state.businessZonesAuthority)
   const { businesszone } = useSelector((state) => state.businesszone)
 
   const showToast = (status, message) => {
@@ -48,16 +48,21 @@ function BusinessAuthority() {
   }, [uuid])
 
   useEffect(() => {
-    if (businesszone) {
-      dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id }))
+    if (businesszone?.id) {
+      dispatch(getBusinessZonesAuthorityByZoneId({ 
+        id: businesszone.id, 
+        page, 
+        limit, 
+        search 
+      }))
     }
-  }, [businesszone, dispatch])
+  }, [businesszone, dispatch, page, limit, search])
 
   const handleDelete = (uuid) => {
     dispatch(deleteBusinessZonesAuthority(uuid)).then((data) => {
       if (data.payload.success) {
         showToast('success', data.payload.message)
-        dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id }))
+        dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id, page, limit, search }))
       }
     })
   }
@@ -68,9 +73,7 @@ function BusinessAuthority() {
     newFormdata.append('name', formData.name)
     newFormdata.append('status', formData.status)
     newFormdata.append('zone_id', businesszone.id)
-    if (formData.image) {
-      newFormdata.append('image', formData.image)
-    }
+    if (formData.image) newFormdata.append('image', formData.image)
 
     dispatch(addBusinessZonesAuthority(newFormdata)).then((data) => {
       if (data.payload.success) {
@@ -78,6 +81,7 @@ function BusinessAuthority() {
         setImagePreview(null)
         showToast('success', data.payload.message)
         setVisible(false)
+        dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id, page, limit, search }))
       } else {
         showToast('error', data.payload)
       }
@@ -90,14 +94,9 @@ function BusinessAuthority() {
     newFormdata.append('name', formData.name)
     newFormdata.append('status', formData.status)
     newFormdata.append('zone_id', businesszone.id)
-    if (formData.image) {
-      newFormdata.append('image', formData.image)
-    }
+    if (formData.image) newFormdata.append('image', formData.image)
 
-    const updatedData = {
-      uuid: selectedAuthority.uuid,
-      data: newFormdata,
-    }
+    const updatedData = { uuid: selectedAuthority.uuid, data: newFormdata }
 
     dispatch(updateBusinessZonesAuthority(updatedData)).then((data) => {
       if (data.payload.success) {
@@ -105,6 +104,7 @@ function BusinessAuthority() {
         setImagePreview(null)
         showToast('success', data.payload.message)
         setVisible(false)
+        dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id, page, limit, search }))
       } else {
         showToast('error', data.payload)
       }
@@ -112,29 +112,28 @@ function BusinessAuthority() {
   }
 
   const columns = [
-   {
-    name: 'Image',
-    selector: (row) =>
-      row.image ? (
-        <img
-          src={`${baseImageUrl}${row.image}`}
-          alt="Authority"
-          style={{ width: '160px', height: 'auto', objectFit: 'contain', borderRadius: '4px' }}
-          onError={(e) => {
-            e.target.onerror = null
-            e.target.src = img // Fallback image
-          }}
-        />
-      ) : (
-        <img
-          src={img} // Default image if row.image is not available
-          alt="Authority"
-          style={{ width: '160px', height: 'auto', objectFit: 'contain', borderRadius: '4px' }}
-        />
-      ),
-    sortable: false,
-    width: '180px',
-  },
+    {
+      name: 'Image',
+      selector: (row) =>
+        row.image ? (
+          <img
+            src={`${baseImageUrl}${row.image}`}
+            alt="Authority"
+            style={{ width: '160px', height: 'auto', objectFit: 'contain', borderRadius: '4px' }}
+            onError={(e) => {
+              e.target.onerror = null
+              e.target.src = img
+            }}
+          />
+        ) : (
+          <img
+            src={img}
+            alt="Authority"
+            style={{ width: '160px', height: 'auto', objectFit: 'contain', borderRadius: '4px' }}
+          />
+        ),
+      width: '180px',
+    },
     {
       name: 'Authority Zones',
       selector: (row) => (
@@ -162,44 +161,29 @@ function BusinessAuthority() {
       name: 'Action',
       cell: (row) => (
         <div className="d-flex gap-2">
-           <Link to={`/packages/${row.uuid}`} style={{ textDecoration: 'none' }} className='custom-button'>
-           Add Package
-        </Link>
-          <span
-            onClick={() => handleDelete(row.uuid)}
-            className="p-0"
-            title="Delete"
-            style={{ cursor: 'pointer' }}
-          >
+          <Link to={`/packages/${row.uuid}`} style={{ textDecoration: 'none' }} className="custom-button">
+            Add Package
+          </Link>
+          <span onClick={() => handleDelete(row.uuid)} style={{ cursor: 'pointer' }}>
             <CIcon icon={cilTrash} size="lg" />
           </span>
           <div
             onClick={() => {
               setIsEdit(true)
               setSelectedAuthority(row)
-              setFormData({
-                name: row.name,
-                status: row.status,
-                image: null,
-              })
+              setFormData({ name: row.name, status: row.status, image: null })
               setImagePreview(row.image ? `${baseImageUrl}${row.image}` : null)
               setVisible(true)
             }}
-            title="Edit"
-            style={{ backgroundColor: 'transparent', padding: 0, cursor: 'pointer' }}
+            style={{ cursor: 'pointer' }}
           >
             <MdEdit size={20} style={{ color: '#333' }} />
           </div>
         </div>
       ),
-      ignoreRowClick: true,
       width: '250px',
     },
   ]
-
-  const filteredData = authorities.filter((item) =>
-    item.name.toLowerCase().includes(filterText.toLowerCase())
-  )
 
   return (
     <div className="container">
@@ -219,14 +203,21 @@ function BusinessAuthority() {
           type="text"
           className="form-control w-25"
           placeholder="Search by name"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value)
+            setPage(1)
+          }}
         />
       </div>
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={authorities}
         pagination
+        paginationServer
+        paginationTotalRows={total}
+        onChangePage={(newPage) => setPage(newPage)}
+        onChangeRowsPerPage={(newLimit) => { setLimit(newLimit); setPage(1) }}
         highlightOnHover
         responsive
         striped
@@ -243,8 +234,6 @@ function BusinessAuthority() {
         imagePreview={imagePreview}
         setImagePreview={setImagePreview}
       />
-
-      
     </div>
   )
 }

@@ -66,15 +66,22 @@ export const getSubCategoryByUUID = createAsyncThunk('admin/get-subcategory-by-u
 })
 export const getSubCategoryByCategoryId = createAsyncThunk(
   'authority/getByUUID',
-  async ({categoryId}, thunkAPI) => {
+  async ({ categoryId, search = '', page = 1, limit = 10 }, thunkAPI) => {
     try {
-      const response = await getData(`/admin/get-subcategory-by-categoryid/${categoryId}`)
-      return response
+      const query = new URLSearchParams({
+        search,
+        page,
+        limit
+      }).toString();
+
+      const response = await getData(`/admin/get-subcategory-by-categoryid/${categoryId}?${query}`);
+      return response;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
-)
+);
+
 
 
 const subCategorySlice = createSlice({

@@ -13,24 +13,32 @@
     })
 
     // Get All Leads
-    export const getLead = createAsyncThunk('admin/get-leads', async (_, thunkAPI) => {
+export const getLead = createAsyncThunk(
+  'admin/get-leads',
+  async ({ page = 1, limit = 10, search = '' }, thunkAPI) => {
     try {
-        const response = await getData('/admin/get-lead-detail')
-        return response
+      const response = await getData(`/admin/get-lead-detail?page=${page}&limit=${limit}&search=${search}`);
+      return response;
     } catch (error) {
-        console.error('Get leads error:', error)
-        return thunkAPI.rejectWithValue(error.message)
+      console.error('Get leads error:', error);
+      return thunkAPI.rejectWithValue(error.message);
     }
-    })
-     export const getEmployeeLead = createAsyncThunk('admin/get-lead-detail-by-employeeId', async (_, thunkAPI) => {
+  }
+);
+
+export const getEmployeeLead = createAsyncThunk(
+  'admin/get-lead-detail-by-employeeId',
+  async ({ page = 1, limit = 10, search = '' }, thunkAPI) => {
     try {
-        const response = await getData('/admin/get-lead-detail-by-employeeId')
-        return response
+      const response = await getData(`/admin/get-lead-detail-by-employeeId?page=${page}&limit=${limit}&search=${search}`);
+      return response;
     } catch (error) {
-        console.error('Get leads error:', error)
-        return thunkAPI.rejectWithValue(error.message)
+      console.error('Get leads error:', error);
+      return thunkAPI.rejectWithValue(error.message);
     }
-    })
+  }
+);
+
 
     // Delete Lead
     export const deleteLead = createAsyncThunk('admin/delete-lead', async (uuid, thunkAPI) => {

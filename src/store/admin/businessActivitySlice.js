@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postData, getData, deleteData, putData } from '../../utils/api'
+import { postData, getData, deleteData, putData, putDataWithImage, postDataWithImage } from '../../utils/api'
 
 // CREATE activity (with file upload)
 export const addBusinessActivity = createAsyncThunk('admin/create-activity', async (data, thunkAPI) => {
@@ -79,6 +79,18 @@ export const getBusinessActivityByAuthorityId = createAsyncThunk(
     } catch (error) {
       console.error('Get by Authority ID error:', error);
       return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const uploadAuthorityXlsx = createAsyncThunk(
+  "authority/uploadXlsx",
+  async (formData, thunkAPI) => {
+    try {
+      const res = await postDataWithImage("/admin/create-activity", formData);
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );

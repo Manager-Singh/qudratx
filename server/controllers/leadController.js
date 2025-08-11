@@ -52,6 +52,67 @@ const createLeadDetail = async (req, res) => {
       ]
     });
 
+   
+
+         // If employee created the lead → also send to admin
+    if (req.user.role === 'employee') {
+
+       const clientEmail = client?.email;
+    const clientName = client?.name;
+
+          const mailOptions = {
+            from: 'testwebtrack954@gmail.com',
+            to: clientEmail,
+            subject: `Welcome Mail`,
+            text: `Hi ${clientName},\n\nWelcome aboard! We’re excited to have you with us.\n\nRegards,\nYour Company`,
+          };
+    
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('Error sending lead email:', error);
+            } else {
+              console.log('Lead email sent:', info.response);
+            }
+          });
+      // Get all admin emails
+      const admins = await User.findAll({
+        where: { role: 'admin', deleted_at: null },
+        attributes: ['email', 'name']
+      });
+
+      for (const admin of admins) {
+        const adminMailOptions = {
+          from: 'testwebtrack954@gmail.com',
+          to: admin.email,
+          subject: `New Lead Created`,
+          text: `Hi ${admin.name},\n\nA new lead (${lead_number}) has been created by ${req.user.name}.\n\nRegards,\nYour Company`
+        };
+
+        transporter.sendMail(adminMailOptions, (error, info) => {
+          if (error) {
+            console.error(`Error sending admin email to ${admin.email}:`, error);
+          } else {
+            console.log(`Admin email sent to ${admin.email}:`, info.response);
+          }
+        });
+      }
+
+         const clientMailOptions = {
+          from: 'testwebtrack954@gmail.com',
+          to: clientEmail,
+          subject: `New Lead Created`,
+          text: `Hi ${clientName},\n\nA new lead (${lead_number}) has been created by ${req.user.name}.\n\nRegards,\nYour Company`
+        };
+
+        transporter.sendMail(clientMailOptions, (error, info) => {
+          if (error) {
+            console.error(`Error sending admin email to ${clientEmail}:`, error);
+          } else {
+            console.log(`Client email sent to ${clientEmail}:`, info.response);
+          }
+        });
+    }
+
     return res.status(201).json({
       message: 'Lead created successfully',
       success: true,

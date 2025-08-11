@@ -60,12 +60,14 @@ const createProposal = async (req, res) => {
       created_by,
       approval_status,
     }, { userId: req.user.id });
-
+    
     // ✅ Update lead status
-    await Lead.update(
-      { lead_status: 'Proposal Created' },
-      { where: { id: lead_id } }
-    );
+  if (lead_id) {
+  await Lead.update(
+    { lead_status: 'Proposal Created' },
+    { where: { id: lead_id } }
+  );
+}
 
     return res.status(201).json({
       message: 'Proposal created successfully',

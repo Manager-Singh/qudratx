@@ -184,8 +184,8 @@ function Clients({ selectedClient, setSelectedClient }) {
   }
 
   useEffect(() => {
-    dispatch(getClient())
-  }, [dispatch])
+  dispatch(getClient({ page: 1, limit: 10, search: '' }));
+}, [dispatch]);
 
   return (
     <div>

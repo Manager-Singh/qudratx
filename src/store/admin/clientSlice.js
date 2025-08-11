@@ -18,7 +18,7 @@ export const getClient = createAsyncThunk(
   async ({ page = 1, limit = 10, search = '' }, thunkAPI) => {
     try {
       const response = await getData(`/admin/get-client-detail?page=${page}&limit=${limit}&search=${search}`)
-      return response // Should contain { data: [...], total: number }
+      return response 
     } catch (error) {
       console.error('Get error:', error)
       return thunkAPI.rejectWithValue(error.message)

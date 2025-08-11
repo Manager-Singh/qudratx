@@ -125,6 +125,7 @@ const getAllProposals = async (req, res) => {
 
     res.status(200).json({
       message: 'Proposals fetched successfully',
+      success: true,
       page,
       limit,
       totalPages,

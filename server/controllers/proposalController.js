@@ -1,4 +1,4 @@
-const { Proposal, User, Notification } = require('../models');
+const { Proposal, User, Notification, Lead } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
@@ -14,23 +14,23 @@ const createProposal = async (req, res) => {
       zone_info,
       authority_id,
       authority_name,
-      authority_info, 
+      authority_info,
       step,
     } = req.body;
 
     const created_by = req.user.id;
     const isAdmin = req.user.role === 'admin';
-    const approval_status = req.user.role === 'admin' ? 1 : 2;
- // Get last proposal to generate proposal_number
-  // Determine prefix based on zone_name
+    const approval_status = isAdmin ? 1 : 2;
+
+    // Determine prefix based on zone_name
     let prefix = 'GEN'; // Default fallback
-    if (zone_name.toLowerCase() === 'free zone') {
+    if (zone_name?.toLowerCase() === 'free zone') {
       prefix = 'FZ';
-    } else if (zone_name.toLowerCase() === 'mainland') {
+    } else if (zone_name?.toLowerCase() === 'mainland') {
       prefix = 'ML';
     }
 
-    // Get the last proposal matching the same prefix
+    // Get the last proposal with the same prefix
     const lastProposal = await Proposal.findOne({
       where: {
         proposal_number: {
@@ -40,13 +40,13 @@ const createProposal = async (req, res) => {
       order: [['id', 'DESC']]
     });
 
-    const nextNumber = lastProposal ? parseInt(lastProposal.proposal_number.split('_').pop()) + 1 : 1;
+    const nextNumber = lastProposal
+      ? parseInt(lastProposal.proposal_number.split('_').pop()) + 1
+      : 1;
     const paddedNumber = nextNumber.toString().padStart(4, '0');
     const proposal_number = `${prefix}_PRO_${paddedNumber}`;
-    // const lastProposal = await Proposal.findOne({
-    //   order: [['id', 'DESC']]
-    // });
 
+    // Create proposal
     const proposal = await Proposal.create({
       lead_id,
       zone_id,
@@ -59,28 +59,17 @@ const createProposal = async (req, res) => {
       step,
       created_by,
       approval_status,
-    },{ userId: req.user.id });
+    }, { userId: req.user.id });
 
-    //  if (!isAdmin) {
-    //   const admins = await User.findAll({ where: { role: 'admin' } });
-
-    //   for (const admin of admins) {
-    //     await Notification.create({
-    //       user_id: admin.id,
-    //       created_by: created_by,
-    //       type: 'proposal',
-    //       message: `New proposal (${proposal_number}) created by ${req.user.name}.`,
-    //       target_id: proposal.id,
-    //       target_type: 'proposal',
-    //       status: 'unread',
-    //     });
-    //   }
-    // }
+    // ✅ Update lead status
+    await Lead.update(
+      { lead_status: 'Proposal Created' },
+      { where: { id: lead_id } }
+    );
 
     return res.status(201).json({
       message: 'Proposal created successfully',
       proposal,
-
     });
   } catch (error) {
     console.error('Error creating proposal:', error);
@@ -90,6 +79,7 @@ const createProposal = async (req, res) => {
     });
   }
 };
+
 
 
 // READ ALL

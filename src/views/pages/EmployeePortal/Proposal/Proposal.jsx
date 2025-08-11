@@ -114,15 +114,14 @@ const initialQuestionFormData = {
 
 const Proposal = () => {
   const location = useLocation();
-  const lead =  useState(location.state?.lead || null)
-  const [zoneData, setZoneData] = useState(location.state?.zone || null);
+  const [zoneData, setZoneData] = useState(location.state?.zone || {});
   const [proposalId, setProposalId] = useState(null);
   const {uuid} = useParams()
   const navigate = useNavigate()
   const {user} = useSelector((state)=>state.auth)
   
   const {proposal} = useSelector((state)=>state.proposal)
-  const [leadData,setLeadData] = useState(lead)
+  const [leadData,setLeadData] = useState(location.state?.lead || {})
   // useEffect(()=>{
   //   setLeadData(lead[0])
   // },[])
@@ -256,7 +255,7 @@ useEffect(() => {
   }
 }, [zoneData]);
 
-useEffect(() => {
+// useEffect(() => {
     // setSelectedActivities([]);
     // setSelectedPackage(null);
     // setSelectedClient('');
@@ -268,7 +267,7 @@ useEffect(() => {
     // setNotes(initialNotes);
     // setQuestionFormData(initialQuestionFormData);
     // setShowPdfSummary(false); 
-}, [selectedAuthority]);
+// }, [selectedAuthority]);
 
 // useEffect(() => {
 //   if (proposal) {
@@ -958,14 +957,16 @@ const max_activity_selected =selectedPackage?.activity
 
       <div className="d-flex justify-content-end mt-4 mb-2">
         {step > 1 && (
-          <button
-            onClick={handleBack}
-            className="custom-button"
-            style={{ padding: '10px 20px', marginRight: '10px' }}
-          >
-            Back
-          </button>
-        )}
+    (user.role === "admin" || (user.role === "employee" && proposal.approval_status != 1)) && (
+      <button
+        onClick={handleBack}
+        className="custom-button"
+        style={{ padding: '10px 20px', marginRight: '10px' }}
+      >
+        Back
+      </button>
+    )
+  )}
         {step < 11 && (
           <button onClick={handleNext} className="custom-button " style={{ padding: '10px 20px' }}>
             Next

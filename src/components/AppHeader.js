@@ -59,7 +59,7 @@ const AppHeader = () => {
     }
     return '#'
   }
-  console.log("uuid->",user.uuid);
+  
 
   return (
     <>

@@ -202,7 +202,7 @@ const [totalRecords ,setTotalRecords] = useState(0)
   // ✅ Fetch proposals from server
   const fetchData = useCallback(() => {
     dispatch(GetMyProposal({ page, limit: perPage, search: searchDebounce })).then((data)=>{
-      console.log("data",data)
+     
       if (data.payload.success){
           setTotalRecords(data.payload.totalRecords)
       }
@@ -245,20 +245,20 @@ const [totalRecords ,setTotalRecords] = useState(0)
 
   // ✅ Table Columns
   const columns = [
-    { name: 'Business Zone', selector: row => row.zone_name || '-', sortable: true, minWidth: '130px', wrap: true },
-    { name: 'Business Authority', selector: row => row.authority_name || '-', sortable: true, minWidth: '160px', wrap: true },
+    { name: 'Business Zone', selector: row => row.zone_name || 'NA', sortable: true, Width: '130px', wrap: true },
+    { name: 'Business Authority', selector: row => row.authority_name || 'NA', sortable: true, Width: '160px', wrap: true },
     {
       name: 'Package & Amount',
       selector: row => {
-        const packageName = row.package_name || '-';
-        const totalAmount = row.total_amount ? `AED ${row.total_amount}` : '-';
+        const packageName = row.package_name || 'NA';
+        const totalAmount = row.total_amount ? `AED ${row.total_amount}` : 'NA';
         return `${packageName} / ${totalAmount}`;
       },
       sortable: true,
-      minWidth: '150px',
+      Width: '150px',
       wrap: true,
     },
-    { name: 'Client Name', selector: row => row.client_info?.name || '-', sortable: true, minWidth: '130px', wrap: true },
+    { name: 'Client Name', selector: row => row.client_info?.name || 'NA', sortable: true, Width: '130px', wrap: true },
     {
       name: 'Status',
       selector: row => {
@@ -272,14 +272,14 @@ const [totalRecords ,setTotalRecords] = useState(0)
         return '-';
       },
       sortable: true,
-      minWidth: '150px',
+      Width: '150px',
       wrap: true,
     },
     {
       name: 'Created At',
       selector: row => (row.created_at ? new Date(row.created_at).toLocaleString() : '-'),
       sortable: true,
-      grow: 3,
+     
     },
     {
       name: 'Actions',
@@ -301,7 +301,8 @@ const [totalRecords ,setTotalRecords] = useState(0)
       width: '120px',
     },
   ];
-
+  
+ 
   return (
     <div className="container">
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">

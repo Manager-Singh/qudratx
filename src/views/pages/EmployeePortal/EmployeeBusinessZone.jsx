@@ -14,14 +14,14 @@ function EmployeeBusinessZone() {
   useEffect(() => {
     dispatch(getBusinessZone())
   }, [dispatch])
-
+console.log("lead",lead)
   return (
     <div className="container">
       <h2 className="mb-4">Business Zones</h2>
       <div className="row">
         {businesszones.map((zone) => (
           <Link to="/create-proposal"
-         state={{ zone, lead }}
+         state={{  lead ,zone}}
          className="col-md-4 mb-3 text-decoration-none" key={zone.id}>
             <CCard style={{backgroundColor:"#2f1051" , color:"#ffffde"}}>
               <CCardBody className="text-center">

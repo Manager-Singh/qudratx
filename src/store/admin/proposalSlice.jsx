@@ -34,17 +34,31 @@ export const GetMyProposal = createAsyncThunk(
 )
 
 
+// export const GetAllProposal = createAsyncThunk(
+//   'admin/get-all-proposals',
+//   async (data, thunkAPI) => {
+//     try {
+//       const response = await getData('/admin/get-all-proposals', data)
+//       return response
+//     } catch (error) {
+//       console.error('Create  error:', error)
+//       return thunkAPI.rejectWithValue(error.message)
+//     }
+//   },
+// )
+
 export const GetAllProposal = createAsyncThunk(
-  'admin/get-all-proposals',
-  async (data, thunkAPI) => {
+  'proposal/getAllProposalsPaginated',
+  async ({ page, limit, search }) => {
     try {
-      const response = await getData('/admin/get-all-proposals', data)
-      return response
+       const res = await getData(`/admin/get-all-proposals?page=${page}&limit=${limit}&search=${search}`)
+    return res
     } catch (error) {
       console.error('Create  error:', error)
       return thunkAPI.rejectWithValue(error.message)
     }
-  },
+   
+  }
 )
 
 export const getProposalByUUID = createAsyncThunk('proposal/getByUUID', async (uuid, thunkAPI) => {

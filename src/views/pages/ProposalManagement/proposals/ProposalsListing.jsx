@@ -39,31 +39,28 @@ function AllProposals() {
   const [openDropdownUUID, setOpenDropdownUUID] = useState(null)
 
   const [disapprovalMessage, setDisapprovalMessage] = useState('')
-
+   const [totalRecords,setTotalRecords] = useState('')
   const { notifications } = useSelector((state) => state.notification)
+ const [page, setPage] = useState(1)
+ const [limit, setLimit] = useState(10) 
 
   useEffect(() => {
     dispatch(getNotifications())
   }, [dispatch])
 
-  console.log('noty->', notifications)
+ 
 
-  useEffect(() => {
-    dispatch(GetAllProposal())
-  }, [dispatch])
+ useEffect(() => {
+    dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+  
+    if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
+          
+    })
+  }, [dispatch, page, limit, filterText])
 
-  const filteredData =
-    proposals?.filter(
-      (item) =>
-        item.uuid?.toLowerCase().includes(filterText.toLowerCase()) ||
-        item.zone_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-        item.authority_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-        item.package_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-        item.client_info?.name?.toLowerCase().includes(filterText.toLowerCase()) ||
-        item.created_by?.toLowerCase().includes(filterText.toLowerCase()) ||
-        (item.approval_status === 1 ? 'approved' : 'unapproved').includes(filterText.toLowerCase()),
-    ) || []
-
+ 
   const confirmDelete = (uuid) => {
     setSelectedUUID(uuid)
     setDeleteModalVisible(true)
@@ -72,7 +69,12 @@ function AllProposals() {
   const handleConfirmDelete = () => {
     if (selectedUUID) {
       dispatch(deleteProposal(selectedUUID)).then(() => {
-        dispatch(GetAllProposal())
+       dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+    
+       if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
+    })
       })
     }
     setDeleteModalVisible(false)
@@ -107,7 +109,12 @@ function AllProposals() {
       dispatch(approveProposalStatus(payload))
         .unwrap()
         .then(() => {
-          dispatch(GetAllProposal())
+          dispatch(dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+    
+       if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
+    }))
         })
         .catch((error) => {
           console.error('Approval API error:', error)
@@ -234,7 +241,6 @@ function AllProposals() {
       ];
 
       useEffect(() => {
-        console.log("useeffect in->",selectedStatus);
         setSelectedStatus(row?.proposal_status || 'Proposal Sent');
       }, [row?.proposal_status]);
 
@@ -364,7 +370,7 @@ function AllProposals() {
         />
       </div>
 
-      <DataTable
+      {/* <DataTable
         columns={columns}
         data={filteredData}
         pagination
@@ -373,7 +379,25 @@ function AllProposals() {
         striped
         progressPending={isLoading}
         noDataComponent="No proposals found"
-      />
+      /> */}
+      <DataTable
+  columns={columns}
+  data={proposals}
+  pagination
+  paginationServer
+  paginationTotalRows={totalRecords}
+  paginationDefaultPage={page}
+  onChangePage={(p) => setPage(p)}
+  onChangeRowsPerPage={(newLimit) => {
+    setLimit(newLimit) // ✅ works now
+    setPage(1) // reset to first page
+  }}
+  highlightOnHover
+  responsive
+  striped
+  progressPending={isLoading}
+  noDataComponent="No proposals found"
+/>
       {/* To confirm delete  */}
       <ConfirmDeleteModal
         visible={deleteModalVisible}

@@ -174,6 +174,29 @@ const assignLead = async (req, res) => {
       is_read: false,
     });
 
+    //Send email to the assigned user
+    const assignedUser = await User.findOne({
+      where: { id: assigned_to, deleted_at: null },
+      attributes: ['name', 'email']
+    });
+
+    if (assignedUser && assignedUser.email) {
+      const mailOptions = {
+        from: 'testwebtrack954@gmail.com',
+        to: assignedUser.email,
+        subject: `Lead Assigned`,
+        text: `Hi ${assignedUser.name},\n\nA lead (${fullLead.lead_number}) has been assigned to you by ${req.user.name || 'Admin'}.\n\nPlease check your dashboard for details.\n\nRegards,\nYour Company`
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending assignment email:', error);
+        } else {
+          console.log('Assignment email sent:', info.response);
+        }
+      });
+    }
+
     return res.status(200).json({
       message: 'Lead assigned successfully',
       success: true,

@@ -190,6 +190,8 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'created_by',
       as: 'creator',
     });
+    Proposal.belongsTo(models.Lead, { as: 'lead', foreignKey: 'lead_id' });
+    
   };
 
   return Proposal;

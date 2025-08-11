@@ -1,4 +1,4 @@
-const { Proposal, User, Notification, Lead } = require('../models');
+const { Proposal, User, Notification, Lead, Client } = require('../models');
 const { Op, where } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
@@ -683,6 +683,17 @@ const getProposalByUUID = async (req, res) => {
           model: User,
           as: 'creator',
         },
+        {
+          model: Lead,
+          as: 'lead', // ensure you have association Proposal.belongsTo(Lead, { as: 'lead', foreignKey: 'lead_id' })
+          include: [
+            {
+              model: Client,
+              as: 'Client',
+              attributes: { exclude: ['deleted_at'] }
+            }
+          ]
+        }
   ], });
     if (!proposal) {
       return res.status(404).json({ message: 'proposal not found' });

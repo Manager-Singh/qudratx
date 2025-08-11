@@ -717,6 +717,9 @@ const max_activity_selected =selectedPackage?.activity
       }
     })
  }
+ const HandleSendToClient =()=>{
+  
+ }
   return (
     <div className="container ">
       {toastData.show && (
@@ -944,7 +947,9 @@ const max_activity_selected =selectedPackage?.activity
           {proposal?.employee_approval == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
                      Send To Approval
               </CButton> }
-             
+             {proposal?.approval_status == 1  && <CButton className="custom-button"   onClick={HandleSendToClient}>
+                     Send To Client
+              </CButton> } 
           
            {showPdfSummary && (
         <div className="mt-4">

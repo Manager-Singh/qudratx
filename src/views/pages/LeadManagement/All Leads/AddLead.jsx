@@ -47,10 +47,10 @@ function AddLead() {
     name: '',
     email: '',
     address: '',
-    origin: '', // Optional
+    origin: '', 
   })
   const {uuid}= useParams()
-  console.log(uuid,"uuid")
+ 
 
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 

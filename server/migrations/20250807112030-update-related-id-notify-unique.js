@@ -3,11 +3,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-   await queryInterface.changeColumn('notifications', 'related_id', {
-           type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+   await queryInterface.addColumn('notifications', 'related_id', {
+           type: Sequelize.TEXT,
         allowNull: false,
-        unique: false,
         });
   },
 

@@ -52,8 +52,10 @@ function AllProposals() {
 
  useEffect(() => {
     dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
-
-  setTotalRecords(data?.payload?.totalRecords)
+  
+    if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
           
     })
   }, [dispatch, page, limit, filterText])

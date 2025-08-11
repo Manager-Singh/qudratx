@@ -18,15 +18,21 @@ export const CreateProposal = createAsyncThunk('admin/create-proposal', async (d
   }
 })
 
-export const GetMyProposal = createAsyncThunk('admin/get-my-proposals', async (data, thunkAPI) => {
-  try {
-    const response = await getData('/admin/get-my-proposals', data)
-    return response
-  } catch (error) {
-    console.error('Create  error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+export const GetMyProposal = createAsyncThunk(
+  'admin/get-my-proposals',
+  async ({ page = 1, limit = 10, search = '' }, thunkAPI) => {
+    try {
+      const response = await getData(
+        `/admin/get-my-proposals?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
+      )
+      return response // Expecting { data: [...], total: number }
+    } catch (error) {
+      console.error('Get my proposals error:', error)
+      return thunkAPI.rejectWithValue(error.message)
+    }
   }
-})
+)
+
 
 export const GetAllProposal = createAsyncThunk(
   'admin/get-all-proposals',

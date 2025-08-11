@@ -1,43 +1,45 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLead, deleteLead, getEmployeeLead } from '../../../../store/admin/leadSlice';
+import {
+  getLead,
+  deleteLead,
+  getEmployeeLead
+} from '../../../../store/admin/leadSlice';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash ,cilDescription} from '@coreui/icons';
+import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
-import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit } from 'react-icons/fa';
+import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 
 function AllLead() {
   const dispatch = useDispatch();
-  const { leads, isLoading } = useSelector(state => state.lead);
+  const { leads, total, isLoading } = useSelector((state) => state.lead);
+  const user = useSelector((state) => state.auth.user);
+
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
 
-  const [filterText, setFilterText] = useState('');
-const user = useSelector(state => state.auth.user)
+  // Pagination and search states
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (user.role==="admin") {
-       dispatch(getLead());
-    }else {
-      dispatch(getEmployeeLead())
+    fetchData();
+  }, [dispatch, page, limit, search, user.role]);
+
+  const fetchData = () => {
+    const params = { page, limit, search };
+    if (user.role === 'admin') {
+      dispatch(getLead(params));
+    } else {
+      dispatch(getEmployeeLead(params));
     }
+  };
 
-   
-  }, [dispatch]);
-
-  // Filter by relevant fields
-  const filteredData = leads.filter(item =>
-    item.uuid?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.origin?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.created_status?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.lead_status?.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.approval_status?.toLowerCase().includes(filterText.toLowerCase())
-  );
-  
   const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);
     setDeleteModalVisible(true);
@@ -45,8 +47,8 @@ const user = useSelector(state => state.auth.user)
 
   const handleConfirmDelete = () => {
     if (selectedUUID) {
-      dispatch(deleteLead(selectedUUID)).then(()=>{
-        dispatch(getLead());
+      dispatch(deleteLead(selectedUUID)).then(() => {
+        fetchData();
       });
     }
     setDeleteModalVisible(false);
@@ -61,69 +63,69 @@ const user = useSelector(state => state.auth.user)
   const columns = [
     {
       name: 'Origin',
-      selector: row => row.origin || '-',
-      sortable: true,
+      selector: (row) => row.origin || '-',
+      sortable: true
     },
-    // {
-    //   name: 'Created Status',
-    //   selector: row => row.created_status || '-',
-    //   sortable: true,
-    //   wrap:true,
-    //   grow:3,
-    // },
     {
       name: 'Lead Status',
-      selector: row => row.lead_status || '-',
+      selector: (row) => row.lead_status || '-',
       sortable: true,
-      wrap:true,
-      grow:3,
+      wrap: true,
+      grow: 3
     },
-      ...(user.role === 'admin'
-    ? [
-        {
-          name: 'Assigned To',
-          selector: row => row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
-          sortable: true,
-          wrap: true,
-          grow: 3,
-        },
-        {
-      name: 'Created By',
-      selector: row => row.createdBy?.name || '-',
-      sortable: true,
-      wrap:true,
-      grow:3,
-    },
-      ]
-    : []),
-   
+    ...(user.role === 'admin'
+      ? [
+          {
+            name: 'Assigned To',
+            selector: (row) =>
+              row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
+            sortable: true,
+            wrap: true,
+            grow: 3
+          },
+          {
+            name: 'Created By',
+            selector: (row) => row.createdBy?.name || '-',
+            sortable: true,
+            wrap: true,
+            grow: 3
+          }
+        ]
+      : []),
     {
       name: 'Approval Status',
-      selector: row => row.approval_status || '-',
+      selector: (row) => row.approval_status || '-',
       sortable: true,
-      wrap:true,
-      grow:3,
+      wrap: true,
+      grow: 3
     },
     {
       name: 'Status',
-      selector: row => (
-        <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
+      selector: (row) => (
+        <span
+          className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}
+        >
           {row.status == 1 ? 'Active' : 'Inactive'}
         </span>
       ),
-      sortable: true,
+      sortable: true
     },
     {
       name: 'Created At',
-      selector: row => row.created_at ? new Date(row.created_at).toLocaleString() : '-',
+      selector: (row) =>
+        row.created_at ? new Date(row.created_at).toLocaleString() : '-',
       sortable: true,
-      grow:3,
+      grow: 3
     },
     {
       name: 'Action',
-      cell: row => (
+      cell: (row) => (
         <div className="d-flex gap-2">
-          <Link to='/business-zones' state={{ lead: row }} title="Create Proposal">
+          <Link
+            to="/business-zones"
+            state={{ lead: row }}
+            title="Create Proposal"
+          >
             <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <Link title="View Lead">
@@ -139,8 +141,8 @@ const user = useSelector(state => state.auth.user)
         </div>
       ),
       ignoreRowClick: true,
-      width: '120px',
-    },
+      width: '120px'
+    }
   ];
 
   return (
@@ -153,15 +155,25 @@ const user = useSelector(state => state.auth.user)
           type="text"
           className="form-control w-25"
           placeholder="Search leads..."
-          value={filterText}
-          onChange={e => setFilterText(e.target.value)}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1); // Reset to first page on new search
+          }}
         />
       </div>
 
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={leads}
         pagination
+        paginationServer
+        paginationTotalRows={total}
+        onChangeRowsPerPage={(newLimit) => {
+          setLimit(newLimit);
+          setPage(1);
+        }}
+        onChangePage={(newPage) => setPage(newPage)}
         highlightOnHover
         responsive
         striped

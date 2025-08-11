@@ -11,15 +11,25 @@ export const addEmployee = createAsyncThunk('admin/create-employee', async (cred
   }
 })
 
-export const getEmployees = createAsyncThunk('admin/get-employee', async (_, thunkAPI) => {
-  try {
-    const response = await getData('/admin/get-employee')
-    return response
-  } catch (error) {
-    console.error('Get employees error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+export const getEmployees = createAsyncThunk(
+  'admin/get-employee',
+  async ({ page = 1, limit = 10, search = '' } = {}, thunkAPI) => {
+    try {
+      // Build query params for API
+      const queryParams = new URLSearchParams({
+        page,
+        limit,
+        search
+      }).toString();
+
+      const response = await getData(`/admin/get-employee?${queryParams}`);
+      return response;
+    } catch (error) {
+      console.error('Get employees error:', error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
-})
+);
 
 export const deleteEmployee = createAsyncThunk('employee/deleteEmployee', async (uuid, thunkAPI) => {
   try {

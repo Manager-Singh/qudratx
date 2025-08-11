@@ -175,28 +175,31 @@ import { cilTrash } from '@coreui/icons'
 import { MdEdit } from 'react-icons/md'
 import { ToastExample } from '../../../../components/toast/Toast'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteBusinessActivity, getBusinessActivityByAuthorityId } from '../../../../store/admin/businessActivitySlice'
+import { deleteBusinessActivity, getBusinessActivityByAuthorityId, uploadAuthorityXlsx } from '../../../../store/admin/businessActivitySlice'
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
+
 
 function BusinessActivity() {
   const [filterText, setFilterText] = useState('')
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
-  const [total ,setTotal]= useState(0)
-
+  const [total, setTotal] = useState(0)
+  const [file, setFile] = useState(null)
+  const [showModal, setShowModal] = useState(false) // modal state
   const { uuid } = useParams()
   const dispatch = useDispatch()
   const { authority } = useSelector((state) => state.businessZonesAuthority)
   const { business_activities } = useSelector((state) => state.business_activity)
-  const [search ,setSearch]=useState("")
+  const [search, setSearch] = useState("")
+
   useEffect(() => {
     if (uuid) {
       const authority_uuid = uuid
       dispatch(getBusinessZonesAuthorityByUuid({ authority_uuid })).then((data) => {
         if (data.payload.success) {
           const authority_id = data.payload.data.id
-          dispatch(getBusinessActivityByAuthorityId({ authority_id, page, limit: perPage })).then((data)=>{
+          dispatch(getBusinessActivityByAuthorityId({ authority_id, page, limit: perPage })).then((data) => {
             if (data.payload.success) {
               setTotal(data?.payload?.totalRecords)
             }
@@ -221,50 +224,49 @@ function BusinessActivity() {
     })
   }
 
- const handleSearch =(e)=>{
-setSearch(e.target.value)
-  const authority_uuid = uuid
-      dispatch(getBusinessZonesAuthorityByUuid({ authority_uuid })).then((data) => {
-        if (data.payload.success) {
-          const authority_id = data.payload.data.id
-          dispatch(getBusinessActivityByAuthorityId({ authority_id,search:e.target.value})).then((data)=>{
-            if (data.payload.success) {
-              setTotal(data?.payload?.totalRecords)
-            }
-          })
-        }
-      })
- }
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+    const authority_uuid = uuid
+    dispatch(getBusinessZonesAuthorityByUuid({ authority_uuid })).then((data) => {
+      if (data.payload.success) {
+        const authority_id = data.payload.data.id
+        dispatch(getBusinessActivityByAuthorityId({ authority_id, search: e.target.value })).then((data) => {
+          if (data.payload.success) {
+            setTotal(data?.payload?.totalRecords)
+          }
+        })
+      }
+    })
+  }
 
   const columns = [
     {
       name: 'Master Number',
       selector: (row) => row.activity_master_number || 'N/A',
-      width:"150px",
+      width: "150px",
       sortable: true,
     },
     {
       name: 'Activity Code',
       selector: (row) => row.activity_code || 'N/A',
-      width:"150px",
+      width: "150px",
       sortable: true,
     },
     {
       name: 'Activity Name',
       selector: (row) => row.activity_name || 'N/A',
-      
       sortable: true,
-       wrap: true, // enables wrapping
-  grow:2, // allows this column to take more space
-  style: {
-    whiteSpace: 'normal', // allows line-breaks
-    lineHeight: '1.4',     // better readability
-  },
+      wrap: true,
+      grow: 2,
+      style: {
+        whiteSpace: 'normal',
+        lineHeight: '1.4',
+      },
     },
     {
       name: 'Category/Type',
-      selector: (row) => row.category || 'N/A',
-      width:"150px",
+      selector: (row) => row.category || row.license_type || 'N/A',
+      width: "150px",
       sortable: true,
     },
     {
@@ -301,6 +303,29 @@ setSearch(e.target.value)
   const fullZoneAuthority =
     (authority?.name || '') + ' ' + (authority?.zone?.name || '')
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = () => {
+    if (!file) {
+      alert("Please select an XLSX file first.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("authority_id", authority.id);
+
+    dispatch(uploadAuthorityXlsx(formData)).then((data) => {
+      if (data.payload.success) {
+        const authority_id = authority.id
+        dispatch(getBusinessActivityByAuthorityId({ authority_id, page, limit: perPage }))
+        setShowModal(false) // close modal after upload
+        setFile(null)
+      }
+    })
+  };
+
   return (
     <div className="container">
       {toastData.show && (
@@ -312,9 +337,15 @@ setSearch(e.target.value)
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
         <div className="d-flex justify-content-between w-75 px-3">
           <h4>{fullZoneAuthority}</h4>
-          <Link to={`/add-business-activity/${uuid}`}>
+          
+           <div className='d-flex gap-1'>
+             <CButton className='custom-button' onClick={() => setShowModal(true)}>Upload XLSX</CButton>
+             <Link to={`/add-business-activity/${uuid}`}>
             <CButton className="custom-button">Add Business Activity</CButton>
           </Link>
+           </div>
+        
+          
         </div>
         <input
           type="text"
@@ -325,29 +356,55 @@ setSearch(e.target.value)
         />
       </div>
 
-    <DataTable
-  columns={columns}
-  data={(business_activities || []).filter((item) =>
-    (item.activity_code || '').toLowerCase().includes(filterText.toLowerCase()) ||
-    (item.activity_master_number || '').toLowerCase().includes(filterText.toLowerCase())
-  )}
-  pagination
-  paginationServer
-  paginationTotalRows={total}
-  paginationPerPage={perPage}
-  onChangePage={(page) => setPage(page)}
-  onChangeRowsPerPage={(newPerPage, page) => {
-    setPerPage(newPerPage);
-    setPage(page);
-  }}
-  highlightOnHover
-  responsive
-  striped
-  noDataComponent="No activities found"
-/>
+      <DataTable
+        columns={columns}
+        data={(business_activities || []).filter((item) =>
+          (item.activity_code || '').toLowerCase().includes(filterText.toLowerCase()) ||
+          (item.activity_master_number || '').toLowerCase().includes(filterText.toLowerCase())
+        )}
+        pagination
+        paginationServer
+        paginationTotalRows={total}
+        paginationPerPage={perPage}
+        onChangePage={(page) => setPage(page)}
+        onChangeRowsPerPage={(newPerPage, page) => {
+          setPerPage(newPerPage);
+          setPage(page);
+        }}
+        highlightOnHover
+        responsive
+        striped
+        noDataComponent="No activities found"
+      />
+
+      {/* Bootstrap Modal */}
+      {showModal && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog ">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Upload XLSX File</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={handleFileChange}
+                  className="form-control"
+                />
+              </div>
+              <div className="modal-footer">
+                <CButton color="secondary" onClick={() => setShowModal(false)}>Cancel</CButton>
+                <CButton color="primary" onClick={handleUpload}>Upload</CButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
 
 export default BusinessActivity
-

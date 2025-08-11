@@ -12,16 +12,26 @@ export const addFeeStructure = createAsyncThunk('admin/create-fee-structure', as
   }
 })
 
-// // Get All Fee Structures
-export const getFeeStructures = createAsyncThunk('admin/get-fee-structure', async (_, thunkAPI) => {
-  try {
-    const response = await getData('/admin/get-fee-structure')
-    return response
-  } catch (error) {
-    console.error('Get fee structures error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+// Get All Fee Structures with pagination & search
+export const getFeeStructures = createAsyncThunk(
+  'admin/get-fee-structure',
+  async ({ page = 1, limit = 10, search = '' } = {}, thunkAPI) => {
+    try {
+      const queryParams = new URLSearchParams({
+        page,
+        limit,
+        search
+      }).toString();
+
+      const response = await getData(`/admin/get-fee-structure?${queryParams}`);
+      return response;
+    } catch (error) {
+      console.error('Get fee structures error:', error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
-})
+);
+
 
 // Delete Fee Structure
 export const deleteFeeStructure = createAsyncThunk('admin/delete-feestructure', async (uuid, thunkAPI) => {

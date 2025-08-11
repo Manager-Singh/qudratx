@@ -12,15 +12,20 @@ export const addClient = createAsyncThunk('admin/create-client', async (data, th
   }
 })
 
-export const getClient = createAsyncThunk('admin/get-clients', async (_, thunkAPI) => {
-  try {
-    const response = await getData('/admin/get-client-detail')
-    return response
-  } catch (error) {
-    console.error('Get  error:', error)
-    return thunkAPI.rejectWithValue(error.message)
+// clientSlice.js
+export const getClient = createAsyncThunk(
+  'admin/get-clients',
+  async ({ page = 1, limit = 10, search = '' }, thunkAPI) => {
+    try {
+      const response = await getData(`/admin/get-client-detail?page=${page}&limit=${limit}&search=${search}`)
+      return response // Should contain { data: [...], total: number }
+    } catch (error) {
+      console.error('Get error:', error)
+      return thunkAPI.rejectWithValue(error.message)
+    }
   }
-})
+)
+
 
 export const deleteClient  = createAsyncThunk('employee/delete-client', async (uuid, thunkAPI) => {
   try {

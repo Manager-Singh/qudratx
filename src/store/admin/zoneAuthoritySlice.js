@@ -31,11 +31,14 @@ export const getBusinessZonesAuthorities = createAsyncThunk(
 // READ ONE
 export const getBusinessZonesAuthorityByZoneId = createAsyncThunk(
   'authority/getbyzoneid',
-  async ({id}, thunkAPI) => {
+  async ({ id, page = 1, limit = 10, search = '' }, thunkAPI) => {
     try {
-      const response = await getData(`/admin/get-authority-by-zone/${id}`)
-      return response
+      const response = await getData(
+        `/admin/get-authority-by-zone/${id}?page=${page}&limit=${limit}&search=${search}`
+      )
+      return response // Expecting { data: [...], total: number }
     } catch (error) {
+      console.error('Get authorities error:', error)
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message)
     }
   }

@@ -1,206 +1,160 @@
-import {  useEffect, useState } from 'react';
-import { CButton,CTooltip } from '@coreui/react';
+import { useEffect, useState, useCallback } from 'react';
+import { CButton, CTooltip, CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
-import { cilTrash} from '@coreui/icons';
+import { cilTrash } from '@coreui/icons';
 import { FaCircle } from 'react-icons/fa';
-import { MdEdit } from "react-icons/md";
+import { MdEdit } from 'react-icons/md';
+import { FaRegEdit } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
-import './client-style.css'
+import './client-style.css';
 import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
-import { ToastExample } from '../../../../components/toast/Toast'
-import { CModal, CModalHeader, CModalBody, CModalFooter } from '@coreui/react'
-import { FaRegEdit } from "react-icons/fa";
+import { ToastExample } from '../../../../components/toast/Toast';
 
 function ClientListing() {
-const [visible, setVisible] = useState(false)
-const navigate = useNavigate()
-const [id,setid]= useState('')
-const [filterText, setFilterText] = useState('');
-const dispatch= useDispatch()
-const {clients}= useSelector((state)=>state.client)
-const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
-useEffect(()=>{
-dispatch(getClient())
-},[])
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { clients, totalCount, loading } = useSelector((state) => state.client);
 
-const showToast = (status, message) => {
-    setToastData({ show: true, status, message })
-    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
-  }
+  // States for pagination + search
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [id, setId] = useState('');
 
-const columns = [
-  {
-    name: 'Name',
-    selector: row => row.name || 'N/A',
-    sortable: true,
-  },
-  {
-    name: 'Status',
-    selector: row => row.status ? 'Active' : 'Inactive',
-    cell: row => (
-      <FaCircle
-        color={row.status ? 'green' : 'red'}
-        title={row.status ? 'Active' : 'Inactive'}
-      />
-    ),
-    sortable: true,
-  },
-  {
-    name: 'Address',
-    selector: row => row.address || 'N/A',
-    wrap: true,
-    grow: 2,
-    sortable: true,
-  },
-  {
-    name: 'Email',
-    selector: row => row.email || 'N/A',
-    wrap: true,
-    grow: 2,
-    sortable: true,
-  },
-  {
-    name: 'Phone',
-    selector: row => row.phone || 'N/A',
-    sortable: true,
-  },
-  {
-    name: 'Company Name',
-    selector: row => row.company_name || 'N/A',
-    sortable: true,
-    width: '140px',
-  },
-  {
-    name: 'Notes',
-    selector: row => row.notes || 'N/A',
-    sortable: false,
-    wrap: true,
-    grow: 2,
-  },
-  {
-    name: 'Created At',
-    selector: row => row.created_at 
-      ? new Date(row.created_at).toLocaleString() 
-      : 'N/A',
-    sortable: true,
-    wrap:true,
-    width:"110px"
-  },
-  {
-    name: 'Action',
-    cell: row => (
-      <div className="d-flex gap-2">
-        <CTooltip content="Generate Lead" placement="top">
-          <button
-            className="icon-button"
-            onClick={() => {
-              setVisible(true);
-              setid(row.uuid);
-            }}
-          >
-            <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
-          </button>
-        </CTooltip>
+  const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
 
-        <span
-          onClick={() => handleDelete(row.uuid)}
-          className="p-0"
-          title="Delete"
-          style={{ cursor: 'pointer' }}
-        >
-          <CIcon icon={cilTrash} size="lg" />
-        </span>
+  const showToast = (status, message) => {
+    setToastData({ show: true, status, message });
+    setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000);
+  };
 
-        <Link to={`/edit-client/${row.uuid}`}>
-          <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
-        </Link>
-      </div>
-    ),
-    ignoreRowClick: true,
-    width: '150px',
-  },
-];
+  // Fetch clients from server
+  const fetchClients = useCallback(() => {
+    dispatch(getClient({ page, limit, search }));
+  }, [dispatch, page, limit, search]);
 
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
 
-   const filteredData = clients.filter(item =>
-  item.name.toLowerCase().includes(filterText.toLowerCase()) ||
-  item.email?.toLowerCase().includes(filterText.toLowerCase()) ||
-  item.address?.toLowerCase().includes(filterText.toLowerCase()) ||
-  item.company_name?.toLowerCase().includes(filterText.toLowerCase()) ||
-  item.notes?.toLowerCase().includes(filterText.toLowerCase())
-);
+  const handleDelete = (uuid) => {
+    dispatch(deleteClient(uuid)).then((data) => {
+      if (data.payload.success) {
+        showToast('success', data.payload.message, 'success');
+        fetchClients();
+      }
+    });
+  };
 
-  const handleDelete =(uuid)=>{
-  dispatch(deleteClient(uuid)).then((data)=>{
-    if (data.payload.success) {
-       showToast('success', data.payload.message,'success')     
-      dispatch(getClient())
-    }
-  })
-  }
+  const handleConfirm = () => {
+    setVisible(false);
+    navigate(`/create-lead/${id}`);
+  };
 
-  const handleConfirm = ()=>{
-    setVisible(false)
-     navigate(`/create-lead/${id}`)
-    // dispatch(addLead({ client_id:id})).then((data)=>{
-    //   if (data.payload.success){
-    //    const uuid = data.payload.data.uuid
-    //     navigate(`/view-lead/${uuid}`)
-    //   }
-    // })
-    
-  }
-  
-  
+  const columns = [
+    { name: 'Name', selector: (row) => row.name || 'N/A', sortable: true },
+    {
+      name: 'Status',
+      selector: (row) => (row.status ? 'Active' : 'Inactive'),
+      cell: (row) => (
+        <FaCircle color={row.status ? 'green' : 'red'} title={row.status ? 'Active' : 'Inactive'} />
+      ),
+      sortable: true,
+    },
+    { name: 'Address', selector: (row) => row.address || 'N/A', wrap: true, grow: 2, sortable: true },
+    { name: 'Email', selector: (row) => row.email || 'N/A', wrap: true, grow: 2, sortable: true },
+    { name: 'Phone', selector: (row) => row.phone || 'N/A', sortable: true },
+    { name: 'Company Name', selector: (row) => row.company_name || 'N/A', sortable: true, width: '140px' },
+    { name: 'Notes', selector: (row) => row.notes || 'N/A', wrap: true, grow: 2 },
+    {
+      name: 'Created At',
+      selector: (row) => (row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'),
+      sortable: true,
+      wrap: true,
+      width: '110px',
+    },
+    {
+      name: 'Action',
+      cell: (row) => (
+        <div className="d-flex gap-2">
+          <CTooltip content="Generate Lead" placement="top">
+            <button
+              className="icon-button"
+              onClick={() => {
+                setVisible(true);
+                setId(row.uuid);
+              }}
+            >
+              <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
+            </button>
+          </CTooltip>
+          <span onClick={() => handleDelete(row.uuid)} title="Delete" style={{ cursor: 'pointer' }}>
+            <CIcon icon={cilTrash} size="lg" />
+          </span>
+          <Link to={`/edit-client/${row.uuid}`}>
+            <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
+          </Link>
+        </div>
+      ),
+      ignoreRowClick: true,
+      width: '150px',
+    },
+  ];
+
   return (
-    <div className='container'>
-       {toastData.show && (
-              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
-                <ToastExample status={toastData.status} message={toastData.message} />
-              </div>
-            )}
-      <div className='w-100 mb-3 d-flex justify-content-between align-items-center '>
-        <Link to='/add-client'> <CButton className='custom-button'>Add Client</CButton></Link>
-       
+    <div className="container">
+      {toastData.show && (
+        <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+          <ToastExample status={toastData.status} message={toastData.message} />
+        </div>
+      )}
+
+      <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+        <Link to="/add-client">
+          <CButton className="custom-button">Add Client</CButton>
+        </Link>
         <input
           type="text"
           className="form-control w-25"
-          placeholder="Search by name or email"
-          value={filterText}
-          onChange={e => setFilterText(e.target.value)}
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1); // Reset to first page when searching
+          }}
         />
       </div>
+
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={clients}
         pagination
-        // selectableRows
+        paginationServer
+        paginationTotalRows={totalCount}
+        onChangePage={(p) => setPage(p)}
+        onChangeRowsPerPage={(newLimit) => {
+          setLimit(newLimit);
+          setPage(1);
+        }}
+        progressPending={loading}
         highlightOnHover
         responsive
         striped
       />
-      
-     
- <CModal visible={visible} onClose={() => {setVisible(false); setid('')}}    >
+
+      <CModal visible={visible} onClose={() => { setVisible(false); setId(''); }}>
         <CModalHeader>Confirm</CModalHeader>
         <CModalBody>Are you sure you want to create a lead?</CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setVisible(false)}>
-            Cancel
-          </CButton>
-          <CButton color="primary" onClick={handleConfirm}>
-            Yes, Create
-          </CButton>
+          <CButton color="secondary" onClick={() => setVisible(false)}>Cancel</CButton>
+          <CButton color="primary" onClick={handleConfirm}>Yes, Create</CButton>
         </CModalFooter>
       </CModal>
-    
-    
-     
     </div>
-   
-  )
+  );
 }
 
-export default ClientListing
+export default ClientListing;

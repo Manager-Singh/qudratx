@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { CButton } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { MdEdit } from 'react-icons/md';
-import { FaCircle } from 'react-icons/fa';
 import {
   getFeeStructures,
   deleteFeeStructure
@@ -15,10 +14,13 @@ import { ToastExample } from '../../../components/toast/Toast';
 
 function FeeStructure() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const { feestructures } = useSelector((state) => state.feeStructure);
-  const [filterText, setFilterText] = useState('');
+
+  // Pagination & Search state
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
 
   // Toast state
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
@@ -28,27 +30,41 @@ function FeeStructure() {
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000);
   };
 
-  useEffect(() => {
-    if (!feestructures || feestructures.length < 1) {
-      dispatch(getFeeStructures());
-    }
-  }, [dispatch]);
-
-  function handleDelete(uuid) {
-    dispatch(deleteFeeStructure(uuid)).then((res) => {
+  // Fetch fee structures from API
+  const fetchFeeStructures = (pageNum = page, limit = perPage, searchText = search) => {
+    dispatch(getFeeStructures({ page: pageNum, limit, search: searchText })).then((res) => {
       if (res.payload?.success) {
-        dispatch(getFeeStructures());
-        showToast('success', 'Fee structure deleted successfully');
-      } else {
-        showToast(res.payload, 'Failed to delete fee structure');
+        setTotal(res.payload.totalRecords || 0);
       }
     });
-  }
+  };
+
+  useEffect(() => {
+    fetchFeeStructures(page, perPage, search);
+  }, [page, perPage]);
+
+  const handleDelete = (uuid) => {
+    dispatch(deleteFeeStructure(uuid)).then((res) => {
+      if (res.payload?.success) {
+        showToast('success', 'Fee structure deleted successfully');
+        fetchFeeStructures();
+      } else {
+        showToast('error', 'Failed to delete fee structure');
+      }
+    });
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setPage(1);
+    fetchFeeStructures(1, perPage, value);
+  };
 
   const columns = [
     {
       name: 'Name',
-      selector: (row) => row.name,
+      selector: (row) => row.name || 'N/A',
       sortable: true,
     },
     {
@@ -58,7 +74,7 @@ function FeeStructure() {
     },
     {
       name: 'Status',
-      selector: row => (
+      selector: (row) => (
         <span className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}>
           {row.status == 1 ? 'Active' : 'Inactive'}
         </span>
@@ -73,7 +89,7 @@ function FeeStructure() {
     {
       name: 'Action',
       cell: (row) => (
-        <div className='d-flex gap-2'>
+        <div className="d-flex gap-2">
           <span
             onClick={() => handleDelete(row.uuid)}
             className="p-0"
@@ -96,39 +112,44 @@ function FeeStructure() {
     },
   ];
 
-  const filteredData = feestructures.filter((item) =>
-    item.name.toLowerCase().includes(filterText.toLowerCase())
-  );
-
   return (
-    <div className='container'>
+    <div className="container">
       {toastData.show && (
         <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
           <ToastExample status={toastData.status} message={toastData.message} />
         </div>
       )}
 
-      <div className='w-100 mb-3 d-flex justify-content-between align-items-center'>
-        <Link to='/add-feestructure'>
-          <CButton className='custom-button'>Add Fee Structure</CButton>
+      <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+        <Link to="/add-feestructure">
+          <CButton className="custom-button">Add Fee Structure</CButton>
         </Link>
 
         <input
           type="text"
           className="form-control w-25"
           placeholder="Search by name"
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
+          value={search}
+          onChange={handleSearch}
         />
       </div>
 
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={feestructures || []}
         pagination
+        paginationServer
+        paginationTotalRows={total}
+        paginationPerPage={perPage}
+        onChangePage={(pageNum) => setPage(pageNum)}
+        onChangeRowsPerPage={(newPerPage, pageNum) => {
+          setPerPage(newPerPage);
+          setPage(pageNum);
+        }}
         highlightOnHover
         responsive
         striped
+        noDataComponent="No fee structures found"
       />
     </div>
   );

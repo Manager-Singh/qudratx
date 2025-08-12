@@ -157,7 +157,7 @@ import {
 } from 'react-icons/fa'
 import { getClient } from '../../../../store/admin/clientSlice'
 
-function Clients({ selectedClient, setSelectedClient }) {
+function Clients({ selectedClient, setSelectedClient ,lead_id}) {
   const dispatch = useDispatch()
   const clients = useSelector((state) => state.client.clients)
   const isLoading = useSelector((state) => state.client.isLoading)
@@ -194,7 +194,8 @@ function Clients({ selectedClient, setSelectedClient }) {
         value={selectedOption}
         onChange={handleClientChange}
         options={clientOptions}
-        isClearable
+        isClearable={!lead_id} 
+        isDisabled={Boolean(lead_id)} 
         isLoading={isLoading}
         placeholder="Search & Select Client"
       />

@@ -207,7 +207,13 @@ useEffect(()=>{
     setQuestionFormData(proposal.business_questions || initialQuestionFormData);
     setTotalAmount(proposal.total_amount || 0);
     setNotes(proposal.notes || initialNotes);
-    setSelectedClient(proposal.client_info)
+    if (proposal.lead_id) {
+      console.log("proposal",proposal.lead.Client)
+       setSelectedClient(proposal?.lead?.Client)
+       
+    }else{
+   setSelectedClient(proposal.client_info)
+    }
    if (proposal.step) {
     if (proposal.step =='last_step') {
       setStep(11)
@@ -217,7 +223,7 @@ useEffect(()=>{
       setStep(newStep)
     }
    }
-        }
+      }
       });
     }
     })
@@ -226,7 +232,7 @@ useEffect(()=>{
       dispatch(clearSelectedProposal())
     }
   },[uuid])
-
+console.log(selectedClient,"selectedClient")
 useEffect(() => {
   if (location.state?.zone) {
     setZoneData(location.state.zone);
@@ -717,6 +723,7 @@ const max_activity_selected =selectedPackage?.activity
       }
     })
  }
+ 
  const HandleSendToClient =()=>{
   
  }
@@ -929,6 +936,7 @@ const max_activity_selected =selectedPackage?.activity
       {step === 10 && (
         <>
       <Clients
+  lead_id={proposal.lead_id}
   selectedClient={selectedClient}
   setSelectedClient={setSelectedClient}
 />   

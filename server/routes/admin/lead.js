@@ -8,8 +8,7 @@ const { createLeadDetail,
   deleteLeadDetail,
   getDeletedLeadDetail,
 getLeadDetailByEmployeeID,
-approveLead,
-unapproveLead} = require('../../controllers/leadController');
+updateLeadApprovalStatus} = require('../../controllers/leadController');
 
 router.post('/create-lead',createLeadDetail)
 router.put('/assign-lead',assignLead)
@@ -19,8 +18,7 @@ router.get('/get-lead-detail-by-employeeId',getLeadDetailByEmployeeID)
 router.put('/update-lead-detail/:uuid',updateLeadDetail)
 router.delete('/delete-lead-detail/:uuid',deleteLeadDetail)
 router.get('/get-deleted-lead-detail',getDeletedLeadDetail)
-router.put('/leads/:uuid/approve', approveLead);
-router.put('/leads/:uuid/unapprove', unapproveLead);
+router.put('/leads/:uuid/update-approval-status', updateLeadApprovalStatus);
 
 
 module.exports = router;

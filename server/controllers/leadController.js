@@ -493,13 +493,14 @@ const getLeadDetailByEmployeeID = async (req, res) => {
   }
 };
 
-const approveLead = async (req, res) => {
+const updateLeadApprovalStatus = async (req, res) => {
   try {
     const { uuid } = req.params;
+    const { action, reason } = req.body; // action = 'approve' or 'unapprove'
 
-    // Only admin should be allowed to approve
+    // Only admin should be allowed
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Only admins can approve leads.' });
+      return res.status(403).json({ message: 'Access denied. Only admins can update lead approval status.' });
     }
 
     const lead = await Lead.findOne({ where: { uuid } });
@@ -508,99 +509,80 @@ const approveLead = async (req, res) => {
       return res.status(404).json({ message: 'Lead not found' });
     }
 
-    // Already approved
-    if (lead.approval_status === 'approved') {
-      return res.status(400).json({ message: 'Lead is already approved' });
-    }
+    if (action === 'approve') {
+      if (lead.approval_status === 'approved') {
+        return res.status(400).json({ message: 'Lead is already approved' });
+      }
 
-    lead.approval_status = 1; // 1 means approved
-    lead.approved_by = req.user.id;
-    lead.updated_by = req.user.id;
-    lead.updated_at = new Date();
-    lead.last_update = new Date();
-
-    await lead.save({ userId: req.user.id });
-
-    if (lead.created_by !== req.user.id) {
-      await Notification.create({
-        user_id: lead.created_by,
-        created_by: req.user.id,
-        type: 'Lead',
-         action: 'Approved',
-         title: 'Lead Approved',
-        message: `Your lead (${lead.lead_number}) has been approved by admin.`,
-        related_id: uuid,
-      });
-    }
-
-    return res.status(200).json({
-      message: 'Lead approved successfully',
-      success: true,
-      data: lead
-    });
-  } catch (error) {
-    console.error('Error approving lead:', error);
-    return res.status(500).json({
-      message: 'Internal server error',
-    });
-  }
-};
-
-const unapproveLead = async (req, res) => {
-  try {
-    const { uuid } = req.params;
-      const {
-      reason,
-    } = req.body;
-
-    // Only admin should be allowed to unapprove
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Only admins can unapprove leads.' });
-    }
-
-    const lead = await Lead.findOne({ where: { uuid } });
-
-    if (!lead) {
-      return res.status(404).json({ message: 'Lead not found' });
-    }
-
-    // Already unapproved
-    if (lead.approval_status === 'unapproved') {
-      return res.status(400).json({ message: 'Lead is already unapproved' });
-    }
-
-    lead.approval_status = 0; // 0 means unapproved
-    lead.reason = reason;
-    lead.approved_by = null; // Reset approved_by
-    lead.updated_by = req.user.id;
-    lead.updated_at = new Date();
-    lead.last_update = new Date();
-
-    await lead.save({ userId: req.user.id });
+      lead.approval_status = 'approved'; // approved
+      lead.reason = null;
+      lead.approved_by = req.user.id;
+      lead.updated_by = req.user.id;
+      lead.updated_at = new Date();
+      lead.last_update = new Date();
+      await lead.save({ userId: req.user.id });
 
       if (lead.created_by !== req.user.id) {
-      await Notification.create({
-        user_id: lead.created_by,
-        created_by: req.user.id,
-        type: 'Lead',
-        title: 'Lead Unapproved',
-        action:'Unapproved',
-        message: `Your proposal (${lead.lead_number}) has been unapproved by admin.`,
-        related_id: uuid,
+        await Notification.create({
+          user_id: lead.created_by,
+          created_by: req.user.id,
+          type: 'Lead',
+          action: 'Approved',
+          title: 'Lead Approved',
+          message: `Your lead (${lead.lead_number}) has been approved by admin.`,
+          related_id: uuid,
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Lead approved successfully',
+        success: true,
+        data: lead
       });
+
+    } else if (action === 'unapprove') {
+      if (lead.approval_status === 'unapproved') {
+        return res.status(400).json({ message: 'Lead is already unapproved' });
+      }
+
+      lead.approval_status = 'unapproved'; // unapproved
+      lead.reason = reason || null;
+      lead.approved_by = null;
+      lead.updated_by = req.user.id;
+      lead.updated_at = new Date();
+      lead.last_update = new Date();
+      await lead.save({ userId: req.user.id });
+
+      if (lead.created_by !== req.user.id) {
+        await Notification.create({
+          user_id: lead.created_by,
+          created_by: req.user.id,
+          type: 'Lead',
+          action: 'Unapproved',
+          title: 'Lead Unapproved',
+          message: `Your lead (${lead.lead_number}) has been unapproved by admin.`,
+          related_id: uuid,
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Lead unapproved successfully',
+        success: true,
+        data: lead
+      });
+
+    } else {
+      return res.status(400).json({ message: 'Invalid action. Use "approve" or "unapprove".' });
     }
-    return res.status(200).json({
-      message: 'Lead unapproved successfully',
-      success: true,
-      data: lead
-    });
+
   } catch (error) {
-    console.error('Error unapproving lead:', error);
+    console.error('Error updating lead approval status:', error);
     return res.status(500).json({
       message: 'Internal server error',
     });
   }
 };
+
 
 
 
@@ -613,6 +595,5 @@ module.exports = {
   deleteLeadDetail,
   getDeletedLeadDetail,
   getLeadDetailByEmployeeID,
-  approveLead,
-  unapproveLead
+  updateLeadApprovalStatus
 };

@@ -69,7 +69,7 @@ function AddLead() {
       }
     })
   } else {
-    dispatch(getClient())
+    dispatch(getClient({ page: 1, limit: 10, search: ''}));
   }
 
   dispatch(getEmployees())

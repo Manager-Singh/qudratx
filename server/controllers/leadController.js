@@ -1,6 +1,9 @@
 const { Lead, Client, User , Notification } = require('../models');
 const { Op, where } = require('sequelize');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
+const transporter = require('../config/emailConfig');
 
 // CREATE
 const createLeadDetail = async (req, res) => {

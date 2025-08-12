@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   getLead,
   deleteLead,
-  getEmployeeLead
+  getEmployeeLead,
+  handleApproveStatus
 } from '../../../../store/admin/leadSlice';
-import { CButton } from '@coreui/react';
+import { CButton, CModal, CModalBody, CModalHeader } from '@coreui/react';
 import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
@@ -15,6 +16,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 
 function AllLead() {
+
   const dispatch = useDispatch();
   const { leads, total, isLoading } = useSelector((state) => state.lead);
   const user = useSelector((state) => state.auth.user);
@@ -40,6 +42,14 @@ function AllLead() {
     }
   };
 
+    const confirmApproval = (uuid, action) => {
+    setSelectedApprovalUUID(uuid)
+    setApprovalAction(action)
+    if (action === 'unapprove') {
+      setDisapprovalMessage('') // clear previous message
+    }
+    setApprovalModalVisible(true)
+  }
   const confirmDelete = (uuid) => {
     setSelectedUUID(uuid);
     setDeleteModalVisible(true);
@@ -60,90 +70,223 @@ function AllLead() {
     setSelectedUUID(null);
   };
 
-  const columns = [
-    {
-      name: 'Origin',
-      selector: (row) => row.origin || '-',
-      sortable: true
-    },
-    {
-      name: 'Lead Status',
-      selector: (row) => row.lead_status || '-',
-      sortable: true,
-      wrap: true,
-      grow: 3
-    },
-    ...(user.role === 'admin'
-      ? [
-          {
-            name: 'Assigned To',
-            selector: (row) =>
-              row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
-            sortable: true,
-            wrap: true,
-            grow: 3
-          },
-          {
-            name: 'Created By',
-            selector: (row) => row.createdBy?.name || '-',
-            sortable: true,
-            wrap: true,
-            grow: 3
-          }
-        ]
-      : []),
-    {
-      name: 'Approval Status',
-      selector: (row) => row.approval_status || '-',
-      sortable: true,
-      wrap: true,
-      grow: 3
-    },
-    {
-      name: 'Status',
-      selector: (row) => (
-        <span
-          className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}
+ const columns = [
+ 
+   ...(user.role === 'admin'
+    ? [
+      {
+  name: 'Approval Status',
+  cell: (row) => {
+    const LeadApprovalDropdown = () => {
+      const [selectedStatus, setSelectedStatus] = useState(
+        row.approval_status === 1
+          ? 'Approved'
+          : row.approval_status === 2
+          ? 'Pending'
+          : 'Unapproved'
+      );
+      const [showReasonModal, setShowReasonModal] = useState(false);
+      const [reason, setReason] = useState('');
+      const dispatch = useDispatch();
+
+      const handleChange = (e) => {
+        const value = e.target.value;
+        setSelectedStatus(value);
+
+        if (value === 'Unapproved') {
+          // Ask for reason first
+          setShowReasonModal(true);
+        } else if (value === 'Approved') {
+          // Direct API call without reason
+          // dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"approve"}
+
+          // })).then((data)=>{
+          //   console.log(data,"data")
+          // })
+          
+        }
+      };
+
+      const handleConfirmUnapprove = () => {
+        console.log("row.uuid",row.uuid ,reason)
+        // dispatch(
+        //   approveLead({
+        //     uuid: row.uuid,
+        //     status: 'unapprove',
+        //     reason: reason || null,
+        //   })
+        // )
+        //   .unwrap()
+        //   .then(() => {
+        //     dispatch(GetAllLeads());
+        //     setShowReasonModal(false);
+        //     setReason('');
+        //   })
+        //   .catch((err) => console.error('Unapproval error:', err));
+      };
+
+      return (
+        <>
+          <select
+            className="form-select form-select-sm custom-tracking-select"
+            style={{
+              width: '162px',
+              padding: '6px 12px',
+              borderRadius: '0.375rem',
+              border: '1px solid #ccc',
+              backgroundColor:
+                selectedStatus === 'Approved'
+                  ? '#d4edda'
+                  : selectedStatus === 'Pending'
+                  ? '#fff3cd'
+                  : '#fff9db',
+              color:
+                selectedStatus === 'Approved'
+                  ? '#155724'
+                  : selectedStatus === 'Pending'
+                  ? '#856404'
+                  : '#b58900',
+              fontWeight: 500,
+            }}
+            value={selectedStatus}
+            onChange={handleChange}
+          >
+            {selectedStatus === 'Pending' && (
+              <option value="Pending" disabled>
+                Pending
+              </option>
+            )}
+            <option value="Approved">Approved</option>
+            <option value="Unapproved">Unapproved</option>
+          </select>
+
+          {/* Reason Modal */}
+          <CModal visible={showReasonModal} onClose={() => setShowReasonModal(false)}>
+            <CModalHeader>
+              <h5>Reason for Unapproval</h5>
+            </CModalHeader>
+            <CModalBody>
+              <textarea
+                className="form-control"
+                rows={3}
+                placeholder="Enter reason..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              />
+              <div className="mt-3 d-flex justify-content-end gap-2">
+                <CButton color="secondary" onClick={() => setShowReasonModal(false)}>
+                  Cancel
+                </CButton>
+                <CButton color="danger" onClick={handleConfirmUnapprove}>
+                  Confirm Unapproval
+                </CButton>
+              </div>
+            </CModalBody>
+          </CModal>
+        </>
+      );
+    };
+
+    return <LeadApprovalDropdown />;
+  },
+  sortable: true,
+  grow: 5,
+} ,]
+    : [
+        {
+          name: 'Approval Status',
+          selector: (row) =>
+            row.approval_status === 1
+              ? 'Approved'
+              : row.approval_status === 2
+              ? 'Pending'
+              : 'Unapproved',
+          sortable: true,
+          wrap: true,
+         
+        },
+      ]),
+
+
+
+  {
+    name: 'Origin',
+    selector: (row) => row.origin || '-',
+    sortable: true,
+  },
+  {
+    name: 'Lead Status',
+    selector: (row) => row.lead_status || '-',
+    sortable: true,
+    wrap: true,
+    grow: 3,
+  },
+  ...(user.role === 'admin'
+    ? [
+        {
+          name: 'Assigned To',
+          selector: (row) =>
+            row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
+          sortable: true,
+          wrap: true,
+          grow: 3,
+        },
+        {
+          name: 'Created By',
+          selector: (row) => row.createdBy?.name || '-',
+          sortable: true,
+          wrap: true,
+          grow: 3,
+        },
+      ]
+    : []),
+
+  {
+    name: 'Status',
+    selector: (row) => (
+      <span
+        className={`badge ${row.status == 1 ? 'bg-success' : 'bg-secondary'} `}
+      >
+        {row.status == 1 ? 'Active' : 'Inactive'}
+      </span>
+    ),
+    sortable: true,
+  },
+  {
+    name: 'Created At',
+    selector: (row) =>
+      row.created_at ? new Date(row.created_at).toLocaleString() : '-',
+    sortable: true,
+    grow: 3,
+  },
+  {
+    name: 'Action',
+    cell: (row) => (
+      <div className="d-flex gap-2">
+        <Link
+          to="/business-zones"
+          state={{ lead: row }}
+          title="Create Proposal"
         >
-          {row.status == 1 ? 'Active' : 'Inactive'}
+          <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
+        </Link>
+        <Link title="View Lead" to={`/view-lead/${row.uuid}`}>
+          <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
+        </Link>
+        <span
+          onClick={() => confirmDelete(row.uuid)}
+          title="Delete Lead"
+          style={{ cursor: 'pointer' }}
+        >
+          <CIcon icon={cilTrash} size="lg" />
         </span>
-      ),
-      sortable: true
-    },
-    {
-      name: 'Created At',
-      selector: (row) =>
-        row.created_at ? new Date(row.created_at).toLocaleString() : '-',
-      sortable: true,
-      grow: 3
-    },
-    {
-      name: 'Action',
-      cell: (row) => (
-        <div className="d-flex gap-2">
-          <Link
-            to="/business-zones"
-            state={{ lead: row }}
-            title="Create Proposal"
-          >
-            <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
-          </Link>
-          <Link title="View Lead">
-            <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
-          </Link>
-          <span
-            onClick={() => confirmDelete(row.uuid)}
-            title="Delete Lead"
-            style={{ cursor: 'pointer' }}
-          >
-            <CIcon icon={cilTrash} size="lg" />
-          </span>
-        </div>
-      ),
-      ignoreRowClick: true,
-      width: '120px'
-    }
-  ];
+      </div>
+    ),
+    ignoreRowClick: true,
+    width: '120px',
+  },
+]
+
 
   return (
     <div className="container">

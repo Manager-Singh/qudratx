@@ -814,7 +814,7 @@ const updateProposalStatus = async (req, res) => {
 const sendProposalEmail = async (req, res) => {
   try {
     const { uuid } = req.params; // Proposal UUID from params
-    const { client_email } = req.body; // or req.body if POST
+   const client_email = req.body?.client_email || req.query?.client_email;
 
     // Fetch proposal with client details
     const proposal = await Proposal.findOne({
@@ -824,16 +824,18 @@ const sendProposalEmail = async (req, res) => {
     if (!proposal) {
       return res.status(404).json({ message: 'Proposal not found' });
     }
-
+const clientInfo = typeof proposal.client_info === 'string'
+  ? JSON.parse(proposal.client_info)
+  : proposal.client_info;
     // Decide recipient email
-    const recipientEmail = client_email || proposal.client_info?.email;
+    const recipientEmail = client_email || clientInfo?.email;
 
     if (!recipientEmail) {
       return res.status(400).json({ message: 'No email provided and no client email found in proposal' });
     }
 
      const mailOptions = {
-        from: 'testwebtrack954@gmail.com',
+        from: process.env.EMAIL_USER,
         to: recipientEmail,
         subject: `Proposal ${proposal.proposal_number}`,
         text: `Hello,\n\nHere is your proposal (${proposal.proposal_number}).\n\nRegards,\nYour Company`,

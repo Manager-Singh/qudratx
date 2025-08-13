@@ -29,7 +29,7 @@ function AllLead() {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
-
+console.log(leads,"leads")
   // Pagination and search states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -85,93 +85,81 @@ function AllLead() {
   name: 'Approval Status',
   cell: (row) => {
     const LeadApprovalDropdown = () => {
-      const [selectedStatus, setSelectedStatus] = useState(
-        row.approval_status === "approved"
-          ? 'Approved'
-          : row.approval_status === "Pending"
-          ? 'Pending'
-          : 'Unapproved'
-      );
+      const [selectedStatus, setSelectedStatus] = useState(row.approval_status);
       const [showReasonModal, setShowReasonModal] = useState(false);
       const [reason, setReason] = useState('');
       const dispatch = useDispatch();
 
       const handleChange = (e) => {
-        const value = e.target.value;
+        const value = Number(e.target.value); // always a number
         setSelectedStatus(value);
 
-        if (value === 'Unapproved') {
-          // Ask for reason first
+        if (value === 0) {
+          // Unapprove → ask for reason
           setShowReasonModal(true);
-        } else if (value === 'Approved') {
-          // Direct API call without reason
-          dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"approve"}
-
-          })).then((data)=>{
-           
-            if(data.payload.success){
-          showToast('success', 'Proposal approve successfully');
-           const params = { page, limit,};
-            dispatch(getLead(params));
-            }
-          })
-          
+        } else if (value === 1) {
+          // Approve directly
+          dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "approve" } }))
+            .then((data) => {
+              if (data.payload.success) {
+                showToast('success', 'Lead approved successfully');
+                dispatch(getLead({ page, limit }));
+              }
+            });
         }
       };
 
       const handleConfirmUnapprove = () => {
-       
-         dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"unapprove",reason}
-          })).then((data)=>{
-           
-            if(data.payload.success){
-         showToast('success', 'Proposal unapprove successfully');
-         const params = { page, limit,};
-            dispatch(getLead(params));
+        dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "unapprove", reason } }))
+          .then((data) => {
+            if (data.payload.success) {
+              showToast('success', 'Lead unapproved successfully');
+              dispatch(getLead({ page, limit }));
+              setShowReasonModal(false);
             }
-          })
-
+          });
       };
 
       return (
         <>
           <select
-            className="form-select form-select-sm custom-tracking-select"
+            className="form-select form-select-sm"
+            value={selectedStatus}
+            onChange={handleChange}
             style={{
               width: '162px',
               padding: '6px 12px',
               borderRadius: '0.375rem',
               border: '1px solid #ccc',
               backgroundColor:
-                selectedStatus === 'Approved'
+                selectedStatus === 1
                   ? '#d4edda'
-                  : selectedStatus === 'Pending'
+                  : selectedStatus === 2
                   ? '#fff3cd'
                   : '#fff9db',
               color:
-                selectedStatus === 'Approved'
+                selectedStatus === 1
                   ? '#155724'
-                  : selectedStatus === 'Pending'
+                  : selectedStatus === 2
                   ? '#856404'
                   : '#b58900',
               fontWeight: 500,
             }}
-            value={selectedStatus}
-            onChange={handleChange}
           >
-            {selectedStatus === 'Pending' && (
-              <option value="Pending" disabled>
+            {selectedStatus === 2 && (
+              <option value={2} disabled>
                 Pending
               </option>
             )}
-            <option value="Approved">Approved</option>
-            <option value="Unapproved">Unapproved</option>
+            <option value={1}>Approved</option>
+            <option value={0}>Unapproved</option>
           </select>
 
           {/* Reason Modal */}
-          <CModal visible={showReasonModal} onClose={() =>{setShowReasonModal(false),dispatch(getLead({ page, limit,}))} 
-            
-          }>
+          <CModal
+            visible={showReasonModal}
+            onClose={() => setShowReasonModal(false)}
+          >
             <CModalHeader>
               <h5>Reason for Unapproval</h5>
             </CModalHeader>
@@ -184,7 +172,10 @@ function AllLead() {
                 onChange={(e) => setReason(e.target.value)}
               />
               <div className="mt-3 d-flex justify-content-end gap-2">
-                <CButton color="secondary" onClick={() => setShowReasonModal(false)}>
+                <CButton
+                  color="secondary"
+                  onClick={() => setShowReasonModal(false)}
+                >
                   Cancel
                 </CButton>
                 <CButton color="danger" onClick={handleConfirmUnapprove}>
@@ -201,14 +192,16 @@ function AllLead() {
   },
   sortable: true,
   grow: 5,
-} ,]
+},
+
+]
     : [
         {
           name: 'Approval Status',
           selector: (row) =>
-            row.approval_status == "approved"
+            row.approval_status == 1
               ? 'Approved'
-              : row.approval_status === 'Pending'
+              : row.approval_status == 2
               ? 'Pending'
               : 'Unapproved',
           sortable: true,
@@ -281,7 +274,7 @@ function AllLead() {
          navigate('/business-zones', { state: { lead: row } });
         return;
       }
-      showToast('warning', 'Cannot create proposal for unapproved leads');
+      showToast('warning', 'Cannot create proposal before approval leads');
     };
 
     return (

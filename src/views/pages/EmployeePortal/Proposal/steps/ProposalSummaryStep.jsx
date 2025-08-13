@@ -42,11 +42,11 @@ const imageMap = {
 const handleGeneratePdf = async () => {
   if (proposalRef.current) {
     const element = proposalRef.current;
-
+    const pdfFileName = `${proposal.proposal_number}.pdf`;
     const opt = {
       margin: 10,
-      filename: `${proposal.proposal_number.pdf}`,
-      image: { type: 'jpeg', quality: 10 },
+      filename: pdfFileName,
+      image: { type: 'jpeg', quality: 0.7 },
       html2canvas: {
       scale: 2,
       useCORS: true,      
@@ -62,7 +62,7 @@ const handleGeneratePdf = async () => {
 
       // 3. Upload to backend using FormData
       const formData = new FormData();
-      formData.append('generated_pdf', pdfBlob, 'proposal_summary.pdf');
+      formData.append('generated_pdf', pdfBlob, pdfFileName);
 
       // 4. Dispatch updateProposal Redux action
       dispatch(updateProposalPdf({

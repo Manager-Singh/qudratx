@@ -6,7 +6,7 @@ export const ToastExample = ({ status = 'success', message = '' }) => {
     if (status === 'success') return '#28a745'; // green
     if (status === 'error') return '#dc3545';   // red
     // if (status === 'warning') return '#6c757d'; 
-    if (status === 'warning') return '#ffc107'
+    if (status === 'warning') return '#dfd10ec5'
     return '#6c757d';
   };
 

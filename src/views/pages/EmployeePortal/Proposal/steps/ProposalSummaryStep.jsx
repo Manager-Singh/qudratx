@@ -172,9 +172,9 @@
 //   return (
 //     <div>
 //        {toastData.show && (
-//                           <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+//                      <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
 //                             <ToastExample status={toastData.status} message={toastData.message} />
-//                           </div>
+//                          </div>
 //                         )}
     
 //      <div className='d-flex justify-content-between'>
@@ -537,12 +537,21 @@ import HeadingBar from './Components/HeadingBar';
 import { getData } from '../../../../../utils/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProposal, updateProposalPdf ,getProposalByUUID} from '../../../../../store/admin/proposalSlice';
-import { CButton } from '@coreui/react';
+import { CButton, CFormInput, CModal, CModalBody, CModalHeader } from '@coreui/react';
 import { ToastExample } from '../../../../../components/toast/Toast'
 import { HiOutlineDocumentDownload } from "react-icons/hi";
 import axios from 'axios';
+import rakez from '../../../../../assets/proposal_images/rakez.jpg'
+import shams from '../../../../../assets/proposal_images/shams.jpg'
+import ifza from '../../../../../assets/proposal_images/ifza.jpg'
+import dubaiSouth from '../../../../../assets/proposal_images/dubaiSouth.jpeg'
+import dmcc from '../../../../../assets/proposal_images/dmcc.jpg'
+import dedDubai from '../../../../../assets/proposal_images/dedDubai.jpg'
 const ProposalSummary = () => {
 const {proposal} = useSelector((state)=>state.proposal)
+const [showClientModal, setShowClientModal] = useState(false);
+const [image ,setImage]=useState('')
+const [clientEmail, setClientEmail] = useState('');
   const dispatch= useDispatch()
   const proposalRef = useRef(null);
 const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -552,6 +561,14 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
     }
  
 
+const imageMap = {
+  SHAMS: shams,
+  RAKEZ: rakez,
+  IFZA: ifza,
+  'DUBAI SOUTH': dubaiSouth,
+  DMCC: dmcc,
+  'DED DUBAI': dedDubai
+};
 const handleGeneratePdf = async () => {
   if (proposalRef.current) {
     const element = proposalRef.current;
@@ -572,12 +589,6 @@ const handleGeneratePdf = async () => {
     try {
       // 1. Generate PDF Blob
       const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
-
-      // 2. Optional: Trigger local download
-      // const downloadLink = document.createElement('a');
-      // downloadLink.href = URL.createObjectURL(pdfBlob);
-      // downloadLink.download = 'proposal_summary.pdf';
-      // downloadLink.click();
 
       // 3. Upload to backend using FormData
       const formData = new FormData();
@@ -702,9 +713,23 @@ const handleGeneratePdf = async () => {
       })
    }
 
-    const HandleSendToClient =()=>{
-  
- }
+  const HandleSendToClient = () => {
+  if (proposal?.clientinfo && Object.keys(proposal.clientinfo).length > 0) {
+    // Client info exists, send directly
+    dispatch(updateProposal({
+      uuid: proposal.uuid,
+      data: { send_to_client: true }
+    })).then((res) => {
+      if (res.payload.success) {
+        showToast('success', 'Proposal sent to client successfully.');
+        dispatch(getProposalByUUID(proposal.uuid));
+      }
+    });
+  } else {
+    // No client info, ask for email
+    setShowClientModal(true);
+  }
+};
  
  const handleDownload = async () => {
   try {
@@ -724,11 +749,9 @@ const handleGeneratePdf = async () => {
     console.error('Download error:', error);
   }
 };
-
-   
-
-
-
+const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()] 
+                      || "https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg";
+  
   return (
     <div>
        {toastData.show && (
@@ -736,11 +759,61 @@ const handleGeneratePdf = async () => {
             <ToastExample status={toastData.status} message={toastData.message} />
           </div>
                         )}
+                      
+                        {showClientModal && (
+ <CModal
+  visible={showClientModal}
+  onClose={() => setShowClientModal(false)}
+  alignment="top"
+  className="mt-5" // pushes it down slightly from absolute top
+>
+  <CModalHeader>
+    <h5>Enter Client Email</h5>
+  </CModalHeader>
+  <CModalBody>
+    <CFormInput
+      type="email"
+      value={clientEmail}
+      onChange={(e) => setClientEmail(e.target.value)}
+      placeholder="Enter client email"
+      className="mb-3"
+    />
+    <div className="d-flex gap-2">
+      <CButton
+        color="primary"
+        onClick={() => {
+          if (!clientEmail) {
+            showToast('error', 'Please enter an email.');
+            return;
+          }
+          dispatch(updateProposal({
+            uuid: proposal.uuid,
+            data: { send_to_client: true, client_email: clientEmail }
+          })).then((res) => {
+            if (res.payload.success) {
+              showToast('success', 'Proposal sent to client successfully.');
+              dispatch(getProposalByUUID(proposal.uuid));
+              setShowClientModal(false);
+              setClientEmail('');
+            }
+          });
+        }}
+      >
+        Send
+      </CButton>
+      <CButton color="secondary" onClick={() => setShowClientModal(false)}>
+        Cancel
+      </CButton>
+    </div>
+  </CModalBody>
+</CModal>
+
+)}
     
      <div className='d-flex justify-content-between'>
       <div >
        {
-        proposal.approval_status == 1 && !proposal.generated_pdf && <button
+        proposal?.approval_status == 1 && !proposal?.generated_pdf && <button
         onClick={handleGeneratePdf}
         className='custom-button m-2'
       >
@@ -757,7 +830,7 @@ const handleGeneratePdf = async () => {
               </CButton> } 
 
       </div>
-      {proposal.generated_pdf  && <div className='d-flex justify-content-end p-2'>
+      {proposal?.generated_pdf  && <div className='d-flex justify-content-end p-2'>
        <CButton
   onClick={handleDownload}
   title='Download PDF'
@@ -768,9 +841,7 @@ const handleGeneratePdf = async () => {
       
      </div>
      
-          
-
-      {proposal.approval_status == 2 && <div className='my-2'>
+      {proposal?.approval_status == 2 && <div className='my-2'>
       Wating for admin approval after the approval you can generate the pdf </div>}
       
       <div
@@ -787,10 +858,10 @@ const handleGeneratePdf = async () => {
           boxShadow: '0px 4px 20px rgba(0,0,0,0.1)',
         }}
       > 
-      <div style={{ width: '100%', height: '100%', display: 'flex', margin: 'auto' }}>
+      {/* <div style={{ width: '100%', height: '100%', display: 'flex', margin: 'auto' }}>
           {proposal?.zone_name?.toLowerCase() === 'freezone' ? (
             <img
-              src="https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg"
+              src={shams}
               alt=""
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -801,8 +872,16 @@ const handleGeneratePdf = async () => {
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           )}
-        </div>
-
+          
+        </div> */}
+        <div style={{ width: '100%', height: '600px', display: 'flex', margin: 'auto' }}>
+  <img
+    src={selectedImage}
+    alt={proposal?.authority_name || "Default"}
+    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+  />
+</div>
+              
         
         <HeadingBar title={`${proposal?.authority_name}  ${proposal?.zone_name}`} position="center" />
         <ul>

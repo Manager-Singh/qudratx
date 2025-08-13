@@ -923,10 +923,10 @@ const max_activity_selected =selectedPackage?.activity
       {step === 10 && (
         <>
       <Clients
-  lead_id={proposal.lead_id}
-  selectedClient={selectedClient}
-  setSelectedClient={setSelectedClient}
-/>   
+     lead_id={proposal?.lead_id}
+     selectedClient={selectedClient}
+     setSelectedClient={setSelectedClient}
+     />   
         </>
       )}
 
@@ -935,14 +935,6 @@ const max_activity_selected =selectedPackage?.activity
           <h4>Review & Generate PDF</h4>
           
          
-          {/* <CButton className="custom-button me-3"  onClick={viewPDF}>
-                     Preview PDF
-           </CButton>
-
-          {proposal?.employee_approval == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
-                     Send To Approval
-              </CButton> }
-           */}
           
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}

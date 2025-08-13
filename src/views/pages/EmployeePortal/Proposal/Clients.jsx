@@ -205,13 +205,14 @@ function Clients({ selectedClient, setSelectedClient ,lead_id}) {
           <CCard className="shadow-sm rounded-4 border-0">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Client Details</h5>
-              <CButton
+              {!lead_id &&  <CButton
                 color="danger"
                 size="sm"
                 onClick={() => setSelectedClient(null)}
               >
                 Close
-              </CButton>
+              </CButton>}
+             
             </CCardHeader>
 
             <CCardBody>

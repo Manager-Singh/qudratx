@@ -8,15 +8,21 @@ import {
 } from '../../../../store/admin/leadSlice';
 import { CButton, CModal, CModalBody, CModalHeader } from '@coreui/react';
 import DataTable from 'react-data-table-component';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import { FaRegEdit } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
+import { ToastExample } from '../../../../components/toast/Toast'
 
 function AllLead() {
-
+   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
+       const showToast = (status, message) => {
+         setToastData({ show: true, status, message })
+         setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
+       }
+      const navigate = useNavigate()
   const dispatch = useDispatch();
   const { leads, total, isLoading } = useSelector((state) => state.lead);
   const user = useSelector((state) => state.auth.user);
@@ -35,6 +41,7 @@ function AllLead() {
 
   const fetchData = () => {
     const params = { page, limit, search };
+   
     if (user.role === 'admin') {
       dispatch(getLead(params));
     } else {
@@ -79,9 +86,9 @@ function AllLead() {
   cell: (row) => {
     const LeadApprovalDropdown = () => {
       const [selectedStatus, setSelectedStatus] = useState(
-        row.approval_status === 1
+        row.approval_status === "approved"
           ? 'Approved'
-          : row.approval_status === 2
+          : row.approval_status === "Pending"
           ? 'Pending'
           : 'Unapproved'
       );
@@ -98,31 +105,32 @@ function AllLead() {
           setShowReasonModal(true);
         } else if (value === 'Approved') {
           // Direct API call without reason
-          // dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"approve"}
+          dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"approve"}
 
-          // })).then((data)=>{
-          //   console.log(data,"data")
-          // })
+          })).then((data)=>{
+           
+            if(data.payload.success){
+          showToast('success', 'Proposal approve successfully');
+           const params = { page, limit,};
+            dispatch(getLead(params));
+            }
+          })
           
         }
       };
 
       const handleConfirmUnapprove = () => {
-        console.log("row.uuid",row.uuid ,reason)
-        // dispatch(
-        //   approveLead({
-        //     uuid: row.uuid,
-        //     status: 'unapprove',
-        //     reason: reason || null,
-        //   })
-        // )
-        //   .unwrap()
-        //   .then(() => {
-        //     dispatch(GetAllLeads());
-        //     setShowReasonModal(false);
-        //     setReason('');
-        //   })
-        //   .catch((err) => console.error('Unapproval error:', err));
+       
+         dispatch(handleApproveStatus({ uuid:row.uuid ,data :{action :"unapprove",reason}
+          })).then((data)=>{
+           
+            if(data.payload.success){
+         showToast('success', 'Proposal unapprove successfully');
+         const params = { page, limit,};
+            dispatch(getLead(params));
+            }
+          })
+
       };
 
       return (
@@ -161,7 +169,9 @@ function AllLead() {
           </select>
 
           {/* Reason Modal */}
-          <CModal visible={showReasonModal} onClose={() => setShowReasonModal(false)}>
+          <CModal visible={showReasonModal} onClose={() =>{setShowReasonModal(false),dispatch(getLead({ page, limit,}))} 
+            
+          }>
             <CModalHeader>
               <h5>Reason for Unapproval</h5>
             </CModalHeader>
@@ -196,14 +206,14 @@ function AllLead() {
         {
           name: 'Approval Status',
           selector: (row) =>
-            row.approval_status === 1
+            row.approval_status == "approved"
               ? 'Approved'
-              : row.approval_status === 2
+              : row.approval_status === 'Pending'
               ? 'Pending'
               : 'Unapproved',
           sortable: true,
           wrap: true,
-         
+          width:"150px"
         },
       ]),
 
@@ -259,17 +269,29 @@ function AllLead() {
     sortable: true,
     grow: 3,
   },
-  {
-    name: 'Action',
-    cell: (row) => (
+ {
+  name: 'Action',
+  cell: (row) => {
+    const handleCreateProposal = () => {
+      console.log("row.approval_status",row.approval_status)
+      if (
+        row.approval_status === 'approved' || 
+        row.approval_status === 1 
+      ) {
+         navigate('/business-zones', { state: { lead: row } });
+        return;
+      }
+      showToast('warning', 'Cannot create proposal for unapproved leads');
+    };
+
+    return (
       <div className="d-flex gap-2">
-        <Link
-          to="/business-zones"
-          state={{ lead: row }}
+        <FaRegEdit
+          onClick={handleCreateProposal}
           title="Create Proposal"
-        >
-          <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
-        </Link>
+          style={{ cursor: 'pointer', color: '#333' }}
+          size={20}
+        />
         <Link title="View Lead" to={`/view-lead/${row.uuid}`}>
           <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
         </Link>
@@ -281,15 +303,22 @@ function AllLead() {
           <CIcon icon={cilTrash} size="lg" />
         </span>
       </div>
-    ),
-    ignoreRowClick: true,
-    width: '120px',
+    );
   },
+  ignoreRowClick: true,
+  width: '120px',
+}
+
 ]
 
 
   return (
     <div className="container">
+       {toastData.show && (
+                <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                  <ToastExample status={toastData.status} message={toastData.message} />
+                </div>
+                              )}
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
         <Link to="/add-lead">
           <CButton className="custom-button">Add Lead</CButton>

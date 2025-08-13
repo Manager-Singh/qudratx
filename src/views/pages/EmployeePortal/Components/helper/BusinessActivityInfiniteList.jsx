@@ -131,10 +131,31 @@ const fetchActivities = useCallback(
       }));
 
       setActivityOptions((prev) => {
-        if (replaceOptions) return newOptions;
+        if (replaceOptions) {
+  const combined = [...prev, ...newOptions];
+  return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+}
         const combined = [...prev, ...newOptions];
         return Array.from(new Map(combined.map((o) => [o.value, o])).values());
       });
+
+//       setActivityOptions((prev) => {
+//   if (replaceOptions) {
+//     const selectedOptions = selectedActivities.map((item) => ({
+//       value: item.id,
+//       label: `(${item.activity_code}) ${item.activity_name}`,
+//       code: item.activity_code,
+//       data: item
+//     }));
+
+//     const combined = [...selectedOptions, ...newOptions];
+//     return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+//   }
+  
+//   const combined = [...prev, ...newOptions];
+//   return Array.from(new Map(combined.map((o) => [o.value, o])).values());
+// });
+
     } catch (err) {
       console.error('Error fetching activities:', err);
       setError('Failed to load activities. Please try again.');
@@ -149,17 +170,6 @@ const fetchActivities = useCallback(
 );
 
 
-  // Reset state when authority_id changes
-  // useEffect(() => {
-  //   if (step === 3) {
-  //     setBusinessActivities([]);
-  //     setActivityOptions([]);
-  //     setPage(1);
-  //     setHasMore(true);
-  //     setInitialLoad(true);
-  //     loadingRef.current = false;
-  //   }
-  // }, [authority_id, step]);
   useEffect(() => {
   if (step === 3) {
     setBusinessActivities([]);

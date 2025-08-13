@@ -353,79 +353,7 @@ useEffect(() => {
  total_amount = calculateTotalAmount();
 
 
-// handle next 
-// const handleNext = async () => {
 
-// if (proposal?.uuid) {
-//       try {
-//       await updateProposalStep(step);
-//     } catch (error) {
-//       console.error(`Error updating step ${step}:`, error);
-//       return; // prevent going to next step on error
-//     }
-    
-//     }
-//   if (step === 1) {
-//     if (!selectedAuthority) {
-//       showToast('warning', `Please select an authority before proceeding.`);
-//       return;
-//     }
-//     try {
-//       const data = {
-//         authority_id: selectedAuthority?.id,
-//         zone_id: selectedAuthority?.zone?.id,
-//         lead_id: leadData?.id,
-//         zone_name: selectedAuthority?.zone?.name,
-//         zone_info: selectedAuthority?.zone,
-//         authority_name: selectedAuthority?.name,
-//         authority_info: selectedAuthority,
-//         step,
-//       };
-
-//     if (proposal?.uuid) {
-//       try {
-//       await updateProposalStep(step);
-//     } catch (error) {
-//       console.error(`Error updating step ${step}:`, error);
-//       return; // prevent going to next step on error
-//     }
-    
-//     }else{
-//      const res = await dispatch(CreateProposal(data)).unwrap();
-//     //  setProposalId(res?.proposal?.uuid);
-//       const uuid= res?.proposal?.uuid
-//      dispatch(getProposalByUUID(uuid))
-//     setProposalId(uuid)
-//      showToast('success', 'Proposal created successfully.');
-//      navigate(`/proposal/${uuid}`)
-//     }
-      
-      
-//     } catch (error) {
-//       console.error("Proposal creation failed:", error);
-//       showToast('danger', 'Failed to create proposal.');
-//       return;
-//     }
-//   }
-
-//   if (step === 2 && !selectedPackage) {
-//     showToast('warning', `Please select a package before proceeding.`);
-//     return;
-//   }
-
-//   // if (proposalId && step >= 2 && step <= 10) {
-//   //   try {
-//   //     await updateProposalStep(step);
-//   //   } catch (error) {
-//   //     console.error(`Error updating step ${step}:`, error);
-//   //     return; // prevent going to next step on error
-//   //   }
-//   // }
-
-//   if (step < total_step) {
-//     setStep(step + 1);
-//   }
-// };
 const handleNext = async () => {
   if (proposal?.uuid) {
     try {
@@ -655,34 +583,6 @@ const updateProposalStep = async (currentStep) => {
   }
 
  const pdfRef = useRef();
-// const generatePDF = () => {
-//  const finalTotalAmount = calculateTotalAmount();
-//   const proposalData = {
-//     zone_id :selectedAuthority?.zone_id,
-//     zone_name :selectedPackage?.authority.zone.name,
-//     zone_info: selectedPackage?.authority.zone,
-//     authority_id :selectedAuthority?.id,
-//     authority_name: selectedAuthority?.name,
-//     authority_info:selectedAuthority,
-//     business_activities:selectedActivities,
-//     package_id:selectedPackage?.id,
-//     package_name:selectedPackage?.name,
-//     package_info:selectedPackage,
-//     client_id:selectedClient?.id,
-//     client_info:selectedClient,
-//     total_amount:finalTotalAmount,
-//     business_questions:questionFormData,
-//     what_to_include:includeExcludeList,
-//     required_documents:requiredDocuments,
-//     benefits:benefits,
-//     other_benefits:otherBenefits,
-//     scope_of_work:scopeOfWork,
-//     notes:notes 
-//   }
- 
-//   console.log('📝 Final Proposal:', proposalData);
- 
-// };
 
 // preview pdf
 const viewPDF = () => {

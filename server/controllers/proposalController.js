@@ -818,14 +818,7 @@ const sendProposalEmail = async (req, res) => {
 
     // Fetch proposal with client details
     const proposal = await Proposal.findOne({
-      where: { uuid: uuid },
-      include: [
-        {
-          model: Client,
-          as: 'Client',
-          attributes: ['name', 'email']
-        }
-      ]
+      where: { uuid: uuid }
     });
 
     if (!proposal) {
@@ -833,7 +826,7 @@ const sendProposalEmail = async (req, res) => {
     }
 
     // Decide recipient email
-    const recipientEmail = client_email || proposal.Client?.email;
+    const recipientEmail = client_email || proposal.client_info?.email;
 
     if (!recipientEmail) {
       return res.status(400).json({ message: 'No email provided and no client email found in proposal' });

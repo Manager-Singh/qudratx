@@ -814,7 +814,7 @@ const updateProposalStatus = async (req, res) => {
 const sendProposalEmail = async (req, res) => {
   try {
     const { uuid } = req.params; // Proposal UUID from params
-    const { client_email } = req.query; // or req.body if POST
+    const { client_email } = req.body; // or req.body if POST
 
     // Fetch proposal with client details
     const proposal = await Proposal.findOne({
@@ -843,7 +843,13 @@ const sendProposalEmail = async (req, res) => {
         from: 'testwebtrack954@gmail.com',
         to: recipientEmail,
         subject: `Proposal ${proposal.proposal_number}`,
-        text: `Hello,\n\nHere is your proposal (${proposal.proposal_number}).\n\nRegards,\nYour Company`
+        text: `Hello,\n\nHere is your proposal (${proposal.proposal_number}).\n\nRegards,\nYour Company`,
+        attachments: [
+          {
+            filename: proposal.generated_pdf,
+            path: proposal.pdf_path
+          }
+        ]
       };
 
       transporter.sendMail(mailOptions, (error, info) => {

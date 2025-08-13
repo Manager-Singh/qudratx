@@ -84,7 +84,7 @@ export const updateProposal = createAsyncThunk(
   'admin/update-proposal',
   async ({ uuid, data }, thunkAPI) => {
     try {
-      console.log(data, 'formData being sent')
+     
       const response = await putData(`/admin/update-proposal/${uuid}`, data)
       return response
     } catch (error) {
@@ -151,6 +151,18 @@ export const updateTrackingStatus = createAsyncThunk(
     try {
       const response = await patchData(`/admin/update-proposal-status/${uuid}`, { proposal_status })
       return { uuid, proposal_status }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message || 'Failed to update tracking status')
+    }
+  },
+)
+
+export const sendToClient = createAsyncThunk(
+  'proposal/updateTrackingStatus',
+  async ({ uuid ,client_email=""}, thunkAPI) => {
+    try {
+      const response = await postData(`/admin/send-proposal-email/${uuid}?client_email=${client_email}`,)
+      return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message || 'Failed to update tracking status')
     }

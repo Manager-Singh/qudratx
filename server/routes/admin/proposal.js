@@ -10,6 +10,7 @@ const { createProposal,
   getProposalByUUID,
   unapproveProposal,
   updateProposalStatus,
+  sendProposalEmail,
 } = require('../../controllers/proposalController');
 const upload = require('../../middlewares/upload');
 
@@ -25,6 +26,7 @@ router.get('/proposals/unapproved', getUnapprovedProposals);
 router.put('/proposals/:uuid/approve', approveProposal);
 router.put('/proposals/:uuid/unapprove', unapproveProposal);
 router.patch('/update-proposal-status/:uuid', updateProposalStatus);
+router.post('/send-proposal-email/:uuid', sendProposalEmail);
 
 // router.get('/get-deleted-proposal-detail',getDeletedProposalDetail)
 

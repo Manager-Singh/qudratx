@@ -572,7 +572,7 @@ const approveProposal = async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Only admins can approve proposals.' });
     }
 
-    const proposal = await Proposal.findOne({ where: { uuid } });
+    const proposal = await Proposal.findOne({ where: { uuid }, include: [{ model: User, as: 'creator', attributes: ['id', 'name', 'email'] }] });
 
     if (!proposal) {
       return res.status(404).json({ message: 'Proposal not found' });
@@ -601,6 +601,24 @@ const approveProposal = async (req, res) => {
         message: `Your proposal (${proposal.proposal_number}) has been approved by admin.`,
         related_id: uuid,
       });
+
+      // Send email to the creator
+      if (proposal.creator?.email) {
+             const mailOptions = {
+            from: 'testwebtrack954@gmail.com',
+            to: proposal.creator.email,
+            subject: `Your Proposal Has Been Approved`,
+            text: `Hi ${proposal.creator.name || 'User'},\n\nYour proposal (${proposal.proposal_number}) has been approved by admin.\n\nRegards,\nYour Company`,
+          };
+    
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('Error sending lead email:', error);
+            } else {
+              console.log('Lead email sent:', info.response);
+            }
+          });
+      }
     }
 
     return res.status(200).json({
@@ -628,7 +646,7 @@ const unapproveProposal = async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Only admins can unapprove proposals.' });
     }
 
-    const proposal = await Proposal.findOne({ where: { uuid } });
+    const proposal = await Proposal.findOne({ where: { uuid }, include: [{ model: User, as: 'creator', attributes: ['id', 'name', 'email'] }] });
 
     if (!proposal) {
       return res.status(404).json({ message: 'Proposal not found' });
@@ -658,6 +676,24 @@ const unapproveProposal = async (req, res) => {
         message: `Your proposal (${proposal.proposal_number}) has been unapproved by admin.`,
         related_id: uuid,
       });
+
+            // Send email to the creator
+      if (proposal.creator?.email) {
+             const mailOptions = {
+            from: 'testwebtrack954@gmail.com',
+            to: proposal.creator.email,
+            subject: `Your Proposal Has Been Unapproved`,
+            text: `Hi ${proposal.creator.name || 'User'},\n\nYour proposal (${proposal.proposal_number}) has been unapproved by admin.\n\nRegards,\nYour Company`,
+          };
+    
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error('Error sending lead email:', error);
+            } else {
+              console.log('Lead email sent:', info.response);
+            }
+          });
+      }
     }
     return res.status(200).json({
       message: 'Proposal unapproved successfully',
@@ -775,6 +811,60 @@ const updateProposalStatus = async (req, res) => {
   }
 };
 
+const sendProposalEmail = async (req, res) => {
+  try {
+    const { uuid } = req.params; // Proposal UUID from params
+    const { client_email } = req.query; // or req.body if POST
+
+    // Fetch proposal with client details
+    const proposal = await Proposal.findOne({
+      where: { uuid: uuid },
+      include: [
+        {
+          model: Client,
+          as: 'Client',
+          attributes: ['name', 'email']
+        }
+      ]
+    });
+
+    if (!proposal) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+
+    // Decide recipient email
+    const recipientEmail = client_email || proposal.Client?.email;
+
+    if (!recipientEmail) {
+      return res.status(400).json({ message: 'No email provided and no client email found in proposal' });
+    }
+
+     const mailOptions = {
+        from: 'testwebtrack954@gmail.com',
+        to: recipientEmail,
+        subject: `Proposal ${proposal.proposal_number}`,
+        text: `Hello,\n\nHere is your proposal (${proposal.proposal_number}).\n\nRegards,\nYour Company`
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending lead email:', error);
+        } else {
+          console.log('Lead email sent:', info.response);
+        }
+      });
+
+    return res.status(200).json({
+      message: `Email sent successfully to ${recipientEmail}`,
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Error sending proposal email:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 module.exports = {
   createProposal,
@@ -788,5 +878,6 @@ module.exports = {
   deleteProposal,
   unapproveProposal,
   updateProposalStatus,
+  sendProposalEmail,
 //   getDeletedProposal,
 };

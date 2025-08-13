@@ -207,8 +207,8 @@ useEffect(()=>{
     setQuestionFormData(proposal.business_questions || initialQuestionFormData);
     setTotalAmount(proposal.total_amount || 0);
     setNotes(proposal.notes || initialNotes);
-    if (proposal.lead_id) {
-      console.log("proposal",proposal.lead.Client)
+    if (proposal?.lead_id) {
+      console.log("proposal",proposal?.lead?.Client)
        setSelectedClient(proposal?.lead?.Client)
        
     }else{
@@ -712,21 +712,8 @@ const max_activity_selected =selectedPackage?.activity
     notes:notes
   }
  
- const HandleSendApproval =()=>{
-  const data={
-  employee_approval:1
-  }
-    dispatch(updateProposal({uuid:proposal.uuid,data})).then((data)=>{
-      if (data.payload.success) {
-         showToast('success', 'Proposal Send For Approval.');
-        dispatch(getProposalByUUID(proposal.uuid))
-      }
-    })
- }
  
- const HandleSendToClient =()=>{
-  
- }
+
   return (
     <div className="container ">
       {toastData.show && (
@@ -948,29 +935,26 @@ const max_activity_selected =selectedPackage?.activity
           <h4>Review & Generate PDF</h4>
           
          
-          <CButton className="custom-button me-3"  onClick={viewPDF}>
+          {/* <CButton className="custom-button me-3"  onClick={viewPDF}>
                      Preview PDF
            </CButton>
 
           {proposal?.employee_approval == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
                      Send To Approval
               </CButton> }
-             {proposal?.approval_status == 1  && <CButton className="custom-button"   onClick={HandleSendToClient}>
-                     Send To Client
-              </CButton> } 
+           */}
           
-           {showPdfSummary && (
         <div className="mt-4">
           {/* <ProposalSummary data={proposalData}  /> */}
           <ProposalSummary data={proposal} />
         </div>
-      )}
+      
         </>
       )}
 
       <div className="d-flex justify-content-end mt-4 mb-2">
         {step > 1 && (
-    (user.role === "admin" || (user.role === "employee" && proposal.approval_status != 1)) && (
+    (user.role === "admin" || (user.role === "employee" && proposal?.approval_status != 1)) && (
       <button
         onClick={handleBack}
         className="custom-button"

@@ -91,6 +91,16 @@ export const getEmployeeLead = createAsyncThunk(
         }
     })
 
+      export const handleApproveStatus = createAsyncThunk('admin/approve-lead-status', async({uuid,data}, thunkAPI) => {
+        try{
+            const response = await putData(`/admin/leads/${uuid}/update-approval-status`, data)
+            return response
+        } catch(error){
+            return thunkAPI.rejectWithValue(error.message)
+        }
+    })
+
+
     const leadSlice = createSlice({
     name: 'lead',
     initialState: {

@@ -36,7 +36,7 @@ const createLeadDetail = async (req, res) => {
       lead_number,
       origin: origin,
       created_status: req.user.role,
-      approval_status: req.user.role === 'admin' ? 'approved' : 'unapproved',
+      approval_status: req.user.role === 'admin' ? 1 : 2,
       created_by: req.user.id,
       last_update: new Date(),
       created_at: new Date(),
@@ -220,46 +220,70 @@ const getLeadDetail = async (req, res) => {
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
     const status = req.query.status; // optional: 'active' or 'inactive'
+    const assignedTo = req.query.assigned_to; // user ID or partial name
+    const origin = req.query.origin; // exact or partial match
+    const leadStatus = req.query.lead_status; // exact or partial match
 
     const leadWhere = {
       deleted_at: null,
     };
 
+    // Active / inactive filter
     if (status === 'active') {
       leadWhere.status = true;
     } else if (status === 'inactive') {
       leadWhere.status = false;
     }
 
+    // Origin filter
+    if (origin) {
+      leadWhere.origin = { [Op.like]: `%${origin}%` };
+    }
+
+    // Lead status filter
+    if (leadStatus) {
+      leadWhere.lead_status = { [Op.like]: `%${leadStatus}%` };
+    }
+
+    const include = [
+      {
+        model: Client,
+        as: 'Client',
+        where: {
+          email: { [Op.like]: `%${search}%` },
+          deleted_at: null
+        },
+        required: true,
+        attributes: { exclude: ['deleted_at'] }
+      },
+      {
+        model: User,
+        as: 'assignedBy',
+      },
+      {
+        model: User,
+        as: 'assignedTo',
+        where: assignedTo
+          ? {
+              [Op.or]: [
+                { id: assignedTo }, // match exact ID
+                { name: { [Op.like]: `%${assignedTo}%` } } // match partial name
+              ]
+            }
+          : undefined
+      },
+      {
+        model: User,
+        as: 'createdBy'
+      }
+    ];
+
     const { count, rows } = await Lead.findAndCountAll({
       where: leadWhere,
       limit,
       offset,
       order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: Client,
-          as: 'Client', // use the correct alias defined in association
-          where: {
-            email: { [Op.like]: `%${search}%` },
-            deleted_at: null
-          },
-          required: true, // this is important to apply filtering in JOIN
-          attributes: { exclude: ['deleted_at'] }
-        },
-        {
-          model: User,
-          as: 'assignedBy',
-        },
-        {
-          model: User,
-          as: 'assignedTo',
-        },
-        {
-          model: User,
-          as: 'createdBy'
-        }
-      ]
+      include
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -445,14 +469,27 @@ const getLeadDetailByEmployeeID = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
+    const { lead_status, origin } = req.query;
+
+    // Build WHERE conditions
+    const leadWhere = {
+      deleted_at: null,
+      [Op.or]: [
+        { assigned_to: userId },
+        { created_by: userId }
+      ]
+    };
+
+    if (lead_status) {
+      leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
+    }
+
+    if (origin) {
+      leadWhere.origin = { [Op.like]: `%${origin}%` };
+    }
+
     const { count, rows } = await Lead.findAndCountAll({
-      where: {
-        deleted_at: null,
-        [Op.or]: [
-          { assigned_to: userId },
-          { created_by: userId }
-        ]
-      },
+      where: leadWhere,
       limit,
       offset,
       order: [['created_at', 'DESC']],
@@ -510,11 +547,11 @@ const updateLeadApprovalStatus = async (req, res) => {
     }
 
     if (action === 'approve') {
-      if (lead.approval_status === 'approved') {
+      if (lead.approval_status === 1) {
         return res.status(400).json({ message: 'Lead is already approved' });
       }
 
-      lead.approval_status = 'approved'; // approved
+      lead.approval_status = 1; // approved
       lead.reason = null;
       lead.approved_by = req.user.id;
       lead.updated_by = req.user.id;
@@ -541,11 +578,11 @@ const updateLeadApprovalStatus = async (req, res) => {
       });
 
     } else if (action === 'unapprove') {
-      if (lead.approval_status === 'unapproved') {
+      if (lead.approval_status === 0) {
         return res.status(400).json({ message: 'Lead is already unapproved' });
       }
 
-      lead.approval_status = 'unapproved'; // unapproved
+      lead.approval_status = 0; // unapproved
       lead.reason = reason || null;
       lead.approved_by = null;
       lead.updated_by = req.user.id;

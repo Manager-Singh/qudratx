@@ -312,6 +312,7 @@
 // export default Setting
 // Setting.jsx
 // Setting.jsx
+
 import React, { useEffect, useState } from 'react'
 import {
   CCol,
@@ -357,7 +358,7 @@ const Setting = () => {
 
   const [logoPreview, setLogoPreview] = useState('')
   const [iconPreview, setIconPreview] = useState('')
-
+ 
   useEffect(() => {
     async function fetchData() {
       try {

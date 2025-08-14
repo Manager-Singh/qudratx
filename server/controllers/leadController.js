@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 const transporter = require('../config/emailConfig');
-
+const { sendEmail } = require("../services/emailService");
 // CREATE
 const createLeadDetail = async (req, res) => {
   try {
@@ -63,20 +63,32 @@ const createLeadDetail = async (req, res) => {
        const clientEmail = client?.email;
     const clientName = client?.name;
 
-          const mailOptions = {
-            from: 'testwebtrack954@gmail.com',
-            to: clientEmail,
-            subject: `Welcome Mail`,
-            text: `Hi ${clientName},\n\nWelcome aboard! We’re excited to have you with us.\n\nRegards,\nYour Company`,
-          };
+       await sendEmail({
+      to: clientEmail,
+      subject: "Welcome Mail",
+      templateName: "welcome",
+      templateData: {
+        title: "Welcome!",
+        name: clientName,
+        company: "FZCS",
+        features: ["24/7 Support", "Premium Tools", "Free Training"],
+        year: new Date().getFullYear()
+      }
+    });
+          // const mailOptions = {
+          //   from: 'testwebtrack954@gmail.com',
+          //   to: clientEmail,
+          //   subject: `Welcome Mail`,
+          //   text: `Hi ${clientName},\n\nWelcome aboard! We’re excited to have you with us.\n\nRegards,\nYour Company`,
+          // };
     
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.error('Error sending lead email:', error);
-            } else {
-              console.log('Lead email sent:', info.response);
-            }
-          });
+          // transporter.sendMail(mailOptions, (error, info) => {
+          //   if (error) {
+          //     console.error('Error sending lead email:', error);
+          //   } else {
+          //     console.log('Lead email sent:', info.response);
+          //   }
+          // });
       // Get all admin emails
       const admins = await User.findAll({
         where: { role: 'admin', deleted_at: null },
@@ -346,60 +358,58 @@ const getLeadDetailByUUID = async (req, res) => {
 const updateLeadDetail = async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { name, email, address, phone, company_name, notes, status, origin } = req.body;
+    const {
+      client_id,
+      origin,
+      created_status,
+      lead_status,
+      assigned_to,
+      approval_status,
+      status
+    } = req.body;
 
-    //Validate required fields
-    if (!name || !email || !address) {
-      return res.status(400).json({ message: 'Name, Email, and Address are required' });
+    // Find the lead
+    const lead = await Lead.findOne({ where: { uuid } });
+    if (!lead) {
+      return res.status(404).json({ message: 'Lead not found' });
     }
 
-    //Find the client being updated
-    const client = await Client.findOne({ where: { uuid } });
-
-    if (!client) {
-      return res.status(404).json({ message: 'Client not found' });
-    }
-
-    //Check if email already exists in another client
-    const emailExists = await Client.findOne({
-      where: {
-        email,
-        uuid: { [Op.ne]: uuid }, // Exclude current client
-        deleted_at: null         // Optional: skip deleted clients
+    // If client_id provided, check if client exists
+    if (client_id) {
+      const clientExists = await Client.findOne({ where: { id: client_id, deleted_at: null } });
+      if (!clientExists) {
+        return res.status(400).json({ message: 'Invalid client ID' });
       }
-    });
-
-    if (emailExists) {
-      return res.status(400).json({ message: 'Email already in use by another client' });
+      lead.client_id = client_id;
     }
 
-    //Update fields
-    client.name = name;
-    client.email = email;
-    client.address = address;
-    client.origin = origin;
-    if (phone) client.phone = phone;
-    if (company_name) client.company_name = company_name;
-    if (notes) client.notes = notes;
-    if (typeof status === 'boolean') client.status = status;
+    // Update lead fields
+    if (origin) lead.origin = origin;
+    if (created_status) lead.created_status = created_status;
+    if (lead_status) lead.lead_status = lead_status;
+    if (typeof assigned_to !== 'undefined') lead.assigned_to = assigned_to;
+    if (typeof approval_status !== 'undefined') lead.approval_status = approval_status;
+    if (typeof status === 'boolean') lead.status = status;
 
-    client.updated_by = req.user.id;
-    client.updated_at = new Date();
-    client.last_update = new Date();
+    // Audit fields
+    lead.updated_by = req.user.id;
+    lead.updated_at = new Date();
+    lead.last_update = new Date();
 
-    await client.save({ userId: req.user.id });
+    await lead.save();
 
     res.status(200).json({
-      message: 'Client updated successfully',
+      message: 'Lead updated successfully',
       success: true,
-      data: client
+      data: lead
     });
 
   } catch (error) {
-    console.error('Update client error:', error);
+    console.error('Update lead error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 

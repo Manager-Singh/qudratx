@@ -64,7 +64,7 @@ const createLeadDetail = async (req, res) => {
     const clientName = client?.name;
 
        await sendEmail({
-      to: 'anj@yopmail.com',//clientEmail,
+      to: clientEmail,
       subject: "Welcome Mail",
       templateName: "welcome",
       templateData: {

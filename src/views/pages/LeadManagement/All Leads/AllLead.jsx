@@ -15,6 +15,7 @@ import { FaEye } from 'react-icons/fa';
 import { FaRegEdit } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 import { ToastExample } from '../../../../components/toast/Toast'
+import { MdModeEdit } from "react-icons/md";
 
 function AllLead() {
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -266,7 +267,7 @@ console.log(leads,"leads")
   name: 'Action',
   cell: (row) => {
     const handleCreateProposal = () => {
-      console.log("row.approval_status",row.approval_status)
+    
       if (
         row.approval_status === 'approved' || 
         row.approval_status === 1 
@@ -287,6 +288,9 @@ console.log(leads,"leads")
         />
         <Link title="View Lead" to={`/view-lead/${row.uuid}`}>
           <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
+        </Link>
+         <Link title="edit Lead" to={`/edit-lead/${row.uuid}`}>
+         <MdModeEdit style={{ cursor: 'pointer', color: '#333' }} size={20}  />
         </Link>
         <span
           onClick={() => confirmDelete(row.uuid)}

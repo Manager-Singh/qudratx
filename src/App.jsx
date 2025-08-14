@@ -45,6 +45,7 @@ import MyProposal from './views/pages/EmployeePortal/myProposal/MyProposal'
 import ViewProposal from './views/pages/ProposalManagement/proposals/ViewProposal';
 import HistoryLogs from './views/pages/history&logs/HistoryLogs'
 import AdminDashboard from './views/pages/Dashboard/AdminDashboard'
+import EditLead from './views/pages/LeadManagement/All Leads/EditLead'
 
 
 
@@ -116,7 +117,7 @@ if (isLoading) {
        <Route path="/employees" element={<EmployeesListing/>} />
        <Route path="/add-employees" element={<AddEmployee/>} />
        <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
-        <Route path="/" element={<AdminDashboard/>}/>
+       <Route path="/" element={<AdminDashboard/>}/>
        <Route path="/business-zone" element={<BusinessZone/>} />
        <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
        <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
@@ -137,6 +138,7 @@ if (isLoading) {
        <Route path="/all-lead" element={<AllLead/>} />
        <Route path="/view-lead/:uuid" element={<ViewLead />} />
        <Route path="/add-lead" element={<AddLead />} />
+       <Route path="/edit-lead/:uuid" element={<EditLead />} />
        <Route path="/create-lead/:uuid" element={<AddLead />} />
        <Route path="/packages/:uuid" element={<PackageListing/>} />
        <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />

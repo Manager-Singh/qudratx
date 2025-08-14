@@ -612,8 +612,6 @@ const max_activity_selected =selectedPackage?.activity
     notes:notes
   }
  
- 
-
   return (
     <div className="container ">
       {toastData.show && (

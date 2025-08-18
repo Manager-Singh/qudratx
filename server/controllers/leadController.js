@@ -60,6 +60,7 @@ const createLeadDetail = async (req, res) => {
          // If employee created the lead → also send to admin
     if (req.user.role === 'employee') {
 
+
        const clientEmail = client?.email;
     const clientName = client?.name;
 
@@ -75,20 +76,7 @@ const createLeadDetail = async (req, res) => {
         year: new Date().getFullYear()
       }
     });
-          // const mailOptions = {
-          //   from: 'testwebtrack954@gmail.com',
-          //   to: clientEmail,
-          //   subject: `Welcome Mail`,
-          //   text: `Hi ${clientName},\n\nWelcome aboard! We’re excited to have you with us.\n\nRegards,\nYour Company`,
-          // };
-    
-          // transporter.sendMail(mailOptions, (error, info) => {
-          //   if (error) {
-          //     console.error('Error sending lead email:', error);
-          //   } else {
-          //     console.log('Lead email sent:', info.response);
-          //   }
-          // });
+
       // Get all admin emails
       const admins = await User.findAll({
         where: { role: 'admin', deleted_at: null },
@@ -96,36 +84,47 @@ const createLeadDetail = async (req, res) => {
       });
 
       for (const admin of admins) {
-        const adminMailOptions = {
-          from: 'testwebtrack954@gmail.com',
-          to: admin.email,
-          subject: `New Lead Created`,
-          text: `Hi ${admin.name},\n\nA new lead (${lead_number}) has been created by ${req.user.name}.\n\nRegards,\nYour Company`
-        };
+         await sendEmail({
+      to: admin.email,
+      subject: "New Lead Created",
+      templateName: "admin_newlead",
+      templateData: {
+        title: "New Lead",
+        name: admin.name,
+        lead_number: lead_number,
+        created_by:req.user.name,
+        company:"FZCS"
+      }
+    });
 
-        transporter.sendMail(adminMailOptions, (error, info) => {
-          if (error) {
-            console.error(`Error sending admin email to ${admin.email}:`, error);
-          } else {
-            console.log(`Admin email sent to ${admin.email}:`, info.response);
-          }
+                         // Notification
+        await Notification.create({
+          user_id: admin.id,
+           created_by: req.user.id,
+          type: 'Lead',
+          action: "Lead Created",
+          title: "New Lead Created",
+          related_id: lead.uuid,
+          message: `A new lead (${lead.lead_number}) was created by ${req.user.name}`,
+          is_read: false,
         });
+
       }
 
-         const clientMailOptions = {
-          from: 'testwebtrack954@gmail.com',
-          to: clientEmail,
-          subject: `New Lead Created`,
-          text: `Hi ${clientName},\n\nA new lead (${lead_number}) has been created by ${req.user.name}.\n\nRegards,\nYour Company`
-        };
+               await sendEmail({
+                  to: clientEmail,
+                  subject: "New Lead Created",
+                  templateName: "newlead",
+                  templateData: {
+                    title: "New Lead",
+                    name: clientName,
+                    lead_number: lead_number,
+                    created_by:req.user.name,
+                    company:"FZCS"
+                  }
+                });
 
-        transporter.sendMail(clientMailOptions, (error, info) => {
-          if (error) {
-            console.error(`Error sending admin email to ${clientEmail}:`, error);
-          } else {
-            console.log(`Client email sent to ${clientEmail}:`, info.response);
-          }
-        });
+
     }
 
     return res.status(201).json({
@@ -196,20 +195,18 @@ const assignLead = async (req, res) => {
     });
 
     if (assignedUser && assignedUser.email) {
-      const mailOptions = {
-        from: 'testwebtrack954@gmail.com',
-        to: assignedUser.email,
-        subject: `Lead Assigned`,
-        text: `Hi ${assignedUser.name},\n\nA lead (${fullLead.lead_number}) has been assigned to you by ${req.user.name || 'Admin'}.\n\nPlease check your dashboard for details.\n\nRegards,\nYour Company`
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending assignment email:', error);
-        } else {
-          console.log('Assignment email sent:', info.response);
-        }
-      });
+      await sendEmail({
+                  to: assignedUser.email,
+                  subject: "Lead Assigned",
+                  templateName: "newlead",
+                  templateData: {
+                    title: "Lead Assigned",
+                    name: assignedUser.name,
+                    lead_number: fullLead.lead_number,
+                    created_by:req.user.name || 'Admin',
+                    company:"FZCS"
+                  }
+                });
     }
 
     return res.status(200).json({
@@ -420,21 +417,33 @@ const deleteLeadDetail = async (req, res) => {
 
     const lead = await Lead.findOne({ where: { uuid } });
     if (!lead) {
-      return res.status(404).json({ message: 'lead not found' });
+      return res.status(404).json({ message: 'Lead not found' });
     }
 
-    await lead.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    // Soft delete the lead
+    await lead.destroy({ userId: req.user.id });
+
+    // Also soft delete all notifications related to this lead
+    await Notification.destroy({
+      where: {
+        type: 'Lead',
+        related_id: lead.uuid 
+      },
+      individualHooks: true, // so `paranoid: true` works if you have hooks
+      userId: req.user.id
+    });
 
     res.status(200).json({
-      message: 'lead deleted successfully',
+      message: 'Lead and related notifications deleted successfully',
       success: true,
-      data: { uuid: lead.uuid},
+      data: { uuid: lead.uuid },
     });
   } catch (error) {
     console.error('Delete lead error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // GET DELETED LEADS
 const getDeletedLeadDetail = async (req, res) => {
@@ -579,6 +588,7 @@ const updateLeadApprovalStatus = async (req, res) => {
           message: `Your lead (${lead.lead_number}) has been approved by admin.`,
           related_id: uuid,
         });
+ 
       }
 
       return res.status(200).json({

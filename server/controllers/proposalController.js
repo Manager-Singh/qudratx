@@ -408,24 +408,33 @@ const deleteProposal = async (req, res) => {
 
     const proposal = await Proposal.findOne({ where: { uuid } });
     if (!proposal) {
-      return res.status(404).json({ message: 'proposal not found' });
+      return res.status(404).json({ message: 'Proposal not found' });
     }
 
-    await proposal.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    // Soft delete the proposal
+    await proposal.destroy({ userId: req.user.id }); // paranoid: true
+
+    // Also soft delete all notifications related to this proposal
+    await Notification.destroy({
+      where: {
+        type: 'Proposal',
+        related_id: proposal.uuid // assuming notifications store proposal.id
+      },
+      individualHooks: true, // so paranoid works if enabled
+      userId: req.user.id
+    });
 
     res.status(200).json({
-      message: 'Proposal deleted successfully',
+      message: 'Proposal and related notifications deleted successfully',
       success: true,
-      data: { uuid: proposal.uuid 
-
-
-      },
+      data: { uuid: proposal.uuid },
     });
   } catch (error) {
     console.error('Delete proposal error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 const getEmployeeProposals = async (req, res) => {
   try {
     const employeeId = req.user.id;

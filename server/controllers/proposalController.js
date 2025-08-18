@@ -261,6 +261,7 @@ const updateProposal = async (req, res) => {
       step,
       approved_by: bodyApprovedBy,
       employee_approval,
+      approval_status,
     } = req.body;
 
     const isAdmin = req.user.role === 'admin';
@@ -355,37 +356,37 @@ const updateProposal = async (req, res) => {
       proposal.approval_status = 1;
       proposal.approved_by = req.user.id;
     } else {
-      proposal.approval_status = proposal.approval_status ?? 2;
+      proposal.approval_status = approval_status || proposal.approval_status;
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
     }
 
     await proposal.save({ userId: req.user.id });
 
     // Send email if proposal PDF was updated
-    if (proposal.generated_pdf && proposal.pdf_path) {
-      const clientEmail = client_info?.email || proposal.client_info?.email;
+    // if (proposal.generated_pdf && proposal.pdf_path) {
+    //   const clientEmail = client_info?.email || proposal.client_info?.email;
 
-      const mailOptions = {
-        from: 'testwebtrack954@gmail.com',
-        to: clientEmail,
-        subject: `Proposal ${proposal.proposal_number} Updated`,
-        text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
-        attachments: [
-          {
-            filename: proposal.generated_pdf,
-            path: proposal.pdf_path
-          }
-        ]
-      };
+    //   const mailOptions = {
+    //     from: 'testwebtrack954@gmail.com',
+    //     to: clientEmail,
+    //     subject: `Proposal ${proposal.proposal_number} Updated`,
+    //     text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
+    //     attachments: [
+    //       {
+    //         filename: proposal.generated_pdf,
+    //         path: proposal.pdf_path
+    //       }
+    //     ]
+    //   };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending proposal email:', error);
-        } else {
-          console.log('Proposal email sent:', info.response);
-        }
-      });
-    }
+    //   transporter.sendMail(mailOptions, (error, info) => {
+    //     if (error) {
+    //       console.error('Error sending proposal email:', error);
+    //     } else {
+    //       console.log('Proposal email sent:', info.response);
+    //     }
+    //   });
+    // }
 
     return res.status(200).json({
       message: 'Proposal updated successfully',

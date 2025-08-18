@@ -61,9 +61,9 @@ export const getEmployeeLead = createAsyncThunk(
     })
 
     // Update Lead
-    export const updateLead = createAsyncThunk('admin/update-lead', async ({ uuid, formdata }, thunkAPI) => {
+    export const updateLead = createAsyncThunk('admin/update-lead', async ({ uuid, data }, thunkAPI) => {
     try {
-        const response = await putData(`/admin/update-lead-detail/${uuid}`, formdata)
+        const response = await putData(`/admin/update-lead-detail/${uuid}`, data)
         return response
     } catch (error) {
         return thunkAPI.rejectWithValue(error.message)

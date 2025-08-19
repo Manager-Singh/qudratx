@@ -352,13 +352,13 @@ const updateProposal = async (req, res) => {
     proposal.last_update = new Date();
 
     // Approval logic
-    if (req.user.role === 'admin') {
-      proposal.approval_status = 1;
-      proposal.approved_by = req.user.id;
-    } else {
+    // if (req.user.role === 'admin') {
+    //   proposal.approval_status = 1;
+    //   proposal.approved_by = req.user.id;
+    // } else {
       proposal.approval_status = approval_status || proposal.approval_status;
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
-    }
+    //}
 
     await proposal.save({ userId: req.user.id });
 

@@ -46,6 +46,7 @@ import ViewProposal from './views/pages/ProposalManagement/proposals/ViewProposa
 import HistoryLogs from './views/pages/history&logs/HistoryLogs'
 import AdminDashboard from './views/pages/Dashboard/AdminDashboard'
 import EditLead from './views/pages/LeadManagement/All Leads/EditLead'
+import ProposalSummary from './views/pages/EmployeePortal/Proposal/steps/ProposalSummaryStep'
 
 
 
@@ -145,7 +146,7 @@ if (isLoading) {
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />
        <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
         <Route path='/setting' element={<Setting/>}/>
-        <Route path='/view-proposal' element={ <ViewProposal/> }/>
+        <Route path='/view-proposal/:uuid' element={ <ProposalSummary/> }/>
         <Route path='/logs' element={<HistoryLogs/>}/>
        {/* Employee portal routes */}
       <Route path="/dashboard" element={<Dashboard/>}/>

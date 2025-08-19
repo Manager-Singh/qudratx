@@ -48,17 +48,19 @@ const AppHeader = () => {
     return () => document.removeEventListener('scroll', handleScroll)
   }, [])
 
+const getNotificationLink = (type, relatedId) => {
+  const t = type?.toLowerCase();
 
-  const getNotificationLink = (type) => {
-    if (user?.role === 'employee') {
-      if (type === 'proposal') return '/my-proposal'
-      if (type === 'Lead') return '/all-lead'
-    } else if (user?.role === 'admin') {
-      if (type === 'proposal') return '/proposals'
-      if (type === 'Lead') return '/all-lead'
-    }
-    return '#'
+  if (user?.role === 'employee') {
+    if (t === 'proposal') return `/view-proposal/${relatedId}`;
+    if (t === 'lead') return `/view-lead/${relatedId}`;
+  } else if (user?.role === 'admin') {
+    if (t === 'proposal') return `/view-proposal/${relatedId}`;
+    if (t === 'lead') return `/view-lead/${relatedId}`;
   }
+  return '#';
+};
+
   
 
   return (
@@ -147,11 +149,12 @@ const AppHeader = () => {
             notifications.map((notification) => (
               <Link
                 key={notification.id}
-                to={getNotificationLink(notification.type)}
+                to={getNotificationLink(notification.type,notification.related_id)}
                 onClick={() => setShowNotificationSidebar(false)}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div className="mb-3 cursor-pointer">
+ 
                   <strong>{notification.message}</strong>
                   <h6 className="mb-1">{notification.type}</h6>
                   <div className="text-muted small">

@@ -353,7 +353,7 @@ import { addLead, assignLead } from '../../../../store/admin/leadSlice'
 import AddClient from '../clients/AddClient'
 import { getEmployees } from '../../../../store/admin/employeeSlice'
 import './Lead.css'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const originOptions = [
   { value: 'facebook', label: 'Facebook' },
@@ -365,6 +365,7 @@ const originOptions = [
 
 function AddLead() {
   const dispatch = useDispatch()
+  const navigate= useNavigate()
   const { clients, isLoading: clientLoading } = useSelector((state) => state.client)
   const { employees } = useSelector((state) => state.employee)
   const { isAdding } = useSelector((state) => state.lead)
@@ -379,6 +380,8 @@ function AddLead() {
     name: '',
     email: '',
     address: '',
+    phone:'',
+    notes:'',
     origin: '', 
   })
   const {uuid}= useParams()
@@ -397,6 +400,8 @@ function AddLead() {
           name: client.name,
           email: client.email,
           address: client.address,
+          phone:client.phone,
+          notes:client.notes
         }))
       }
     })
@@ -422,6 +427,8 @@ function AddLead() {
           name: selectedClient.name,
           email: selectedClient.email,
           address: selectedClient.address,
+          phone:selectedClient.phone,
+          notes:selectedClient.notes
         }))
       }
     } else {
@@ -430,7 +437,9 @@ function AddLead() {
         name: '',
         email: '',
         address: '',
+        phone:'',
         origin: '',
+        notes:'',
       })
       setSelectedEmployee(null)
     }
@@ -443,6 +452,8 @@ function AddLead() {
       name: newClient.name || '',
       email: newClient.email || '',
       address: newClient.address || '',
+      phone: newClient.phone || '',
+       notes: newClient.notes || '',
     }))
     setModalVisible(false)
   }
@@ -460,8 +471,14 @@ function AddLead() {
     try {
       const res = await dispatch(addLead(formdata)).unwrap()
       const leadId = res.data?.id?.toString() || ''
-
-      showToast('success', res.message || 'Lead added successfully!')
+             
+             if (res.success) {
+               showToast('success', res.message || 'Lead added successfully!')
+                setTimeout(() => {
+            navigate('/all-lead')
+           }, 1500);
+             }
+     
 
       if (selectedEmployee && user?.id && leadId) {
         const assignData = {
@@ -473,7 +490,14 @@ function AddLead() {
         }
 
         const assignRes = await dispatch(assignLead(assignData)).unwrap()
-        showToast('success', assignRes.message || 'Lead assigned successfully!')
+        if (assignRes.success) {
+           showToast('success', assignRes.message || 'Lead assigned successfully!')
+           setTimeout(() => {
+            navigate('/all-lead')
+           }, 1500);
+           
+        }
+       
       }
 
       // Reset form
@@ -482,6 +506,8 @@ function AddLead() {
         name: '',
         email: '',
         address: '',
+        phone:'',
+        notes:'',
         origin: '',
       })
       setSelectedEmployee(null)
@@ -531,7 +557,7 @@ function AddLead() {
           ) : (
             <CForm noValidate validated={validated} onSubmit={handleSubmit}>
               <CRow className="g-3 m-3">
-                <CCol md={6}>
+                <CCol md={12}>
                   <CFormLabel htmlFor="client_id">
                     Client <span className="text-danger">*</span>
                   </CFormLabel>
@@ -563,9 +589,17 @@ function AddLead() {
                       <CFormLabel>Email</CFormLabel>
                       <CFormInput value={formdata.email} disabled readOnly />
                     </CCol>
+                     <CCol md={6}>
+                      <CFormLabel>phone</CFormLabel>
+                      <CFormInput value={formdata.phone} disabled readOnly />
+                    </CCol>
                     <CCol md={6}>
                       <CFormLabel>Address</CFormLabel>
                       <CFormInput value={formdata.address} disabled readOnly />
+                    </CCol>
+                     <CCol md={6}>
+                      <CFormLabel>Notes</CFormLabel>
+                      <CFormInput value={formdata.notes} disabled readOnly />
                     </CCol>
 
                     <CCol md={6}>

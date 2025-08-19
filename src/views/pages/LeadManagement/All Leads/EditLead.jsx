@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ToastExample } from '../../../../components/toast/Toast'
 import { getLeadByUuid, updateLead } from '../../../../store/admin/leadSlice'
 import { getEmployees } from '../../../../store/admin/employeeSlice'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const originOptions = [
   { value: 'facebook', label: 'Facebook' },
@@ -28,6 +28,7 @@ const originOptions = [
 function EditLead() {
   const dispatch = useDispatch()
   const { uuid } = useParams()
+  const navigate=useNavigate()
 
   const { employees } = useSelector((state) => state.employee)
   const { user } = useSelector((state) => state.auth)
@@ -40,6 +41,8 @@ function EditLead() {
     name: '',
     email: '',
     address: '',
+    phone:'',
+    notes:'',
     origin: '',
   })
   const [selectedEmployee, setSelectedEmployee] = useState(null)
@@ -55,6 +58,8 @@ function EditLead() {
             name: lead.Client?.name || '',
             email: lead.Client?.email || '',
             address: lead.Client?.address || '',
+            phone: lead.Client?.phone || '',
+             notes: lead.Client?.notes || '',
             origin: lead.origin || '',
           })
 
@@ -89,10 +94,18 @@ function EditLead() {
       assigned_to: selectedEmployee?.value?.toString() || null,
       updated_by: user.id?.toString(),
     }
-console.log("updateData",updateData)
+
     try {
       const res = await dispatch(updateLead({ uuid, data: updateData })).unwrap()
-      showToast('success', res.message || 'Lead updated successfully!')
+      console.log(res,"res")
+      if (res.success) {
+        showToast('success', res.message || 'Lead updated successfully!')
+        setTimeout(() => {
+         navigate('/all-lead')  
+        }, 1500);
+      
+      }
+      
     } catch (err) {
       showToast('error', err.message || 'Error updating lead.')
     }
@@ -136,9 +149,19 @@ console.log("updateData",updateData)
                 <CFormLabel>Email</CFormLabel>
                 <CFormInput value={formdata.email} disabled readOnly />
               </CCol>
+               <CCol md={6}>
+                <CFormLabel>Phone</CFormLabel>
+                <CFormInput value={formdata.phone} disabled readOnly />
+              </CCol>
               <CCol md={6}>
                 <CFormLabel>Address</CFormLabel>
                 <CFormInput value={formdata.address} disabled readOnly />
+              </CCol>
+             
+               <CCol md={6}>
+                <CFormLabel>Notes</CFormLabel>
+               
+                <CFormInput value={formdata.notes} disabled readOnly />
               </CCol>
 
               {/* Editable Fields */}

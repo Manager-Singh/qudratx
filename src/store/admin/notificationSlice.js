@@ -1,10 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getData } from '../../utils/api'
+import { getData, postData } from '../../utils/api'
 
 // Get all notifications
 export const getNotifications = createAsyncThunk('admin/get-notifications', async (_, thunkAPI) => {
   try {
     const response = await getData('/admin/get-notifications')
+    return response
+  } catch (error) {
+    console.error('Get Notifications Error:', error)
+    return thunkAPI.rejectWithValue(error.message)
+  }
+})
+export const readNotification = createAsyncThunk('admin/mark-as-read', async (_, thunkAPI) => {
+  try {
+    const response = await postData('/admin/mark-as-read')
     return response
   } catch (error) {
     console.error('Get Notifications Error:', error)

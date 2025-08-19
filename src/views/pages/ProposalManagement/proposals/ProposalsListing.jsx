@@ -23,7 +23,7 @@ import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import './ProposalsListing.css'
 import DisapproveProposalModal from '../components/DisapproveProposalModal'
 import { getNotifications } from '../../../../store/admin/notificationSlice'
-
+import { FaRegEdit } from "react-icons/fa";
 function AllProposals() {
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
@@ -324,7 +324,11 @@ function AllProposals() {
       name: 'Actions',
       cell: (row) => (
         <div className="d-flex gap-2">
-          <Link to="/view-proposal" state={{ proposal: row }} title="View Proposal">
+          <Link to={`/proposal/${row.uuid}`} state={{ proposal: row }} title="View Proposal">
+            
+            <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20}/>
+          </Link>
+          <Link to={`/view-proposal/${row.uuid}`} state={{ proposal: row }} title="View Proposal">
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span

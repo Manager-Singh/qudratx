@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   CContainer,
@@ -13,6 +13,7 @@ import {
   COffcanvasHeader,
   COffcanvasTitle,
   COffcanvasBody,
+  CButton,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilBell, cilMenu } from '@coreui/icons'
@@ -21,11 +22,12 @@ import moment from 'moment'
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { getDashboardData } from '../store/admin/dashboardSlice'
+import { readNotification } from '../store/admin/notificationSlice'
 
 const AppHeader = ({setOpenSideBar}) => {
   const headerRef = useRef()
   const dispatch = useDispatch()
-
+const navigate= useNavigate()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const { user } = useSelector((state) => state.auth)
   const notifications = useSelector((state) => state.dashboard.Notification)
@@ -60,7 +62,40 @@ const getNotificationLink = (type, relatedId) => {
   }
   return '#';
 };
+const handleNotification =(notification)=>{
+ 
+  const data = {
+    uuid :notification.uuid
+  }
+ 
+dispatch(readNotification(data)).then((data)=>{
+ 
+  if (data.payload.success) {
+    dispatch(getDashboardData())
+    setShowNotificationSidebar(false)
+    const t = notification.type?.toLowerCase();
+     if (user?.role === 'employee') {
+    if (t === 'proposal'){
+     navigate(`/proposal/${notification.related_id}`)
+    } 
+    if (t === 'lead'){
+      
+      navigate(`/view-lead/${notification.related_id}`)
+    } 
+  } else if (user?.role === 'admin') {
+    if (t === 'proposal') {
+      navigate(`/proposal/${notification.related_id}`)
+    }
+    if (t === 'lead'){
+      navigate(`/view-lead/${notification.related_id}`)
+    }
+  }
+  }
+})
+}
+// const handleNotification= ()=>{
 
+// }
   
 
   return (
@@ -147,11 +182,13 @@ const getNotificationLink = (type, relatedId) => {
         <COffcanvasBody>
           {notifications && notifications.length > 0 ? (
             notifications.map((notification) => (
-              <Link
+              
+              <div
                 key={notification.id}
-                to={getNotificationLink(notification.type,notification.related_id)}
-                onClick={() => setShowNotificationSidebar(false)}
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                // to={getNotificationLink(notification.type,notification.related_id)}
+              onClick={() => handleNotification(notification)}
+                // onClick={() => setShowNotificationSidebar(false)}
+                style={{ textDecoration: 'none', border:"none" }}
               >
                 <div className="mb-3 cursor-pointer">
  
@@ -162,7 +199,7 @@ const getNotificationLink = (type, relatedId) => {
                   </div>
                   <hr />
                 </div>
-              </Link>
+              </div>
             ))
           ) : (
             <div className="text-muted text-center mt-4">No notifications found</div>

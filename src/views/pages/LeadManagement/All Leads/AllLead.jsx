@@ -16,6 +16,8 @@ import { FaRegEdit } from 'react-icons/fa';
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { MdModeEdit } from "react-icons/md";
+import { readNotification } from '../../../../store/admin/notificationSlice';
+import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 
 function AllLead() {
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -49,6 +51,18 @@ function AllLead() {
       dispatch(getEmployeeLead(params));
     }
   };
+  useEffect(()=>{
+      const data ={
+        type:"lead"
+      }
+    dispatch(readNotification(data)).then((data)=>{
+      console.log(data)
+      if (data.payload.success) {
+        dispatch(getDashboardData())
+      }
+    })
+   },[])
+   
 
     const confirmApproval = (uuid, action) => {
     setSelectedApprovalUUID(uuid)

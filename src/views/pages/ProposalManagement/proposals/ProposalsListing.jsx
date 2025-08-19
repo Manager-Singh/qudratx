@@ -22,8 +22,9 @@ import {
 import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import './ProposalsListing.css'
 import DisapproveProposalModal from '../components/DisapproveProposalModal'
-import { getNotifications } from '../../../../store/admin/notificationSlice'
+import { getNotifications, readNotification } from '../../../../store/admin/notificationSlice'
 import { FaRegEdit } from "react-icons/fa";
+import { getDashboardData } from '../../../../store/admin/dashboardSlice'
 function AllProposals() {
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
@@ -40,15 +41,22 @@ function AllProposals() {
 
   const [disapprovalMessage, setDisapprovalMessage] = useState('')
    const [totalRecords,setTotalRecords] = useState('')
-  const { notifications } = useSelector((state) => state.notification)
+  
  const [page, setPage] = useState(1)
  const [limit, setLimit] = useState(10) 
 
-  useEffect(() => {
-    dispatch(getNotifications())
-  }, [dispatch])
 
- 
+  useEffect(()=>{
+    const data ={
+      type:"proposal"
+    }
+  dispatch(readNotification(data)).then((data)=>{
+    console.log(data)
+    if (data.payload.success) {
+      dispatch(getDashboardData())
+    }
+  })
+ },[])
 
  useEffect(() => {
     dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{

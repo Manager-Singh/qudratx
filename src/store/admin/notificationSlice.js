@@ -11,9 +11,9 @@ export const getNotifications = createAsyncThunk('admin/get-notifications', asyn
     return thunkAPI.rejectWithValue(error.message)
   }
 })
-export const readNotification = createAsyncThunk('admin/mark-as-read', async (_, thunkAPI) => {
+export const readNotification = createAsyncThunk('admin/mark-as-read', async (data, thunkAPI) => {
   try {
-    const response = await postData('/admin/mark-as-read')
+    const response = await postData('/admin/mark-as-read',data)
     return response
   } catch (error) {
     console.error('Get Notifications Error:', error)

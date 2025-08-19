@@ -261,6 +261,7 @@ const updateProposal = async (req, res) => {
       step,
       approved_by: bodyApprovedBy,
       employee_approval,
+      approval_status,
     } = req.body;
 
     const isAdmin = req.user.role === 'admin';
@@ -355,37 +356,37 @@ const updateProposal = async (req, res) => {
       proposal.approval_status = 1;
       proposal.approved_by = req.user.id;
     } else {
-      proposal.approval_status = proposal.approval_status ?? 2;
+      proposal.approval_status = approval_status || proposal.approval_status;
       proposal.approved_by = bodyApprovedBy || proposal.approved_by;
     }
 
     await proposal.save({ userId: req.user.id });
 
     // Send email if proposal PDF was updated
-    if (proposal.generated_pdf && proposal.pdf_path) {
-      const clientEmail = client_info?.email || proposal.client_info?.email;
+    // if (proposal.generated_pdf && proposal.pdf_path) {
+    //   const clientEmail = client_info?.email || proposal.client_info?.email;
 
-      const mailOptions = {
-        from: 'testwebtrack954@gmail.com',
-        to: clientEmail,
-        subject: `Proposal ${proposal.proposal_number} Updated`,
-        text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
-        attachments: [
-          {
-            filename: proposal.generated_pdf,
-            path: proposal.pdf_path
-          }
-        ]
-      };
+    //   const mailOptions = {
+    //     from: 'testwebtrack954@gmail.com',
+    //     to: clientEmail,
+    //     subject: `Proposal ${proposal.proposal_number} Updated`,
+    //     text: `Dear client,\n\nPlease find the updated proposal attached.\n\nRegards,\nYour Company`,
+    //     attachments: [
+    //       {
+    //         filename: proposal.generated_pdf,
+    //         path: proposal.pdf_path
+    //       }
+    //     ]
+    //   };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending proposal email:', error);
-        } else {
-          console.log('Proposal email sent:', info.response);
-        }
-      });
-    }
+    //   transporter.sendMail(mailOptions, (error, info) => {
+    //     if (error) {
+    //       console.error('Error sending proposal email:', error);
+    //     } else {
+    //       console.log('Proposal email sent:', info.response);
+    //     }
+    //   });
+    // }
 
     return res.status(200).json({
       message: 'Proposal updated successfully',
@@ -408,24 +409,33 @@ const deleteProposal = async (req, res) => {
 
     const proposal = await Proposal.findOne({ where: { uuid } });
     if (!proposal) {
-      return res.status(404).json({ message: 'proposal not found' });
+      return res.status(404).json({ message: 'Proposal not found' });
     }
 
-    await proposal.destroy({ userId: req.user.id }); // Soft delete because `paranoid: true`
+    // Soft delete the proposal
+    await proposal.destroy({ userId: req.user.id }); // paranoid: true
+
+    // Also soft delete all notifications related to this proposal
+    await Notification.destroy({
+      where: {
+        type: 'Proposal',
+        related_id: proposal.uuid // assuming notifications store proposal.id
+      },
+      individualHooks: true, // so paranoid works if enabled
+      userId: req.user.id
+    });
 
     res.status(200).json({
-      message: 'Proposal deleted successfully',
+      message: 'Proposal and related notifications deleted successfully',
       success: true,
-      data: { uuid: proposal.uuid 
-
-
-      },
+      data: { uuid: proposal.uuid },
     });
   } catch (error) {
     console.error('Delete proposal error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 const getEmployeeProposals = async (req, res) => {
   try {
     const employeeId = req.user.id;

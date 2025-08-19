@@ -47,14 +47,10 @@ const getDashboardCountsHelper = async (user) => {
     }
 
     // Notification filters
-    const notificationWhere = {
-      user_id: user.id,
-    };
-
-    const unreadNotificationWhere = {
-      user_id: user.id,
-      is_read: 0,
-    };
+    const notificationWhere = { user_id: user.id };
+    const unreadNotificationWhere = { user_id: user.id, is_read: 0 };
+    const unreadLeadWhere = { user_id: user.id, is_read: 0, type: 'lead' };
+    const unreadProposalWhere = { user_id: user.id, is_read: 0, type: 'proposal' };
 
     const [
       totalLeads,
@@ -66,7 +62,9 @@ const getDashboardCountsHelper = async (user) => {
       activeEmployees,
       newLeads,
       notifications,
-      unreadNotificationCount
+      unreadNotificationCount,
+      unreadLeadCount,
+      unreadProposalCount
     ] = await Promise.all([
       Lead.count({ where: leadWhere }),
       Proposal.count({ where: proposalWhere }),
@@ -79,7 +77,9 @@ const getDashboardCountsHelper = async (user) => {
         ? Lead.count({ where: newLeadsWhere })
         : Promise.resolve(0),
       Notification.findAll({ where: notificationWhere, order: [['created_at', 'DESC']] }),
-      Notification.count({ where: unreadNotificationWhere })
+      Notification.count({ where: unreadNotificationWhere }),
+      Notification.count({ where: unreadLeadWhere }),
+      Notification.count({ where: unreadProposalWhere })
     ]);
 
     return {
@@ -92,7 +92,9 @@ const getDashboardCountsHelper = async (user) => {
       activeEmployees,
       newLeads,
       notifications,
-      unreadNotificationCount
+      unreadNotificationCount,
+      unreadLeadCount,
+      unreadProposalCount
     };
   } catch (error) {
     console.error('Error in getDashboardCountsHelper:', error);
@@ -100,5 +102,4 @@ const getDashboardCountsHelper = async (user) => {
   }
 };
 
-
-module.exports={getDashboardCountsHelper};
+module.exports = { getDashboardCountsHelper };

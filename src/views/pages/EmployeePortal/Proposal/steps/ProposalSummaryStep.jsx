@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import html2pdf from 'html2pdf.js';
 import HeadingBar from './Components/HeadingBar';
@@ -17,7 +15,11 @@ import ifza from '../../../../../assets/proposal_images/ifza.jpg'
 import dubaiSouth from '../../../../../assets/proposal_images/dubaiSouth.jpeg'
 import dmcc from '../../../../../assets/proposal_images/dmcc.jpg'
 import dedDubai from '../../../../../assets/proposal_images/dedDubai.jpg'
+import { useParams } from 'react-router-dom';
+
 const ProposalSummary = () => {
+  const {uuid} = useParams()
+ 
 const {proposal} = useSelector((state)=>state.proposal)
 const [showClientModal, setShowClientModal] = useState(false);
 
@@ -39,6 +41,12 @@ const imageMap = {
   DMCC: dmcc,
   'DED DUBAI': dedDubai
 };
+useEffect(()=>{
+  if (uuid) {
+    dispatch(getProposalByUUID(uuid))
+  }
+
+},[uuid])
 const handleGeneratePdf = async () => {
   if (proposalRef.current) {
     const element = proposalRef.current;
@@ -115,7 +123,7 @@ const handleGeneratePdf = async () => {
     updated_by: null,
     last_update: null,
   });
-
+console.log(proposal,"proposal")
   // set all variables
   useEffect(() => {
     const fetchWebSetting = async () => {
@@ -171,7 +179,8 @@ const handleGeneratePdf = async () => {
 
   const HandleSendApproval =()=>{
     const newdata={
-    employee_approval:1
+    employee_approval:1,
+    approval_status: 2
     }
       dispatch(updateProposal({uuid:proposal.uuid,data:newdata})).then((res)=>{
         if (res.payload.success) {
@@ -220,7 +229,7 @@ const handleGeneratePdf = async () => {
 const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()] 
                       || "https://images.pexels.com/photos/3214995/pexels-photo-3214995.jpeg";
   
-  return (
+  return proposal ? (
     <div>
        {toastData.show && (
           <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
@@ -286,8 +295,11 @@ const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()]
       </button>
         
       }
-       {proposal?.employee_approval == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
+       {proposal?.employee_approval == 0 && proposal?.approval_status == 2 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
                            Send To Approval
+                    </CButton> }
+                     { proposal?.approval_status == 0 && user.role=="employee" && <CButton className="custom-button"   onClick={HandleSendApproval}>
+                           Resend To Approval
                     </CButton> }
 
          {proposal?.approval_status == 1  && proposal.generated_pdf && <CButton className="custom-button m-2"   onClick={HandleSendToClient}>
@@ -630,7 +642,12 @@ const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()]
         </div>
       </div>
     </div>
-  );
+  ):<div className="d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
+  <div className="text-center">
+    <h4 className=" mb-2">Proposal does not exist</h4>
+    <p className="text-muted">Please check the link or go back to proposals list.</p>
+  </div>
+</div> ;
 };
 
 export default ProposalSummary;

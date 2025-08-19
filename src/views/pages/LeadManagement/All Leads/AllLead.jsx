@@ -30,7 +30,7 @@ function AllLead() {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
-console.log(leads,"leads")
+
   // Pagination and search states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -275,7 +275,7 @@ console.log(leads,"leads")
          navigate('/business-zones', { state: { lead: row } });
         return;
       }
-      showToast('warning', 'Cannot create proposal before approval leads');
+      showToast('warning', 'Cannot create proposal before approve lead');
     };
 
     return (

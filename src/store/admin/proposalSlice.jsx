@@ -274,6 +274,7 @@ const proposalSlice = createSlice({
       })
       .addCase(getProposalByUUID.rejected, (state, action) => {
         state.isLoading = false
+        state.proposal=null
         state.error = action.payload || 'Something went wrong'
       })
       // Approve Proposal Status

@@ -126,44 +126,100 @@ const columns = [
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
  
-  return (
-    <div className='container'>
-      {toastData.show && (
-              <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
-                <ToastExample status={toastData.status} message={toastData.message} />
-              </div>
-            )}
-             <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
-                    <div className="d-flex justify-content-between w-75 px-3">
-                      <h4>{authority?.name}</h4>
-                     <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
-                    </div>
-                    <input
-                      type="text"
-                      className="form-control w-25"
-                      placeholder="Search by name"
-                      value={filterText}
-                      onChange={(e) => setFilterText(e.target.value)}
-                    />
-                  </div>
+//   return (
+//     <div className='container'>
+//       {toastData.show && (
+//               <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+//                 <ToastExample status={toastData.status} message={toastData.message} />
+//               </div>
+//             )}
+//              <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+//                     <div className="d-flex justify-content-between w-75 px-3">
+//                       <h4>{authority?.name}</h4>
+//                      <Link to={`/add-package/${uuid}`}> <CButton className='custom-button'>Add Package </CButton></Link>
+//                     </div>
+//                     <input
+//                       type="text"
+//                       className="form-control w-25"
+//                       placeholder="Search by name"
+//                       value={filterText}
+//                       onChange={(e) => setFilterText(e.target.value)}
+//                     />
+//                   </div>
      
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        pagination
-        // selectableRows
-        highlightOnHover
-        responsive
-        striped
-      />
-      <div className="row ">
-  {filteredData && filteredData.length > 0 ? filteredData?.map((item) =><div key={item.uuid} className='col-4 py-2'> <PackageCard item={item}/></div>):<h5 className='text-center bg-white '>Packages Not Found </h5>}
-
-      </div>
+//       {/* <DataTable
+//         columns={columns}
+//         data={filteredData}
+//         pagination
+//         // selectableRows
+//         highlightOnHover
+//         responsive
+//         striped
+//       /> */}
+//     <div className="row ">
+//   {filteredData && filteredData.length > 0 ? (
+//     filteredData.map((item) => (
+//       <div key={item.uuid} className="col-4 py-2">
+//         <PackageCard item={item} onDelete={confirmDelete} />
+//       </div>
+//     ))
+//   ) : (
+//     <h5 className="text-center bg-white">Packages Not Found</h5>
+//   )}
+// </div>
      
-    </div>
+//     </div>
    
-  )
+//   )
+
+
+  return (
+  <div className='container'>
+    {toastData.show && (
+      <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+        <ToastExample status={toastData.status} message={toastData.message} />
+      </div>
+    )}
+
+    <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between w-75 px-3">
+        <h4>{authority?.name}</h4>
+        <Link to={`/add-package/${uuid}`}>
+          <CButton className='custom-button'>Add Package</CButton>
+        </Link>
+      </div>
+      <input
+        type="text"
+        className="form-control w-25"
+        placeholder="Search by name"
+        value={filterText}
+        onChange={(e) => setFilterText(e.target.value)}
+      />
+    </div>
+
+    {/* ---- Cards layout ---- */}
+    <div className="row">
+      {filteredData && filteredData.length > 0 ? (
+        filteredData.map((item) => (
+          <div key={item.uuid} className="col-4 py-2">
+            <PackageCard item={item} onDelete={confirmDelete} />
+          </div>
+        ))
+      ) : (
+        <h5 className="text-center bg-white">Packages Not Found</h5>
+      )}
+    </div>
+
+    {/* ---- Single Delete Modal (outside) ---- */}
+    <ConfirmDeleteModal
+      visible={deleteModalVisible}
+      onCancel={handleCancelDelete}
+      onConfirm={handleConfirmDelete}
+      title="Confirm Delete"
+      message="Are you sure you want to delete this package?"
+    />
+  </div>
+);
 }
 
 export default PackageListing

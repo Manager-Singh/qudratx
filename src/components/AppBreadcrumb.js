@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 
-import routes from '../routes'
+import {routes} from '../App'
 
 import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
 
@@ -33,7 +33,7 @@ const AppBreadcrumb = () => {
 
   return (
     <CBreadcrumb className="my-0">
-      <CBreadcrumbItem href="/">Dashboard</CBreadcrumbItem>
+      
       {breadcrumbs.map((breadcrumb, index) => {
         return (
           <CBreadcrumbItem

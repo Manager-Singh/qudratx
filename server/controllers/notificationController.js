@@ -25,39 +25,45 @@ const getNotifications = async (req, res) => {
 };
 
 const markNotificationsAsRead = async (req, res) => {
- try {
-    const { ids, type } = req.body;
-    const userId = req.user.id; // assuming you're using authentication middleware
+  try {
+    const { uuid, type } = req.body;
+    const userId = req.user.id; // assuming authentication middleware sets this
+
+    if (!uuid && !type) {
+      return res.status(400).json({
+        success: false,
+        message: "Either uuid or type must be provided",
+      });
+    }
 
     const whereClause = {
       user_id: userId,
-      is_read: 0, 
+    
     };
 
-    if (ids) {
-      const idArray = Array.isArray(ids) ? ids : [ids];
-      whereClause.uuid = { [Op.in]: idArray };
+    if (uuid) {
+      whereClause.uuid = uuid; // single notification
     } else if (type) {
-      whereClause.type = type; // e.g., 'proposal'
-    } else {
-      return res.status(400).json({ message: 'Either ids or type must be provided' });
+      whereClause.type = type; // all notifications of that type
     }
+
+   
 
     const [updatedCount] = await Notification.update(
       { is_read: 1 },
       { where: whereClause }
     );
- 
+
     return res.status(200).json({
       success: true,
-      message: `${updatedCount} notification(s) marked as read.`
+      message: `${updatedCount} notification(s) marked as read.`,
     });
   } catch (error) {
-    console.error('Error marking notifications as read:', error);
+    console.error("Error marking notifications as read:", error);
     return res.status(500).json({
       success: false,
-      message: 'Error updating notifications',
-      error
+      message: "Error updating notifications",
+      error: error.message,
     });
   }
 };

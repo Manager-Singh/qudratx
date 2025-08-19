@@ -62,7 +62,7 @@ const createLeadDetail = async (req, res) => {
 
 
        const clientEmail = client?.email;
-    const clientName = client?.name;
+      const clientName = client?.name;
 
        await sendEmail({
       to: clientEmail,
@@ -80,7 +80,7 @@ const createLeadDetail = async (req, res) => {
       // Get all admin emails
       const admins = await User.findAll({
         where: { role: 'admin', deleted_at: null },
-        attributes: ['email', 'name']
+        attributes: ['id','email', 'name']
       });
 
       for (const admin of admins) {

@@ -409,7 +409,7 @@ function AddLead() {
     dispatch(getClient({ page: 1, limit: 10, search: ''}));
   }
 
-  dispatch(getEmployees())
+  dispatch(getEmployees()).then((data)=>console.log(data))
 }, [dispatch, uuid])
 
   const showToast = (status, message) => {

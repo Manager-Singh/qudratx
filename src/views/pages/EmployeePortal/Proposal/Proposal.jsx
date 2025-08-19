@@ -261,51 +261,6 @@ useEffect(() => {
   }
 }, [zoneData]);
 
-// useEffect(() => {
-    // setSelectedActivities([]);
-    // setSelectedPackage(null);
-    // setSelectedClient('');
-    // setIncludeExcludeList(initialIncludeExcludeList);
-    // setRequiredDocuments(initialRequiredDocuments);
-    // setBenefits(initialBenefits);
-    // setOtherBenefits(initialOtherBenefits);
-    // setScopeOfWork(initialScopeOfWork);
-    // setNotes(initialNotes);
-    // setQuestionFormData(initialQuestionFormData);
-    // setShowPdfSummary(false); 
-// }, [selectedAuthority]);
-
-// useEffect(() => {
-//   if (proposal) {
-//     setZoneData(proposal.zone_info);
-//     setSelectedAuthority(proposal.authority_info);
-//     setSelectedPackage(proposal.package_info);
-//     setSelectedActivities(proposal.business_activities || []);
-//     setBenefits(proposal.benefits || initialBenefits);
-//     setRequiredDocuments(proposal.required_documents || initialRequiredDocuments);
-//     setIncludeExcludeList(proposal.what_to_include || initialIncludeExcludeList);
-//     setOtherBenefits(proposal.other_benefits || initialOtherBenefits);
-//     setScopeOfWork(proposal.scope_of_work || initialScopeOfWork);
-//     setQuestionFormData(proposal.business_questions || initialQuestionFormData);
-//     setTotalAmount(proposal.total_amount || 0);
-//     setNotes(proposal.notes || initialNotes);
-//   }
-// }, []);
-
-
-  // useEffect(() => {
-  //   if (proposal) {
-  //     dispatch(getBusinessActivityByAuthorityId({ authority_id:proposal.authority_id }))
-  //     // setSelectedActivities([]);
-  //   }
-  // }, [ dispatch]);
-
-  //   useEffect(() => {
-  //   if (selectedAuthority) {
-  //     dispatch(getBusinessActivityByAuthorityId({ authority_id: selectedAuthority.id }));
-  //     setSelectedActivities([]);
-  //   }
-  // }, [selectedAuthority?.id, dispatch]);
 
   useEffect(() => {
     if (step === 2 && selectedAuthority) {

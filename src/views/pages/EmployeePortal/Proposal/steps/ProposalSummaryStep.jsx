@@ -212,7 +212,7 @@ console.log(proposal,"proposal")
   try {
     const fileUrl = `http://localhost:5000/${proposal.pdf_path}`;
     const response = await axios.get(fileUrl, { responseType: 'blob' }); // 👈 important
-    console.log(response,"responce")
+    
     const blob = response.data;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -318,7 +318,7 @@ const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()]
       
      </div>
      
-      {proposal?.approval_status == 2 && proposal?.employee_approval == 1 &&  <div >
+      {proposal?.approval_status == 2 && proposal?.employee_approval == 1 && user.role== 'employee' && <div >
       Wating for admin approval after the approval you can generate the pdf </div>}
       <div className='py-2'></div>
       <div

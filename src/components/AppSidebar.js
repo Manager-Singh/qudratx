@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
+  CBadge,
   CCloseButton,
   CSidebar,
   CSidebarBrand,
@@ -25,13 +26,14 @@ import {
 // Import your zone action
 import { getBusinessZone } from '../store/admin/businessZoneSlice'
 
-const AppSidebar = () => {
+const AppSidebar = ({openSideBar}) => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const user = useSelector((state) => state.auth.user)
   const { businesszones } = useSelector((state) => state.businesszone)
-
+  const {DasboardData} = useSelector((state)=>state.dashboard)
+  console.log(DasboardData,"Notification")
   // state to display setting on admin dashboard
   const [showSetting, setShowSetting] = useState(false);
   useEffect(() => {
@@ -89,11 +91,20 @@ const zoneNavEmp = useMemo(() => {
       icon: <CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
     ...zoneNavItems,
-    {
+   {
       component: CNavItem,
-      name: ' Proposals',
+      name: (
+        <div className="d-flex align-items-center justify-content-between w-100">
+          <span>Proposals</span>
+          {DasboardData.unreadProposalCount > 0 && (
+            <CBadge color="primary" className="ms-2">
+              {DasboardData.unreadProposalCount}
+            </CBadge>
+          )}
+        </div>
+      ),
       to: '/proposals',
-    },
+    },,
     {
       component: CNavItem,
       name: 'Business Categories',
@@ -117,7 +128,16 @@ const zoneNavEmp = useMemo(() => {
     },
     {
       component: CNavItem,
-      name: 'All Leads',
+      name:  (
+        <div className="d-flex align-items-center justify-content-between w-100">
+          <span>All Leads</span>
+          {DasboardData.unreadLeadCount >0 && (
+            <CBadge color="primary" className="ms-2">
+              {DasboardData.unreadLeadCount }
+            </CBadge>
+          )}
+        </div>
+      ),
       to: '/all-lead',
     },
   ]
@@ -134,9 +154,18 @@ const zoneNavEmp = useMemo(() => {
       icon:<CIcon icon={cilDescription} size="xl" className="text-primary" />,
     },
     ...zoneNavEmp ,
-    {
+   {
       component: CNavItem,
-      name: 'My Proposals',
+      name: (
+        <div className="d-flex align-items-center justify-content-between w-100">
+          <span>My Proposals</span>
+          {DasboardData.unreadProposalCount  > 0 && (
+            <CBadge color="primary" className="ms-2">
+              {DasboardData.unreadProposalCount }
+            </CBadge>
+          )}
+        </div>
+      ),
       to: '/my-proposal',
     },
     
@@ -152,7 +181,16 @@ const zoneNavEmp = useMemo(() => {
     },
      {
       component: CNavItem,
-      name: 'All Leads',
+      name:  (
+        <div className="d-flex align-items-center justify-content-between w-100">
+          <span>All Leads</span>
+          {DasboardData.unreadLeadCount >0 && (
+            <CBadge color="primary" className="ms-2">
+              {DasboardData.unreadLeadCount }
+            </CBadge>
+          )}
+        </div>
+      ),
       to: '/all-lead',
     },
   ]
@@ -165,10 +203,8 @@ const zoneNavEmp = useMemo(() => {
       colorScheme="dark"
       position="fixed"
       unfoldable={unfoldable}
-      visible={sidebarShow}
-      onVisibleChange={(visible) => {
-        dispatch({ type: 'set', sidebarShow: visible })
-      }}
+      visible={openSideBar}
+      
     >
       <CSidebarHeader className="border-bottom">
         <CSidebarBrand className="d-flex justify-content-center align-items-center" as={Link} to="/">

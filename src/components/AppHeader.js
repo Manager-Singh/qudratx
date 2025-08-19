@@ -22,7 +22,7 @@ import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { getDashboardData } from '../store/admin/dashboardSlice'
 
-const AppHeader = () => {
+const AppHeader = ({setOpenSideBar}) => {
   const headerRef = useRef()
   const dispatch = useDispatch()
 
@@ -52,10 +52,10 @@ const getNotificationLink = (type, relatedId) => {
   const t = type?.toLowerCase();
 
   if (user?.role === 'employee') {
-    if (t === 'proposal') return `/view-proposal/${relatedId}`;
+    if (t === 'proposal') return `/proposal/${relatedId}`;
     if (t === 'lead') return `/view-lead/${relatedId}`;
   } else if (user?.role === 'admin') {
-    if (t === 'proposal') return `/view-proposal/${relatedId}`;
+    if (t === 'proposal') return `/proposal/${relatedId}`;
     if (t === 'lead') return `/view-lead/${relatedId}`;
   }
   return '#';
@@ -68,7 +68,7 @@ const getNotificationLink = (type, relatedId) => {
       <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
         <CContainer className="border-bottom px-4" fluid>
           <CHeaderToggler
-            onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+           onClick={() => setOpenSideBar((prev) => !prev)}
             style={{ marginInlineStart: '-14px' }}
           >
             <CIcon icon={cilMenu} size="lg" />
@@ -80,12 +80,12 @@ const getNotificationLink = (type, relatedId) => {
                 Dashboard
               </CNavLink>
             </CNavItem>
-
-            <CNavItem>
+             {user.role === "admin" && <CNavItem>
               <CNavLink to="/setting" as={NavLink}>
                 Settings
               </CNavLink>
-            </CNavItem>
+            </CNavItem>}
+            
           </CHeaderNav>
 
           <CHeaderNav className="ms-auto">

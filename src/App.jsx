@@ -111,9 +111,6 @@ const App = () => {
    
     dispatch(verifyUser())
       .unwrap()
-      .then((data) => {
-        console.log(data, '✔️ User verified')
-      })
       .catch((err) => {
         console.error(err.message, '❌ Verification failed')
       })

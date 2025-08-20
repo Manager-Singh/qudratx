@@ -180,16 +180,18 @@ import { FaEye } from 'react-icons/fa';
 import { deleteProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
 import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
+import { useSearchParams } from "react-router-dom"
 
 function AllProposals() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams(); 
   const { proposals, isLoading } = useSelector(state => state.proposal);
 const [totalRecords ,setTotalRecords] = useState(0)
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [searchDebounce, setSearchDebounce] = useState(''); // for debouncing
 
   // ✅ Debounce search input

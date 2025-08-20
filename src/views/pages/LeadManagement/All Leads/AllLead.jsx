@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from "react-router-dom"
 import {
   getLead,
   deleteLead,
@@ -25,6 +26,7 @@ function AllLead() {
          setToastData({ show: true, status, message })
          setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
        }
+       const [searchParams] = useSearchParams();
       const navigate = useNavigate()
   const dispatch = useDispatch();
   const { leads, total, isLoading } = useSelector((state) => state.lead);
@@ -36,7 +38,7 @@ function AllLead() {
   // Pagination and search states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get("search") || "");
 
   useEffect(() => {
     fetchData();
@@ -56,7 +58,7 @@ function AllLead() {
         type:"lead"
       }
     dispatch(readNotification(data)).then((data)=>{
-      console.log(data)
+      
       if (data.payload.success) {
         dispatch(getDashboardData())
       }
@@ -93,9 +95,16 @@ function AllLead() {
   };
 
  const columns = [
- 
+ {
+          name: 'Lead Number',
+          selector: (row) => row.lead_number, 
+          sortable: true,
+          wrap: true,
+          width:"125px"
+        },
    ...(user.role === 'admin'
     ? [
+       
       {
   name: 'Approval Status',
   cell: (row) => {
@@ -226,18 +235,19 @@ function AllLead() {
       ]),
 
 
-
   {
     name: 'Origin',
     selector: (row) => row.origin || '-',
     sortable: true,
+    width:"130px"
   },
   {
     name: 'Lead Status',
     selector: (row) => row.lead_status || '-',
     sortable: true,
     wrap: true,
-    grow: 3,
+    minWidth:"120px"
+   
   },
   ...(user.role === 'admin'
     ? [
@@ -247,14 +257,14 @@ function AllLead() {
             row.assignedTo?.name !== null ? row.assignedTo?.name : 'Unassigned',
           sortable: true,
           wrap: true,
-          grow: 3,
+         width:"120px"
         },
         {
           name: 'Created By',
           selector: (row) => row.createdBy?.name || '-',
           sortable: true,
           wrap: true,
-          grow: 3,
+          width:"130px",
         },
       ]
     : []),
@@ -269,13 +279,15 @@ function AllLead() {
       </span>
     ),
     sortable: true,
+    width:"90px"
   },
   {
     name: 'Created At',
     selector: (row) =>
       row.created_at ? new Date(row.created_at).toLocaleString() : '-',
     sortable: true,
-    grow: 3,
+   wrap:true,
+   width:"110px"
   },
  {
   name: 'Action',
@@ -317,7 +329,7 @@ function AllLead() {
     );
   },
   ignoreRowClick: true,
-  width: '120px',
+  width: '150px',
 }
 
 ]

@@ -10,24 +10,36 @@ import {
 } from '@coreui/react'
 
 function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }) {
-  const handleChange = (e) => {
-    const { name, value, type } = e.target
-    let val = value
 
-    // Prevent negative values in number inputs
-    if (type === 'number' && parseFloat(value) < 0) {
-      val = ''
-    }
-
-    setQuestionFormData((prev) => ({
-      ...prev,
-      [name]: val,
-    }))
+  const handleNumberKeyDown = (e) => {
+  if (['e', 'E', '+', '-'].includes(e.key)) {
+    e.preventDefault()
   }
+}
+
+  const handleChange = (e) => {
+  const { name, value, type } = e.target
+  let val = value
+
+  if (type === 'number') {
+    // Prevent negative & non-numeric input
+    if (val === '' || isNaN(val)) {
+      val = ''
+    } else {
+      val = String(Math.max(0, parseFloat(val)))
+    }
+  }
+
+  setQuestionFormData((prev) => ({
+    ...prev,
+    [name]: val,
+  }))
+}
 
   const showMainlandFields =
     authorities.length > 0 &&
     authorities[0]?.zone?.name?.trim().toLowerCase() === 'mainland'
+
 
   return (
     <>
@@ -62,6 +74,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                     name="visaAmount"
                     value={questionFormData.visaAmount || ''}
                     onChange={handleChange}
+                    onKeyDown={handleNumberKeyDown}
                   />
                 </CCol>
               )}
@@ -104,6 +117,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                     name="tenancyAmount"
                     value={questionFormData.tenancyAmount || ''}
                     onChange={handleChange}
+                    onKeyDown={handleNumberKeyDown}
                   />
                 </CCol>
               )}
@@ -146,6 +160,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                     name="localPartnerAmount"
                     value={questionFormData.localPartnerAmount || ''}
                     onChange={handleChange}
+                    onKeyDown={handleNumberKeyDown}
                   />
                 </CCol>
               )}
@@ -187,6 +202,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                     name="languageAmount"
                     value={questionFormData.languageAmount || ''}
                     onChange={handleChange}
+                    onKeyDown={handleNumberKeyDown}
                   />
                 </CCol>
               )}
@@ -216,6 +232,7 @@ function BusinessQuestion({ authorities, questionFormData, setQuestionFormData }
                     name="companyTypeAmount"
                     value={questionFormData.companyTypeAmount || ''}
                     onChange={handleChange}
+                    onKeyDown={handleNumberKeyDown}
                   />
                 </CCol>
               )}

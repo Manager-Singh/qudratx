@@ -33,7 +33,7 @@ const AppSidebar = ({openSideBar}) => {
   const user = useSelector((state) => state.auth.user)
   const { businesszones } = useSelector((state) => state.businesszone)
   const {DasboardData} = useSelector((state)=>state.dashboard)
-  console.log(DasboardData,"Notification")
+  
   // state to display setting on admin dashboard
   const [showSetting, setShowSetting] = useState(false);
   useEffect(() => {

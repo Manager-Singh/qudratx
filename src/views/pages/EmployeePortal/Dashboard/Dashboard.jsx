@@ -192,7 +192,7 @@ const Dashboard = () => {
           </Link>
         </CCol>
          <CCol xs={12} md={6} xl={4}>
-             <Link to="/all-lead" className="text-decoration-none text-dark">
+             <Link to={`/all-lead?search=${encodeURIComponent("pending")}`} className="text-decoration-none text-dark" >
           <DashboardCard
             title="New Leads"
             value={DasboardData?.newLeads}
@@ -206,7 +206,7 @@ const Dashboard = () => {
         </CCol>
 
         <CCol xs={12} md={6} xl={4}>
-             <Link to="#" className="text-decoration-none text-dark">
+             <Link    to={`/my-proposal?search=${encodeURIComponent("unapproved")}`}  className="text-decoration-none text-dark">
           <DashboardCard
             title="Unapproved Proposals"
             value={DasboardData?.unapprovedProposals}
@@ -219,7 +219,7 @@ const Dashboard = () => {
           </Link>
         </CCol>
          <CCol xs={12} md={6} xl={4}>
-             <Link to="#" className="text-decoration-none text-dark">
+             <Link to={`/my-proposal?search=${encodeURIComponent("pending")}`} className="text-decoration-none text-dark">
           <DashboardCard
             title="Pending Proposals"
             value={DasboardData?.pendingProposals}

@@ -8,136 +8,144 @@ const { sendEmail } = require("../services/emailService");
 // CREATE
 const createLeadDetail = async (req, res) => {
   try {
-    const { client_id , origin } = req.body;
+    const { client_id, origin } = req.body;
 
-    // Validate required input
     if (!client_id) {
-      return res.status(400).json({ message: 'Client ID is required' });
+      return res.status(400).json({ message: "Client ID is required" });
     }
 
-    // Get client from DB
-    const client = await Client.findOne({ where: { id: client_id, deleted_at: null } });
+    const client = await Client.findOne({
+      where: { id: client_id, deleted_at: null },
+    });
 
     if (!client) {
-      return res.status(404).json({ message: 'Client not found' });
+      return res.status(404).json({ message: "Client not found" });
     }
 
     // Get last lead to generate lead_number
-    const lastLead = await Lead.findOne({
-      order: [['id', 'DESC']]
-    });
-
+    const lastLead = await Lead.findOne({ order: [["id", "DESC"]] });
     const nextNumber = lastLead ? lastLead.id + 1 : 1;
-    const lead_number = `LEAD_${nextNumber.toString().padStart(4, '0')}`; // e.g., LEAD_0001
+    const lead_number = `LEAD_${nextNumber.toString().padStart(4, "0")}`;
 
     // Create Lead
-    const lead = await Lead.create({
-      client_id: client.id,
-      lead_number,
-      origin: origin,
-      created_status: req.user.role,
-      approval_status: req.user.role === 'admin' ? 1 : 2,
-      created_by: req.user.id,
-      last_update: new Date(),
-      created_at: new Date(),
-      updated_at: new Date()
-    },{ userId: req.user.id });
+    const lead = await Lead.create(
+      {
+        client_id: client.id,
+        lead_number,
+        origin,
+        created_status: req.user.role,
+        approval_status: req.user.role === "admin" ? 1 : 2,
+        created_by: req.user.id,
+        last_update: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      { userId: req.user.id }
+    );
 
-     // Reload the lead with its associated client
+    // Reload with client
     const fullLead = await Lead.findOne({
       where: { id: lead.id },
       include: [
         {
           model: Client,
-          as: 'Client', // optional alias, use only if you defined one
-          attributes: { exclude: ['deleted_at'] } // filter sensitive fields
-        }
-      ]
+          as: "Client",
+          attributes: { exclude: ["deleted_at"] },
+        },
+      ],
     });
 
-   
-
-         // If employee created the lead → also send to admin
-    if (req.user.role === 'employee') {
-
-
-       const clientEmail = client?.email;
-      const clientName = client?.name;
-
-       await sendEmail({
-      to: clientEmail,
-      subject: "Welcome Mail",
-      templateName: "welcome",
-      templateData: {
-        title: "Welcome!",
-        name: clientName,
-        company: "FZCS",
-        features: ["24/7 Support", "Premium Tools", "Free Training"],
-        year: new Date().getFullYear()
-      }
+    // Respond immediately ✅
+    res.status(201).json({
+      message: "Lead created successfully",
+      success: true,
+      data: fullLead,
     });
 
-      // Get all admin emails
-      const admins = await User.findAll({
-        where: { role: 'admin', deleted_at: null },
-        attributes: ['id','email', 'name']
-      });
+    // ---- Async background tasks (don’t block response) ----
+    (async () => {
+      try {
+        if (req.user.role === "employee") {
+          const clientEmail = client?.email;
+          const clientName = client?.name;
 
-      for (const admin of admins) {
-         await sendEmail({
-      to: admin.email,
-      subject: "New Lead Created",
-      templateName: "admin_newlead",
-      templateData: {
-        title: "New Lead",
-        name: admin.name,
-        lead_number: lead_number,
-        created_by:req.user.name,
-        company:"FZCS"
-      }
-    });
+          if (clientEmail) {
+            // Welcome email
+            sendEmail({
+              to: clientEmail,
+              subject: "Welcome Mail",
+              templateName: "welcome",
+              templateData: {
+                title: "Welcome!",
+                name: clientName,
+                company: "FZCS",
+                features: ["24/7 Support", "Premium Tools", "Free Training"],
+                year: new Date().getFullYear(),
+              },
+            });
 
-                         // Notification
-        await Notification.create({
-          user_id: admin.id,
-           created_by: req.user.id,
-          type: 'Lead',
-          action: "Lead Created",
-          title: "New Lead Created",
-          related_id: lead.uuid,
-          message: `A new lead (${lead.lead_number}) was created by ${req.user.name}`,
-          is_read: false,
-        });
+            // New lead email to client
+            sendEmail({
+              to: clientEmail,
+              subject: "New Lead Created",
+              templateName: "newlead",
+              templateData: {
+                title: "New Lead",
+                name: clientName,
+                lead_number,
+                created_by: req.user.name,
+                company: "FZCS",
+              },
+            });
+          }
 
-      }
+          // Get admins
+          const admins = await User.findAll({
+            where: { role: "admin", deleted_at: null },
+            attributes: ["id", "email", "name"],
+          });
 
-               await sendEmail({
-                  to: clientEmail,
+          // Send emails + notifications in parallel
+          await Promise.all(
+            admins.map(async (admin) => {
+              if (admin.email) {
+                sendEmail({
+                  to: admin.email,
                   subject: "New Lead Created",
-                  templateName: "newlead",
+                  templateName: "admin_newlead",
                   templateData: {
                     title: "New Lead",
-                    name: clientName,
-                    lead_number: lead_number,
-                    created_by:req.user.name,
-                    company:"FZCS"
-                  }
+                    name: admin.name,
+                    lead_number,
+                    created_by: req.user.name,
+                    company: "FZCS",
+                  },
                 });
+              }
 
-
-    }
-
-    return res.status(201).json({
-      message: 'Lead created successfully',
-      success: true,
-      data: fullLead
-    });
-
+              await Notification.create({
+                user_id: admin.id,
+                created_by: req.user.id,
+                type: "Lead",
+                action: "Lead Created",
+                title: "New Lead Created",
+                related_id: lead.uuid,
+                message: `A new lead (${lead.lead_number}) was created by ${req.user.name}`,
+                is_read: false,
+              });
+            })
+          );
+        }
+      } catch (asyncErr) {
+        console.error("Background task failed:", asyncErr);
+      }
+    })();
   } catch (error) {
-    console.error('Create lead error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error("Create lead error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const assignLead = async (req, res) => {
   try {

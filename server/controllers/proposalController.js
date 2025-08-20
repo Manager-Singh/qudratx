@@ -444,39 +444,67 @@ const getEmployeeProposals = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const search = req.query.search || '';
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
 
-    const whereClause = {
-      created_by: employeeId
-    };
+    // Base filter: proposals created by this employee
+    const whereClause = { created_by: employeeId };
 
-    // Optional search by client name or proposal name, etc.
+    // Build includes
+    const include = [
+      {
+        model: User,
+        as: "creator",
+        attributes: ["id", "name", "email"], // adjust as needed
+      },
+      {
+        model: Client,
+        as: "client", // matches Proposal.belongsTo(Client, { as: "client" })
+        attributes: ["id", "name"],
+        required: false,
+      },
+    ];
+
     if (search) {
-      whereClause[Op.or] = [
-        { client_name: { [Op.like]: `%${search}%` } },
-        { zone_name: { [Op.like]: `%${search}%` } },
-        { authority_name: { [Op.like]: `%${search}%` } },
-        { package_name: { [Op.like]: `%${search}%` } }
-      ];
+      if (search === "draft") {
+        // Special case: drafts
+        whereClause.employee_approval = 0;
+      } else if (search === "unapproved") {
+        whereClause.approval_status = 0;
+      } else if (search === "approved") {
+        whereClause.approval_status = 1;
+      } else if (search === "pending") {
+        whereClause.approval_status = 2;
+      } else {
+        // Normal text search
+        whereClause[Op.or] = [
+          { zone_name: { [Op.like]: `%${search}%` } },
+          { authority_name: { [Op.like]: `%${search}%` } },
+          { package_name: { [Op.like]: `%${search}%` } },
+          { proposal_number: { [Op.like]: `%${search}%` } },
+        ];
+
+        // Add search on client name
+        include[1].where = {
+          name: { [Op.like]: `%${search}%` },
+        };
+        include[1].required = false;
+      }
     }
 
-    const { rows: proposals, count: totalRecords } = await Proposal.findAndCountAll({
-      where: whereClause,
-      limit,
-      offset,
-      order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'creator',
-        },
-  ],
-    });
+    const { rows: proposals, count: totalRecords } =
+      await Proposal.findAndCountAll({
+        where: whereClause,
+        include,
+        limit,
+        offset,
+        order: [["created_at", "DESC"]],
+        distinct: true,
+      });
 
     const totalPages = Math.ceil(totalRecords / limit);
 
     return res.status(200).json({
-      message: 'Proposals fetched successfully',
+      message: "Proposals fetched successfully",
       success: true,
       page,
       limit,
@@ -485,12 +513,15 @@ const getEmployeeProposals = async (req, res) => {
       data: proposals,
     });
   } catch (error) {
-    console.error('Error fetching employee proposals:', error);
+    console.error("Error fetching employee proposals:", error);
     return res.status(500).json({
-      message: 'Internal server error',
+      message: "Internal server error",
+      error: error.message,
     });
   }
 };
+
+
 // // GET DELETED Package
 // const getDeletedProposal = async (req, res) => {
 //   try {

@@ -454,19 +454,18 @@ const getEmployeeProposals = async (req, res) => {
       {
         model: User,
         as: "creator",
-        attributes: ["id", "name", "email"], // adjust as needed
+        attributes: ["id", "name", "email"],
       },
       {
         model: Client,
-        as: "client", // matches Proposal.belongsTo(Client, { as: "client" })
+        as: "client",
         attributes: ["id", "name"],
-        required: false,
+        required: false, // LEFT JOIN so proposals without clients are still returned
       },
     ];
 
     if (search) {
       if (search === "draft") {
-        // Special case: drafts
         whereClause.employee_approval = 0;
       } else if (search === "unapproved") {
         whereClause.approval_status = 0;
@@ -475,19 +474,14 @@ const getEmployeeProposals = async (req, res) => {
       } else if (search === "pending") {
         whereClause.approval_status = 2;
       } else {
-        // Normal text search
+        // Normal text search across Proposal + Client
         whereClause[Op.or] = [
           { zone_name: { [Op.like]: `%${search}%` } },
           { authority_name: { [Op.like]: `%${search}%` } },
           { package_name: { [Op.like]: `%${search}%` } },
           { proposal_number: { [Op.like]: `%${search}%` } },
+          { "$client.name$": { [Op.like]: `%${search}%` } }, // 👈 works with include alias
         ];
-
-        // Add search on client name
-        include[1].where = {
-          name: { [Op.like]: `%${search}%` },
-        };
-        include[1].required = false;
       }
     }
 
@@ -498,7 +492,7 @@ const getEmployeeProposals = async (req, res) => {
         limit,
         offset,
         order: [["created_at", "DESC"]],
-        distinct: true,
+        distinct: true, // needed to fix count with JOINs
       });
 
     const totalPages = Math.ceil(totalRecords / limit);
@@ -520,6 +514,92 @@ const getEmployeeProposals = async (req, res) => {
     });
   }
 };
+
+
+// const getEmployeeProposals = async (req, res) => {
+//   try {
+//     const employeeId = req.user.id;
+
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const offset = (page - 1) * limit;
+
+//     const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+
+//     // Base filter: proposals created by this employee
+//     const whereClause = { created_by: employeeId };
+
+//     // Build includes
+//     const include = [
+//       {
+//         model: User,
+//         as: "creator",
+//         attributes: ["id", "name", "email"], // adjust as needed
+//       },
+//       {
+//         model: Client,
+//         as: "client", // matches Proposal.belongsTo(Client, { as: "client" })
+//         attributes: ["id", "name"],
+//         required: false,
+//       },
+//     ];
+
+//     if (search) {
+//       if (search === "draft") {
+//         // Special case: drafts
+//         whereClause.employee_approval = 0;
+//       } else if (search === "unapproved") {
+//         whereClause.approval_status = 0;
+//       } else if (search === "approved") {
+//         whereClause.approval_status = 1;
+//       } else if (search === "pending") {
+//         whereClause.approval_status = 2;
+//       } else {
+//         // Normal text search
+//         whereClause[Op.or] = [
+//           { zone_name: { [Op.like]: `%${search}%` } },
+//           { authority_name: { [Op.like]: `%${search}%` } },
+//           { package_name: { [Op.like]: `%${search}%` } },
+//           { proposal_number: { [Op.like]: `%${search}%` } },
+//         ];
+
+//         // Add search on client name
+//         include[1].where = {
+//           name: { [Op.like]: `%${search}%` },
+//         };
+//         include[1].required = false;
+//       }
+//     }
+
+//     const { rows: proposals, count: totalRecords } =
+//       await Proposal.findAndCountAll({
+//         where: whereClause,
+//         include,
+//         limit,
+//         offset,
+//         order: [["created_at", "DESC"]],
+//         distinct: true,
+//       });
+
+//     const totalPages = Math.ceil(totalRecords / limit);
+
+//     return res.status(200).json({
+//       message: "Proposals fetched successfully",
+//       success: true,
+//       page,
+//       limit,
+//       totalPages,
+//       totalRecords,
+//       data: proposals,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching employee proposals:", error);
+//     return res.status(500).json({
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
 
 
 // // GET DELETED Package

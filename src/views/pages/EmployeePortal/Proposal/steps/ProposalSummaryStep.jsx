@@ -16,7 +16,7 @@ import dubaiSouth from '../../../../../assets/proposal_images/dubaiSouth.jpeg'
 import dmcc from '../../../../../assets/proposal_images/dmcc.jpg'
 import dedDubai from '../../../../../assets/proposal_images/dedDubai.jpg'
 import { useParams } from 'react-router-dom';
-import { readNotification } from '../../../../../store/admin/notificationSlice';
+
 
 const ProposalSummary = () => {
   const {uuid} = useParams()
@@ -213,7 +213,7 @@ console.log(proposal,"proposal")
  
  const handleDownload = async () => {
   try {
-    const fileUrl = `http://localhost:5000/${proposal.pdf_path}`;
+    const fileUrl = `${import.meta.env.VITE_SERVER_URL}/${proposal.pdf_path}`;
     const response = await axios.get(fileUrl, { responseType: 'blob' }); // 👈 important
     
     const blob = response.data;
@@ -310,7 +310,7 @@ const selectedImage = imageMap[proposal?.authority_name?.toUpperCase()]
               </CButton> } 
 
       </div>
-      {proposal?.generated_pdf  && <div className='d-flex justify-content-end p-2'>
+      {proposal?.generated_pdf  && proposal?.approval_status == 1 && <div className='d-flex justify-content-end p-2'>
        <CButton
   onClick={handleDownload}
   title='Download PDF'

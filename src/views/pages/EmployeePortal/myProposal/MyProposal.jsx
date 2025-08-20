@@ -251,15 +251,46 @@ const [totalRecords ,setTotalRecords] = useState(0)
 
   
 
-  // ✅ Expanded Row Component
-  const ExpandedRow = ({ data }) => (
-    <div className="p-3 bg-light border rounded">
-      <strong>Reason for unapprove:</strong> {data.reason || 'N/A'}
+const ExpandedRow = ({ data }) => {
+  const fields = [];
+console.log(data.approval_status)
+  // conditionally push fields
+  if (data.approval_status == 0) {
+    fields.push({
+      label: "Reason for Unapproval",
+      value: data.reason || "N/A",
+    });
+  }
+
+  
+  return (
+    <div className="p-3 bg-white border rounded shadow-sm">
+      {fields.length > 0 ? (
+        <div className="row">
+          {fields.map((field, index) => (
+            <div key={index} className="col-md-6 mb-3">
+              <small className="text-muted d-block">{field.label}</small>
+              <span className="fw-semibold text-dark">{field.value}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <em className="text-secondary">No details available</em>
+      )}
     </div>
   );
+};
+
 
   // ✅ Table Columns
   const columns = [
+    {
+      name: 'Proposal No.',
+      selector: (row) => row.proposal_number || '-',
+      sortable: true,
+      minWidth: '110px',
+      wrap: true,
+    },
     { name: 'Business Zone', selector: row => row.zone_name || 'NA', sortable: true, Width: '130px', wrap: true },
     { name: 'Business Authority', selector: row => row.authority_name || 'NA', sortable: true, Width: '160px', wrap: true },
     {
@@ -294,6 +325,7 @@ const [totalRecords ,setTotalRecords] = useState(0)
       name: 'Created At',
       selector: row => (row.created_at ? new Date(row.created_at).toLocaleString() : '-'),
       sortable: true,
+      wrap:true
      
     },
     {

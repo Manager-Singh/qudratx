@@ -1,5 +1,5 @@
 const { Proposal, User, Notification, Lead, Client } = require('../models');
-const { Op, where } = require('sequelize');
+const { Op, where, col } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 const transporter = require('../config/emailConfig');
@@ -90,23 +90,39 @@ const getAllProposals = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    const search = req.query.search || '';
-    const status = req.query.status; // optional: 'active' or 'inactive'
 
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+    const status = req.query.status; // 'active' | 'inactive'
+
+    // base where
     const where = {
       deleted_at: null,
-      employee_approval: 1, //Only proposals approved by employee
-      [Op.or]: [
-        { zone_name: { [Op.like]: `%${search}%` } },
-        { authority_name: { [Op.like]: `%${search}%` } },
-        { package_name: { [Op.like]: `%${search}%` } },
-      ]
+      employee_approval: 1, // Only proposals approved by employee
     };
 
-    // ✅ Filter by status if provided
-    if (status === 'active') {
+    if (search) {
+      if (search === "unapproved") {
+        where.approval_status = 0;
+      } else if (search === "approved") {
+        where.approval_status = 1;
+      } else if (search === "pending") {
+        where.approval_status = 2;
+      } else {
+        // normal search: proposal fields + client name
+        where[Op.or] = [
+          { zone_name: { [Op.like]: `%${search}%` } },
+          { authority_name: { [Op.like]: `%${search}%` } },
+          { package_name: { [Op.like]: `%${search}%` } },
+          // search on client name via joined model
+          { [col("client.name")]: { [Op.like]: `%${search}%` } },
+        ];
+      }
+    }
+
+    // status filter
+    if (status === "active") {
       where.status = true;
-    } else if (status === 'inactive') {
+    } else if (status === "inactive") {
       where.status = false;
     }
 
@@ -114,19 +130,26 @@ const getAllProposals = async (req, res) => {
       where,
       limit,
       offset,
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
       include: [
         {
           model: User,
-          as: 'creator',
+          as: "creator",
+        },
+        {
+          model: Client,
+          as: "client",
+          attributes: ["id", "name"], // ensure name is available
+          required: false, // left join
         },
       ],
+      distinct: true, // important when using joins
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Proposals fetched successfully',
+      message: "Proposals fetched successfully",
       success: true,
       page,
       limit,
@@ -135,10 +158,12 @@ const getAllProposals = async (req, res) => {
       data: rows,
     });
   } catch (error) {
-    console.error('Get proposals error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Get proposals error:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
+
 
 
 // const getProposalByAuthorityId = async (req, res) => {

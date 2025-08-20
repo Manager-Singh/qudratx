@@ -1,5 +1,5 @@
 const { Lead, Client, User , Notification } = require('../models');
-const { Op, where } = require('sequelize');
+const { Op, where, col } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
@@ -229,26 +229,26 @@ const assignLead = async (req, res) => {
   }
 };
 
-
 const getLeadDetail = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    const search = req.query.search || '';
-    const status = req.query.status; // optional: 'active' or 'inactive'
+
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
+    const status = req.query.status; // 'active' | 'inactive'
     const assignedTo = req.query.assigned_to; // user ID or partial name
-    const origin = req.query.origin; // exact or partial match
-    const leadStatus = req.query.lead_status; // exact or partial match
+    const origin = req.query.origin; // string
+    const leadStatus = req.query.lead_status; // string
 
     const leadWhere = {
       deleted_at: null,
     };
 
     // Active / inactive filter
-    if (status === 'active') {
+    if (status === "active") {
       leadWhere.status = true;
-    } else if (status === 'inactive') {
+    } else if (status === "inactive") {
       leadWhere.status = false;
     }
 
@@ -262,62 +262,83 @@ const getLeadDetail = async (req, res) => {
       leadWhere.lead_status = { [Op.like]: `%${leadStatus}%` };
     }
 
+    // Handle search query
+    if (search) {
+      if (search === "unapproved") {
+        leadWhere.approval_status = 0;
+      } else if (search === "approved") {
+        leadWhere.approval_status = 1;
+      } else if (search === "pending") {
+        leadWhere.approval_status = 2;
+      } else {
+        // Free-text search across multiple fields
+        leadWhere[Op.or] = [
+          { lead_number: { [Op.like]: `%${search}%` } },
+          { [col("Client.name")]: { [Op.like]: `%${search}%` } },
+          { [col("Client.email")]: { [Op.like]: `%${search}%` } },
+          { [col("createdBy.name")]: { [Op.like]: `%${search}%` } },
+          { [col("createdBy.email")]: { [Op.like]: `%${search}%` } },
+        ];
+      }
+    }
+
     const include = [
       {
         model: Client,
-        as: 'Client',
-        where: {
-          email: { [Op.like]: `%${search}%` },
-          deleted_at: null
-        },
-        required: true,
-        attributes: { exclude: ['deleted_at'] }
+        as: "Client",
+        where: { deleted_at: null },
+        required: false, // keep LEFT JOIN so leads without clients still appear
+        attributes: { exclude: ["deleted_at"] },
       },
       {
         model: User,
-        as: 'assignedBy',
+        as: "assignedBy",
       },
       {
         model: User,
-        as: 'assignedTo',
+        as: "assignedTo",
         where: assignedTo
           ? {
               [Op.or]: [
-                { id: assignedTo }, // match exact ID
-                { name: { [Op.like]: `%${assignedTo}%` } } // match partial name
-              ]
+                { id: assignedTo }, // exact ID match
+                { name: { [Op.like]: `%${assignedTo}%` } }, // partial name match
+              ],
             }
-          : undefined
+          : undefined,
       },
       {
         model: User,
-        as: 'createdBy'
-      }
+        as: "createdBy", // ✅ needed for search on created_by
+      },
     ];
 
     const { count, rows } = await Lead.findAndCountAll({
       where: leadWhere,
       limit,
       offset,
-      order: [['created_at', 'DESC']],
-      include
+      order: [["created_at", "DESC"]],
+      include,
+      distinct: true, // avoid duplicates when joins exist
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Lead details fetched successfully',
+      message: "Lead details fetched successfully",
+      success: true,
       page,
       limit,
       totalPages,
       totalRecords: count,
-      data: rows
+      data: rows,
     });
   } catch (error) {
-    console.error('Get leads error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Get leads error:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
+
 
 
 // GET ONE
@@ -496,9 +517,10 @@ const getLeadDetailByEmployeeID = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
+    const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
     const { lead_status, origin } = req.query;
 
-    // Build WHERE conditions
+    // Base WHERE conditions
     const leadWhere = {
       deleted_at: null,
       [Op.or]: [
@@ -507,44 +529,68 @@ const getLeadDetailByEmployeeID = async (req, res) => {
       ]
     };
 
+    // Lead status filter
     if (lead_status) {
       leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
     }
 
+    // Origin filter
     if (origin) {
       leadWhere.origin = { [Op.like]: `%${origin}%` };
+    }
+
+    // Search filter
+    if (search) {
+      if (search === "unapproved") {
+        leadWhere.approval_status = 0;
+      } else if (search === "approved") {
+        leadWhere.approval_status = 1;
+      } else if (search === "pending") {
+        leadWhere.approval_status = 2;
+      } else {
+        leadWhere[Op.or] = [
+          { assigned_to: userId },
+          { created_by: userId },
+          { lead_number: { [Op.like]: `%${search}%` } },
+          { [col("Client.name")]: { [Op.like]: `%${search}%` } },
+          { [col("Client.email")]: { [Op.like]: `%${search}%` } },
+          { [col("createdBy.name")]: { [Op.like]: `%${search}%` } },
+          { [col("createdBy.email")]: { [Op.like]: `%${search}%` } },
+        ];
+      }
     }
 
     const { count, rows } = await Lead.findAndCountAll({
       where: leadWhere,
       limit,
       offset,
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
       include: [
         {
           model: Client,
-          as: 'Client',
-          attributes: { exclude: ['deleted_at'] },
+          as: "Client",
+          attributes: { exclude: ["deleted_at"] },
         },
         {
           model: User,
-          as: 'assignedBy',
+          as: "assignedBy",
         },
         {
           model: User,
-          as: 'assignedTo',
+          as: "assignedTo",
         },
         {
           model: User,
-          as: 'createdBy',
+          as: "createdBy",
         },
       ],
+      distinct: true, // avoid duplicate rows due to JOIN
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
-      message: 'Lead details fetched successfully',
+      message: "Lead details fetched successfully",
       page,
       limit,
       totalPages,
@@ -552,10 +598,11 @@ const getLeadDetailByEmployeeID = async (req, res) => {
       data: rows,
     });
   } catch (error) {
-    console.error('Get leads error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Get leads error:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 const updateLeadApprovalStatus = async (req, res) => {
   try {

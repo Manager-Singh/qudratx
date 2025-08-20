@@ -159,32 +159,35 @@ useEffect(() => {
                     feedbackInvalid="Please enter a name."
                   />
                 </CCol>
+<CCol xs={6}>
+  <CFormLabel htmlFor="email">Email<span className="text-danger">*</span></CFormLabel>
+  <CFormInput
+    type="email"
+    name="email"
+    id="email"
+    placeholder="Enter email..."
+    value={formdata.email}
+    onChange={handleChange}
+    required
+    pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+    feedbackInvalid="Please enter a valid email address."
+  />
+</CCol>
 
-                <CCol xs={6}>
-                  <CFormLabel htmlFor="email">Email<span className="text-danger">*</span></CFormLabel>
-                  <CFormInput
-                    type="email"
-                    name="email"
-                    id="email"
-                    placeholder="Enter email..."
-                    value={formdata.email}
-                    onChange={handleChange}
-                    required
-                    feedbackInvalid="Please enter a valid email."
-                  />
-                </CCol>
-
-                <CCol xs={6}>
-                  <CFormLabel htmlFor="phone">Phone</CFormLabel>
-                  <CFormInput
-                    type="tel"
-                    name="phone"
-                    id="phone"
-                    placeholder="Enter phone..."
-                    value={formdata.phone}
-                    onChange={handleChange}
-                  />
-                </CCol>
+<CCol xs={6}>
+  <CFormLabel htmlFor="phone">Phone<span className="text-danger">*</span></CFormLabel>
+  <CFormInput
+    type="tel"
+    name="phone"
+    id="phone"
+    placeholder="Enter phone..."
+    value={formdata.phone}
+    onChange={handleChange}
+    required
+    pattern="^\+?[0-9]{10,15}$"
+    feedbackInvalid="Please enter a valid phone number (10–15 digits, optional +)."
+  />
+</CCol>
 
                 <CCol xs={6}>
                   <CFormLabel htmlFor="company_name">Company Name</CFormLabel>

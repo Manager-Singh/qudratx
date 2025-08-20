@@ -321,15 +321,6 @@
 // export default AddLead;
 
 
-
-
-
-
-
-
-  
-
-
 import React, { useEffect, useState } from 'react'
 import {
   CButton,
@@ -409,7 +400,7 @@ function AddLead() {
     dispatch(getClient({ page: 1, limit: 10, search: ''}));
   }
 
-  dispatch(getEmployees()).then((data)=>console.log(data))
+  dispatch(getEmployees())
 }, [dispatch, uuid])
 
   const showToast = (status, message) => {

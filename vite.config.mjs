@@ -45,7 +45,7 @@ export default defineConfig(() => {
         // https://vitejs.dev/config/server-options.html
       },
       allowedHosts:[
-        "03dfb7c9e150.ngrok-free.app"
+        "8239dbc176c8.ngrok-free.app"
       ]
     },
   }

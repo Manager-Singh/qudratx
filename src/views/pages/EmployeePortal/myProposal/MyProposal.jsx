@@ -178,6 +178,8 @@ import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
  import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 import { deleteProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
+import { readNotification } from '../../../../store/admin/notificationSlice';
+import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 
 function AllProposals() {
   const dispatch = useDispatch();
@@ -198,6 +200,19 @@ const [totalRecords ,setTotalRecords] = useState(0)
     }, 500);
     return () => clearTimeout(handler);
   }, [search]);
+
+  useEffect(()=>{
+      const data ={
+        type:"proposal"
+      }
+    dispatch(readNotification(data)).then((data)=>{
+      console.log(data)
+      if (data.payload.success) {
+        dispatch(getDashboardData())
+      }
+    })
+   },[])
+   
 
   // ✅ Fetch proposals from server
   const fetchData = useCallback(() => {

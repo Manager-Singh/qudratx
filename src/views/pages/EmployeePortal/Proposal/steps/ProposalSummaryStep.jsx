@@ -16,6 +16,7 @@ import dubaiSouth from '../../../../../assets/proposal_images/dubaiSouth.jpeg'
 import dmcc from '../../../../../assets/proposal_images/dmcc.jpg'
 import dedDubai from '../../../../../assets/proposal_images/dedDubai.jpg'
 import { useParams } from 'react-router-dom';
+import { readNotification } from '../../../../../store/admin/notificationSlice';
 
 const ProposalSummary = () => {
   const {uuid} = useParams()
@@ -31,7 +32,9 @@ const [toastData, setToastData] = useState({ show: false, status: '', message: '
       setToastData({ show: true, status, message })
       setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
     }
- 
+//  useEffect(()=>{
+//   dispatch(readNotification({uuid}))
+//  },[])
 
 const imageMap = {
   SHAMS: shams,

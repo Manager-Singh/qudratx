@@ -22,7 +22,7 @@ import {
 import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import './ProposalsListing.css'
 import DisapproveProposalModal from '../components/DisapproveProposalModal'
-import { getNotifications, readNotification } from '../../../../store/admin/notificationSlice'
+import {readNotification } from '../../../../store/admin/notificationSlice'
 import { FaRegEdit } from "react-icons/fa";
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
 import { useSearchParams } from "react-router-dom"
@@ -372,7 +372,7 @@ function AllProposals() {
 
 const handleStatusChange = (e)=>{
   setStatus(e.target.value)
-  setSearch('')
+  setFilterText('')
   setPage(1)
 }
 

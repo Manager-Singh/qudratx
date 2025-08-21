@@ -274,7 +274,7 @@ const getLeadDetail = async (req, res) => {
         // Free-text search across multiple fields
         leadWhere[Op.or] = [
           { lead_number: { [Op.like]: `%${search}%` } },
-          { "$client.name$": { [Op.like]: `%${search}%` } },
+          { "$Client.name$": { [Op.like]: `%${search}%` } },
            { "$createdBy.name$": { [Op.like]: `%${search}%` } },
         ];
       }
@@ -550,8 +550,7 @@ const getLeadDetailByEmployeeID = async (req, res) => {
           { assigned_to: userId },
           { created_by: userId },
           { lead_number: { [Op.like]: `%${search}%` } },
-           { "$client.name$": { [Op.like]: `%${search}%` } },
-           { "$createdBy.name$": { [Op.like]: `%${search}%` } },
+           { "$Client.name$": { [Op.like]: `%${search}%` } },
         ];
       }
     }

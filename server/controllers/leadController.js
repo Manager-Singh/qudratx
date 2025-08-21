@@ -517,14 +517,11 @@ const getLeadDetailByEmployeeID = async (req, res) => {
 
     const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
     const { lead_status, origin } = req.query;
+    const assignedTo = req.query.assigned_to; // user ID or partial name
 
     // Base WHERE conditions
     const leadWhere = {
       deleted_at: null,
-      [Op.or]: [
-        { assigned_to: userId },
-        { created_by: userId }
-      ]
     };
 
     // Lead status filter
@@ -547,10 +544,8 @@ const getLeadDetailByEmployeeID = async (req, res) => {
         leadWhere.approval_status = 2;
       } else {
         leadWhere[Op.or] = [
-          { assigned_to: userId },
-          { created_by: userId },
           { lead_number: { [Op.like]: `%${search}%` } },
-           { "$Client.name$": { [Op.like]: `%${search}%` } },
+          { "$Client.name$": { [Op.like]: `%${search}%` } },
         ];
       }
     }
@@ -571,9 +566,17 @@ const getLeadDetailByEmployeeID = async (req, res) => {
           as: "assignedBy",
         },
         {
-          model: User,
-          as: "assignedTo",
-        },
+        model: User,
+        as: "assignedTo",
+        where: assignedTo
+          ? {
+              [Op.or]: [
+                { id: assignedTo }, // exact ID match
+                { name: { [Op.like]: `%${assignedTo}%` } }, // partial name match
+              ],
+            }
+          : undefined,
+      },
         {
           model: User,
           as: "createdBy",

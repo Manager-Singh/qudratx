@@ -246,20 +246,10 @@ const getLeadDetail = async (req, res) => {
     };
 
     // Active / inactive filter
-    if (status === "active") {
+    if (search === "active") {
       leadWhere.status = true;
-    } else if (status === "inactive") {
+    } else if (search === "inactive") {
       leadWhere.status = false;
-    }
-
-    // Origin filter
-    if (origin) {
-      leadWhere.origin = { [Op.like]: `%${origin}%` };
-    }
-
-    // Lead status filter
-    if (leadStatus) {
-      leadWhere.lead_status = { [Op.like]: `%${leadStatus}%` };
     }
 
     // Handle search query
@@ -274,6 +264,8 @@ const getLeadDetail = async (req, res) => {
         // Free-text search across multiple fields
         leadWhere[Op.or] = [
           { lead_number: { [Op.like]: `%${search}%` } },
+          { origin: { [Op.like]: `%${search}%` } },
+          { lead_status: { [Op.like]: `%${search}%` } },
           { "$Client.name$": { [Op.like]: `%${search}%` } },
            { "$createdBy.name$": { [Op.like]: `%${search}%` } },
         ];
@@ -517,25 +509,22 @@ const getLeadDetailByEmployeeID = async (req, res) => {
 
     const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
     const { lead_status, origin } = req.query;
+    const assignedTo = req.query.assigned_to; // user ID or partial name
 
     // Base WHERE conditions
     const leadWhere = {
       deleted_at: null,
-      [Op.or]: [
-        { assigned_to: userId },
-        { created_by: userId }
-      ]
     };
 
     // Lead status filter
-    if (lead_status) {
-      leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
-    }
+    // if (lead_status) {
+    //   leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
+    // }
 
-    // Origin filter
-    if (origin) {
-      leadWhere.origin = { [Op.like]: `%${origin}%` };
-    }
+    // // Origin filter
+    // if (origin) {
+    //   leadWhere.origin = { [Op.like]: `%${origin}%` };
+    // }
 
     // Search filter
     if (search) {
@@ -547,10 +536,10 @@ const getLeadDetailByEmployeeID = async (req, res) => {
         leadWhere.approval_status = 2;
       } else {
         leadWhere[Op.or] = [
-          { assigned_to: userId },
-          { created_by: userId },
           { lead_number: { [Op.like]: `%${search}%` } },
-           { "$Client.name$": { [Op.like]: `%${search}%` } },
+           { origin: { [Op.like]: `%${search}%` } },
+          { lead_status: { [Op.like]: `%${search}%` } },
+          { "$Client.name$": { [Op.like]: `%${search}%` } },
         ];
       }
     }
@@ -571,9 +560,17 @@ const getLeadDetailByEmployeeID = async (req, res) => {
           as: "assignedBy",
         },
         {
-          model: User,
-          as: "assignedTo",
-        },
+        model: User,
+        as: "assignedTo",
+        where: assignedTo
+          ? {
+              [Op.or]: [
+                { id: assignedTo }, // exact ID match
+                { name: { [Op.like]: `%${assignedTo}%` } }, // partial name match
+              ],
+            }
+          : undefined,
+      },
         {
           model: User,
           as: "createdBy",

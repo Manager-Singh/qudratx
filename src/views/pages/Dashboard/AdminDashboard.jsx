@@ -49,6 +49,7 @@ const AdminDashboard = () => {
 
       <CRow className="gy-4">
         <CCol xs={12} md={6} xl={4}>
+        
              <Link to="/proposals" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Proposals"
@@ -92,7 +93,8 @@ const AdminDashboard = () => {
 
         
         <CCol xs={12} md={6} xl={4}>
-                     <Link to="/all-lead" className="text-decoration-none text-dark">
+                     
+                     <Link to={`/all-lead`} className="text-decoration-none text-dark">
                   <DashboardCard
                     title="New Leads"
                     value={DasboardData?.newLeads}
@@ -106,7 +108,8 @@ const AdminDashboard = () => {
                 </CCol>
                
                        <CCol xs={12} md={6} xl={4}>
-                            <Link to="#" className="text-decoration-none text-dark">
+                        
+                            <Link to={`/proposals?search=${encodeURIComponent("unapproved")}`} className="text-decoration-none text-dark">
                          <DashboardCard
                            title="Unapproved Proposals"
                            value={DasboardData?.unapprovedProposals}
@@ -119,7 +122,8 @@ const AdminDashboard = () => {
                          </Link>
                        </CCol>
          <CCol xs={12} md={6} xl={4}>
-                     <Link to="#" className="text-decoration-none text-dark">
+
+                     <Link  to={`/proposals?search=${encodeURIComponent("pending")}`} className="text-decoration-none text-dark">
                   <DashboardCard
                     title="Pending Proposals"
                     value={DasboardData?.pendingProposals}

@@ -191,9 +191,9 @@ const [totalRecords ,setTotalRecords] = useState(0)
   const [selectedUUID, setSelectedUUID] = useState(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState(''); // for debouncing
-
+  const [status ,setStatus]= useState(searchParams.get("search") || "")
   // ✅ Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -208,7 +208,7 @@ const [totalRecords ,setTotalRecords] = useState(0)
         type:"proposal"
       }
     dispatch(readNotification(data)).then((data)=>{
-      console.log(data)
+    
       if (data.payload.success) {
         dispatch(getDashboardData())
       }
@@ -218,14 +218,14 @@ const [totalRecords ,setTotalRecords] = useState(0)
 
   // ✅ Fetch proposals from server
   const fetchData = useCallback(() => {
-    dispatch(GetMyProposal({ page, limit: perPage, search: searchDebounce })).then((data)=>{
+    dispatch(GetMyProposal({ page, limit: perPage, search: searchDebounce || status })).then((data)=>{
      
       if (data.payload.success){
           setTotalRecords(data.payload.totalRecords)
       }
       
     });
-  }, [dispatch, page, perPage, searchDebounce]);
+  }, [dispatch, page, perPage, searchDebounce ,status]);
 
   useEffect(() => {
     fetchData();
@@ -351,6 +351,11 @@ console.log(data.approval_status)
     },
   ];
   
+const handleStatusChange = (e)=>{
+  setStatus(e.target.value)
+  setSearch('')
+  setPage(1)
+}
  
   return (
     <div className="container">
@@ -358,13 +363,28 @@ console.log(data.approval_status)
         <Link to="/business-zones">
           <CButton className="custom-button">Add Proposal</CButton>
         </Link>
+        <div className='d-flex'>
+          <select
+            className="form-select w-auto me-2"
+           value={status}
+           onChange={handleStatusChange}
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="unapproved">Unapproved</option>
+          </select>
         <input
           type="text"
-          className="form-control w-25"
+          className="form-control"
           placeholder="Search proposals..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>{ setSearch(e.target.value)
+            setStatus('')
+          }}
         />
+        </div>
+        
       </div>
 
       <DataTable

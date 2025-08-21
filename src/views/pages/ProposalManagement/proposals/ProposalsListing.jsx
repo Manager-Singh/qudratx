@@ -53,7 +53,7 @@ function AllProposals() {
       type:"proposal"
     }
   dispatch(readNotification(data)).then((data)=>{
-    console.log(data)
+    
     if (data.payload.success) {
       dispatch(getDashboardData())
     }

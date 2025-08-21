@@ -192,7 +192,7 @@ const Dashboard = () => {
           </Link>
         </CCol>
          <CCol xs={12} md={6} xl={4}>
-             <Link to={`/all-lead?search=${encodeURIComponent("pending")}`} className="text-decoration-none text-dark" >
+             <Link to='/all-lead' className="text-decoration-none text-dark" >
           <DashboardCard
             title="New Leads"
             value={DasboardData?.newLeads}

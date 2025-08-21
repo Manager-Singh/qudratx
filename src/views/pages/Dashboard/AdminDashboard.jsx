@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     dispatch(getDashboardData())
   },[dispatch])
 
-  console.log(DasboardData,"DasboardData")
+  
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">

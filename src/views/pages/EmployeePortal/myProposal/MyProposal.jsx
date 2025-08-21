@@ -369,7 +369,7 @@ const handleStatusChange = (e)=>{
            value={status}
            onChange={handleStatusChange}
           >
-            <option value="">All Statuses</option>
+            <option value="">All Status</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="unapproved">Unapproved</option>

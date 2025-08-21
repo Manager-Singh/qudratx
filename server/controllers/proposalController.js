@@ -108,13 +108,15 @@ const getAllProposals = async (req, res) => {
       } else if (search === "pending") {
         where.approval_status = 2;
       } else {
-        // normal search: proposal fields + client name
+        // normal search: proposal fields + client name + creator name/email
         where[Op.or] = [
           { zone_name: { [Op.like]: `%${search}%` } },
           { authority_name: { [Op.like]: `%${search}%` } },
           { package_name: { [Op.like]: `%${search}%` } },
-          // search on client name via joined model
-           { "$client.name$": { [Op.like]: `%${search}%` } }, // 👈 works with include alias
+          { proposal_number: { [Op.like]: `%${search}%` } },  // 🔍 added proposal number
+          { "$client.name$": { [Op.like]: `%${search}%` } },
+          { "$creator.name$": { [Op.like]: `%${search}%` } },
+          { "$creator.email$": { [Op.like]: `%${search}%` } },
         ];
       }
     }
@@ -135,11 +137,12 @@ const getAllProposals = async (req, res) => {
         {
           model: User,
           as: "creator",
+          attributes: ["id", "name", "email"], // required for search
         },
         {
           model: Client,
           as: "client",
-          attributes: ["id", "name"], // ensure name is available
+          attributes: ["id", "name"], // required for search
           required: false, // left join
         },
       ],
@@ -162,6 +165,7 @@ const getAllProposals = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 
 

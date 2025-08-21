@@ -206,7 +206,7 @@ const Dashboard = () => {
         </CCol>
 
         <CCol xs={12} md={6} xl={4}>
-             <Link    to={`/my-proposal?search=${encodeURIComponent("unapproved")}`}  className="text-decoration-none text-dark">
+             <Link to={`/my-proposal?search=${encodeURIComponent("unapproved")}`}  className="text-decoration-none text-dark">
           <DashboardCard
             title="Unapproved Proposals"
             value={DasboardData?.unapprovedProposals}

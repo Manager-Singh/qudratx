@@ -114,7 +114,7 @@ const getAllProposals = async (req, res) => {
           { authority_name: { [Op.like]: `%${search}%` } },
           { package_name: { [Op.like]: `%${search}%` } },
           // search on client name via joined model
-          { [col("client.name")]: { [Op.like]: `%${search}%` } },
+           { "$client.name$": { [Op.like]: `%${search}%` } }, // 👈 works with include alias
         ];
       }
     }

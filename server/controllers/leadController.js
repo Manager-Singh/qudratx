@@ -246,20 +246,10 @@ const getLeadDetail = async (req, res) => {
     };
 
     // Active / inactive filter
-    if (status === "active") {
+    if (search === "active") {
       leadWhere.status = true;
-    } else if (status === "inactive") {
+    } else if (search === "inactive") {
       leadWhere.status = false;
-    }
-
-    // Origin filter
-    if (origin) {
-      leadWhere.origin = { [Op.like]: `%${origin}%` };
-    }
-
-    // Lead status filter
-    if (leadStatus) {
-      leadWhere.lead_status = { [Op.like]: `%${leadStatus}%` };
     }
 
     // Handle search query
@@ -274,6 +264,8 @@ const getLeadDetail = async (req, res) => {
         // Free-text search across multiple fields
         leadWhere[Op.or] = [
           { lead_number: { [Op.like]: `%${search}%` } },
+          { origin: { [Op.like]: `%${search}%` } },
+          { lead_status: { [Op.like]: `%${search}%` } },
           { "$Client.name$": { [Op.like]: `%${search}%` } },
            { "$createdBy.name$": { [Op.like]: `%${search}%` } },
         ];
@@ -525,14 +517,14 @@ const getLeadDetailByEmployeeID = async (req, res) => {
     };
 
     // Lead status filter
-    if (lead_status) {
-      leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
-    }
+    // if (lead_status) {
+    //   leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
+    // }
 
-    // Origin filter
-    if (origin) {
-      leadWhere.origin = { [Op.like]: `%${origin}%` };
-    }
+    // // Origin filter
+    // if (origin) {
+    //   leadWhere.origin = { [Op.like]: `%${origin}%` };
+    // }
 
     // Search filter
     if (search) {
@@ -545,6 +537,8 @@ const getLeadDetailByEmployeeID = async (req, res) => {
       } else {
         leadWhere[Op.or] = [
           { lead_number: { [Op.like]: `%${search}%` } },
+           { origin: { [Op.like]: `%${search}%` } },
+          { lead_status: { [Op.like]: `%${search}%` } },
           { "$Client.name$": { [Op.like]: `%${search}%` } },
         ];
       }

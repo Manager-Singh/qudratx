@@ -597,8 +597,10 @@ const updateLeadApprovalStatus = async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Only admins can update lead approval status.' });
     }
 
-    const lead = await Lead.findOne({ where: { uuid } });
-
+    const lead = await Lead.findOne({ where: { uuid },
+       include: [{ model: User, as: "createdBy", attributes: ["id", "name", "email"] }], });
+  const creatorEmail = lead.createdBy?.email;
+      const creatorName = lead.createdBy?.name;
     if (!lead) {
       return res.status(404).json({ message: 'Lead not found' });
     }
@@ -615,7 +617,7 @@ const updateLeadApprovalStatus = async (req, res) => {
       lead.updated_at = new Date();
       lead.last_update = new Date();
       await lead.save({ userId: req.user.id });
-
+   
       if (lead.created_by !== req.user.id) {
         await Notification.create({
           user_id: lead.created_by,
@@ -626,6 +628,21 @@ const updateLeadApprovalStatus = async (req, res) => {
           message: `Your lead (${lead.lead_number}) has been approved by admin.`,
           related_id: uuid,
         });
+
+           if (creatorEmail) {
+          await sendEmail({
+            to: creatorEmail,
+            subject: "Lead Approved",
+            templateName: "lead_approved", // create email template accordingly
+            templateData: {
+              title: "Lead Approved",
+              name: creatorName,
+              lead_number: lead.lead_number,
+              approved_by: req.user.name,
+              company: "FZCS",
+            },
+          });
+        }
  
       }
 
@@ -664,6 +681,22 @@ const updateLeadApprovalStatus = async (req, res) => {
           message: `Your lead (${lead.lead_number}) has been unapproved by admin.`,
           related_id: uuid,
         });
+
+         if (creatorEmail) {
+          await sendEmail({
+            to: creatorEmail,
+            subject: "Lead Unapproved",
+            templateName: "lead_unapproved", // create template
+            templateData: {
+              title: "Lead Unapproved",
+              name: creatorName,
+              lead_number: lead.lead_number,
+              unapproved_by: req.user.name,
+              reason: reason || "No reason provided",
+              company: "FZCS",
+            },
+          });
+        }
       }
 
       return res.status(200).json({

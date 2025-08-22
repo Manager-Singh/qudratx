@@ -48,6 +48,7 @@ import AdminDashboard from './views/pages/Dashboard/AdminDashboard'
 import EditLead from './views/pages/LeadManagement/All Leads/EditLead'
 import ProposalSummary from './views/pages/EmployeePortal/Proposal/steps/ProposalSummaryStep'
 import NotFound from './views/pages/NotFoundPage/NotFoundPage'
+import NotificationSetting from './views/pages/NotificationSettings/NotificationSetting'
 
 export const routes = [
   // ✅ Admin-only
@@ -188,6 +189,7 @@ if (isLoading) {
         <Route path='/view-proposal/:uuid' element={ <ProposalSummary/> }/>
         <Route path='/logs' element={<HistoryLogs/>}/>
         <Route path='/proposals' element={<AllProposals/>}/>
+         <Route path='/notification-settings/:uuid' element={<NotificationSetting></NotificationSetting>}/>
   {/* ... all other ADMIN pages ... */}
 </Route>
 

@@ -177,9 +177,11 @@ import { ToastExample } from '../../../../components/toast/Toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteBusinessActivity, getBusinessActivityByAuthorityId, uploadAuthorityXlsx } from '../../../../store/admin/businessActivitySlice'
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice'
+import useConfirm from '../../../../components/SweetConfirm/useConfirm'
 
 
 function BusinessActivity() {
+   const confirm = useConfirm(); 
   const [filterText, setFilterText] = useState('')
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
   const [page, setPage] = useState(1)
@@ -214,14 +216,23 @@ function BusinessActivity() {
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
   }
 
-  const handleDelete = (uuid) => {
-    dispatch(deleteBusinessActivity(uuid)).then((data) => {
+  const handleDelete = async(uuid,name) => {
+     const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the business activity "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+       dispatch(deleteBusinessActivity(uuid)).then((data) => {
       if (data.payload.success) {
         showToast('success', data.payload.message)
         const authority_id = authority.id
         dispatch(getBusinessActivityByAuthorityId({ authority_id, page, limit: perPage }))
       }
     })
+    }
+   
   }
 
   const handleSearch = (e) => {
@@ -284,7 +295,7 @@ function BusinessActivity() {
       cell: (row) => (
         <div className="d-flex gap-2">
           <span
-            onClick={() => handleDelete(row.uuid)}
+            onClick={() => handleDelete(row.uuid,row.activity_name)}
             title="Delete"
             style={{ cursor: 'pointer' }}
           >

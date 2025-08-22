@@ -11,8 +11,10 @@ import {
   deleteFeeStructure
 } from '../../../store/admin/feeStructureSlice';
 import { ToastExample } from '../../../components/toast/Toast';
+import useConfirm from '../../../components/SweetConfirm/useConfirm';
 
 function FeeStructure() {
+const confirm =  useConfirm()
   const dispatch = useDispatch();
   const { feestructures } = useSelector((state) => state.feeStructure);
 
@@ -43,8 +45,15 @@ function FeeStructure() {
     fetchFeeStructures(page, perPage, search);
   }, [page, perPage]);
 
-  const handleDelete = (uuid) => {
-    dispatch(deleteFeeStructure(uuid)).then((res) => {
+  const handleDelete = async(uuid,name) => {
+    const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the fee "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+       dispatch(deleteFeeStructure(uuid)).then((res) => {
       if (res.payload?.success) {
         showToast('success', 'Fee structure deleted successfully');
         fetchFeeStructures();
@@ -52,6 +61,8 @@ function FeeStructure() {
         showToast('error', 'Failed to delete fee structure');
       }
     });
+    }
+   
   };
 
   const handleSearch = (e) => {
@@ -91,7 +102,7 @@ function FeeStructure() {
       cell: (row) => (
         <div className="d-flex gap-2">
           <span
-            onClick={() => handleDelete(row.uuid)}
+            onClick={() => handleDelete(row.uuid,row.name)}
             className="p-0"
             title="Delete"
             style={{ cursor: 'pointer' }}

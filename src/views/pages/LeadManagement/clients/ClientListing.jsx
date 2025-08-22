@@ -11,8 +11,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import './client-style.css';
 import { deleteClient, getClient } from '../../../../store/admin/clientSlice';
 import { ToastExample } from '../../../../components/toast/Toast';
+import useConfirm from '../../../../components/SweetConfirm/useConfirm';
 
 function ClientListing() {
+ const confirm=  useConfirm()
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { clients, totalCount, loading } = useSelector((state) => state.client);
@@ -40,13 +42,22 @@ function ClientListing() {
     fetchClients();
   }, [fetchClients]);
 
-  const handleDelete = (uuid) => {
-    dispatch(deleteClient(uuid)).then((data) => {
+  const handleDelete = async(uuid,name) => {
+    const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the client "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+      dispatch(deleteClient(uuid)).then((data) => {
       if (data.payload.success) {
         showToast('success', data.payload.message, 'success');
         fetchClients();
       }
     });
+    }
+    
   };
 
   const handleConfirm = () => {
@@ -91,7 +102,7 @@ function ClientListing() {
               <FaRegEdit style={{ cursor: 'pointer', color: '#333' }} size={20} />
             </button>
           </CTooltip>
-          <span onClick={() => handleDelete(row.uuid)} title="Delete" style={{ cursor: 'pointer' }}>
+          <span onClick={() => handleDelete(row.uuid,row.name)} title="Delete" style={{ cursor: 'pointer' }}>
             <CIcon icon={cilTrash} size="lg" />
           </span>
           <Link to={`/edit-client/${row.uuid}`}>

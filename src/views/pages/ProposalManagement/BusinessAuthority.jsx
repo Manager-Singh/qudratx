@@ -16,13 +16,14 @@ import DataTable from 'react-data-table-component'
 import { getBusinessZoneByUuid } from '../../../store/admin/businessZoneSlice'
 import AddAuthorityPopUp from './components/AddAuthorityPopUp'
 import { ToastExample } from '../../../components/toast/Toast'
+import useConfirm from '../../../components/SweetConfirm/useConfirm'
 
 const baseImageUrl = import.meta.env.VITE_IMAGE_URL;
 
 function BusinessAuthority() {
   const { uuid } = useParams()
   const dispatch = useDispatch()
-
+   const confirm = useConfirm(); 
   const [formData, setFormData] = useState({ name: '', status: 1, image: null })
   const [imagePreview, setImagePreview] = useState(null)
   const [visible, setVisible] = useState(false)
@@ -37,7 +38,7 @@ function BusinessAuthority() {
 
   const { authorities, total } = useSelector((state) => state.businessZonesAuthority)
   const { businesszone } = useSelector((state) => state.businesszone)
-
+  
   const showToast = (status, message) => {
     setToastData({ show: true, status, message })
     setTimeout(() => setToastData({ show: false, status: '', message: '' }), 3000)
@@ -58,13 +59,23 @@ function BusinessAuthority() {
     }
   }, [businesszone, dispatch, page, limit, search])
 
-  const handleDelete = (uuid) => {
-    dispatch(deleteBusinessZonesAuthority(uuid)).then((data) => {
+  const handleDelete = async(uuid,name) => {
+    
+    const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the authority "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+       dispatch(deleteBusinessZonesAuthority(uuid)).then((data) => {
       if (data.payload.success) {
         showToast('success', data.payload.message)
         dispatch(getBusinessZonesAuthorityByZoneId({ id: businesszone.id, page, limit, search }))
       }
     })
+    }
+   
   }
 
   const handleAddAuthority = (e) => {
@@ -164,7 +175,7 @@ function BusinessAuthority() {
           <Link to={`/packages/${row.uuid}`} style={{ textDecoration: 'none' }} className="custom-button">
             Add Package
           </Link>
-          <span onClick={() => handleDelete(row.uuid)} style={{ cursor: 'pointer' }}>
+          <span onClick={() => handleDelete(row.uuid,row.name)} style={{ cursor: 'pointer' }}>
             <CIcon icon={cilTrash} size="lg" />
           </span>
           <div

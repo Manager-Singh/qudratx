@@ -8,8 +8,10 @@ import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteBusinessCategory, getBusinessCategories } from '../../../store/admin/businessCategorySlice';
 import { ToastExample } from '../../../components/toast/Toast'
+import useConfirm from '../../../components/SweetConfirm/useConfirm';
 
 function BusinessCategory() {
+ const confirm=  useConfirm()
 const [filterText, setFilterText] = useState('');
 const dispatch= useDispatch()
 const {business_categories} = useSelector((state)=>state.business_category)
@@ -59,7 +61,7 @@ const columns = [
   color="light"
   variant="ghost"
   size="sm"
-  onClick={() => handleDelete(row.uuid)}
+  onClick={() => handleDelete(row.uuid,row.name)}
   className="p-0"
   title="Delete"
 >
@@ -84,13 +86,22 @@ const columns = [
     item.name.toLowerCase().includes(filterText.toLowerCase()) 
   );
 
-  const handleDelete =(uuid)=>{
-  dispatch(deleteBusinessCategory(uuid)).then((data)=>{
+  const handleDelete =async(uuid,name)=>{
+    const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the Category "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+       dispatch(deleteBusinessCategory(uuid)).then((data)=>{
     if (data.payload.success) {
       showToast('success', data.payload.message )
       dispatch(getBusinessCategories())
     }
   })
+    }
+ 
   }
   
   return (

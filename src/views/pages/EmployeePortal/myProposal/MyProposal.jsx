@@ -176,18 +176,19 @@ import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
- import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 import { deleteProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
 import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 import { useSearchParams } from "react-router-dom"
+import useConfirm from '../../../../components/SweetConfirm/useConfirm';
 
 function AllProposals() {
+ const confirm = useConfirm()
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams(); 
   const { proposals, isLoading } = useSelector(state => state.proposal);
 const [totalRecords ,setTotalRecords] = useState(0)
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
   const [selectedUUID, setSelectedUUID] = useState(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -231,25 +232,7 @@ const [totalRecords ,setTotalRecords] = useState(0)
     fetchData();
   }, [fetchData]);
 
-  const confirmDelete = (uuid) => {
-    setSelectedUUID(uuid);
-    setDeleteModalVisible(true);
-  };
 
-  const handleConfirmDelete = () => {
-    if (selectedUUID) {
-      dispatch(deleteProposal(selectedUUID)).then(() => {
-        fetchData();
-      });
-    }
-    setDeleteModalVisible(false);
-    setSelectedUUID(null);
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-    setSelectedUUID(null);
-  };
 
   
 
@@ -338,7 +321,7 @@ console.log(data.approval_status)
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span
-            onClick={() => confirmDelete(row.uuid)}
+            onClick={() => handleDelete(row.uuid,row.proposal_number)}
             title="Delete Proposal"
             style={{ cursor: 'pointer' }}
           >
@@ -357,6 +340,19 @@ const handleStatusChange = (e)=>{
   setPage(1)
 }
  
+const handleDelete = async(uuid ,name)=>{
+const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the proposal "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+      dispatch(deleteProposal(uuid)).then(() => {
+        fetchData();
+      });
+    }
+}
   return (
     <div className="container">
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
@@ -410,13 +406,7 @@ const handleStatusChange = (e)=>{
   expandOnRowClicked
 />
 
-     <ConfirmDeleteModal
-       visible={deleteModalVisible}
-       onCancel={handleCancelDelete}
-       onConfirm={handleConfirmDelete}
-       title="Confirm Delete"
-       message="Are you sure you want to delete this proposal?"
-     />
+    
     </div>
   );
 }

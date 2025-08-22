@@ -180,7 +180,6 @@ if (isLoading) {
       <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
        <Route path="/add-business-activity/:uuid" element={<AddBusinessActivity/>} />
        <Route path="/edit-business-activity/:uuid" element={<EditBusinessActivity/>} />
-     
         <Route path="/packages/:uuid" element={<PackageListing/>} />
        <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />
        <Route path="/edit-package/:uuid" element={<AddPackage/>} />

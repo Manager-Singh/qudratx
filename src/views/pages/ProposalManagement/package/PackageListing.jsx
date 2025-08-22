@@ -13,8 +13,10 @@ import { deletePackage, getPackageByAuthorityId,  } from '../../../../store/admi
 import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal'; 
 import PackageCard from './PackageCard';
 import { getBusinessZonesAuthorityByUuid } from '../../../../store/admin/zoneAuthoritySlice';
+import useConfirm from '../../../../components/SweetConfirm/useConfirm';
 
 function PackageListing() {
+const confirm = useConfirm(); 
 const [filterText, setFilterText] = useState('');
 const {uuid} = useParams()
 const dispatch= useDispatch()
@@ -171,7 +173,22 @@ const columns = [
 //     </div>
    
 //   )
-
+const handleDelete= async(uuid,name)=>{
+   const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the package "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+       dispatch(deletePackage(uuid)).then((data)=>{
+        if (data.payload.success) {
+          dispatch(getPackageByAuthorityId(authority.id))
+        }
+       })
+    }
+   
+}
 
   return (
   <div className='container'>
@@ -202,7 +219,7 @@ const columns = [
       {filteredData && filteredData.length > 0 ? (
         filteredData.map((item) => (
           <div key={item.uuid} className="col-4 py-2">
-            <PackageCard item={item} onDelete={confirmDelete} />
+            <PackageCard item={item} onDelete={()=>{handleDelete(item.uuid,item.name)}}/>
           </div>
         ))
       ) : (

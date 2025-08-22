@@ -66,38 +66,6 @@ const createLeadDetail = async (req, res) => {
     (async () => {
       try {
         if (req.user.role === "employee") {
-          const clientEmail = client?.email;
-          const clientName = client?.name;
-
-          if (clientEmail) {
-            // Welcome email
-            sendEmail({
-              to: clientEmail,
-              subject: "Welcome Mail",
-              templateName: "welcome",
-              templateData: {
-                title: "Welcome!",
-                name: clientName,
-                company: "FZCS",
-                features: ["24/7 Support", "Premium Tools", "Free Training"],
-                year: new Date().getFullYear(),
-              },
-            });
-
-            // New lead email to client
-            sendEmail({
-              to: clientEmail,
-              subject: "New Lead Created",
-              templateName: "newlead",
-              templateData: {
-                title: "New Lead",
-                name: clientName,
-                lead_number,
-                created_by: req.user.name,
-                company: "FZCS",
-              },
-            });
-          }
 
           // Get admins
           const admins = await User.findAll({
@@ -136,6 +104,39 @@ const createLeadDetail = async (req, res) => {
             })
           );
         }
+
+         const clientEmail = client?.email;
+          const clientName = client?.name;
+
+          if (clientEmail) {
+            // Welcome email
+            sendEmail({
+              to: 'anjali.webtrack@gmail.com',//clientEmail,
+              subject: "Welcome Mail",
+              templateName: "welcome",
+              templateData: {
+                title: "Welcome!",
+                name: clientName,
+                company: "FZCS",
+                features: ["24/7 Support", "Premium Tools", "Free Training"],
+                year: new Date().getFullYear(),
+              },
+            });
+
+            // New lead email to client
+            sendEmail({
+              to: 'anjali.webtrack@gmail.com',//clientEmail,clientEmail,
+              subject: "New Lead Created",
+              templateName: "newlead",
+              templateData: {
+                title: "New Lead",
+                name: clientName,
+                lead_number,
+                created_by: req.user.name,
+                company: "FZCS",
+              },
+            });
+          }
       } catch (asyncErr) {
         console.error("Background task failed:", asyncErr);
       }
@@ -596,8 +597,10 @@ const updateLeadApprovalStatus = async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Only admins can update lead approval status.' });
     }
 
-    const lead = await Lead.findOne({ where: { uuid } });
-
+    const lead = await Lead.findOne({ where: { uuid },
+       include: [{ model: User, as: "createdBy", attributes: ["id", "name", "email"] }], });
+  const creatorEmail = lead.createdBy?.email;
+      const creatorName = lead.createdBy?.name;
     if (!lead) {
       return res.status(404).json({ message: 'Lead not found' });
     }
@@ -614,7 +617,7 @@ const updateLeadApprovalStatus = async (req, res) => {
       lead.updated_at = new Date();
       lead.last_update = new Date();
       await lead.save({ userId: req.user.id });
-
+   
       if (lead.created_by !== req.user.id) {
         await Notification.create({
           user_id: lead.created_by,
@@ -625,6 +628,21 @@ const updateLeadApprovalStatus = async (req, res) => {
           message: `Your lead (${lead.lead_number}) has been approved by admin.`,
           related_id: uuid,
         });
+
+           if (creatorEmail) {
+          await sendEmail({
+            to: creatorEmail,
+            subject: "Lead Approved",
+            templateName: "lead_approved", // create email template accordingly
+            templateData: {
+              title: "Lead Approved",
+              name: creatorName,
+              lead_number: lead.lead_number,
+              approved_by: req.user.name,
+              company: "FZCS",
+            },
+          });
+        }
  
       }
 
@@ -663,6 +681,22 @@ const updateLeadApprovalStatus = async (req, res) => {
           message: `Your lead (${lead.lead_number}) has been unapproved by admin.`,
           related_id: uuid,
         });
+
+         if (creatorEmail) {
+          await sendEmail({
+            to: creatorEmail,
+            subject: "Lead Unapproved",
+            templateName: "lead_unapproved", // create template
+            templateData: {
+              title: "Lead Unapproved",
+              name: creatorName,
+              lead_number: lead.lead_number,
+              unapproved_by: req.user.name,
+              reason: reason || "No reason provided",
+              company: "FZCS",
+            },
+          });
+        }
       }
 
       return res.status(200).json({

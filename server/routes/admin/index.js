@@ -14,6 +14,7 @@ const Company = require('./company')
 const Proposal = require('./proposal')
 const AuditLog = require('./auditLog')
 const Notification = require('./notification')
+const Reason = require('./reason')
 const Dashboard = require('./dashboard')
 const {isAdmin, isEmployee } = require('../../middlewares/roleCheck')
 const authenticateJWT = require('../../middlewares/auth')
@@ -34,6 +35,7 @@ router.use('/admin',authenticateJWT,Proposal)
 router.use('/admin',authenticateJWT,AuditLog)
 router.use('/admin',authenticateJWT,Notification)
 router.use('/admin',authenticateJWT,Dashboard)
+router.use('/admin',authenticateJWT,Reason)
 
 module.exports = router;
 

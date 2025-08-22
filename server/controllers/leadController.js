@@ -66,38 +66,6 @@ const createLeadDetail = async (req, res) => {
     (async () => {
       try {
         if (req.user.role === "employee") {
-          const clientEmail = client?.email;
-          const clientName = client?.name;
-
-          if (clientEmail) {
-            // Welcome email
-            sendEmail({
-              to: clientEmail,
-              subject: "Welcome Mail",
-              templateName: "welcome",
-              templateData: {
-                title: "Welcome!",
-                name: clientName,
-                company: "FZCS",
-                features: ["24/7 Support", "Premium Tools", "Free Training"],
-                year: new Date().getFullYear(),
-              },
-            });
-
-            // New lead email to client
-            sendEmail({
-              to: clientEmail,
-              subject: "New Lead Created",
-              templateName: "newlead",
-              templateData: {
-                title: "New Lead",
-                name: clientName,
-                lead_number,
-                created_by: req.user.name,
-                company: "FZCS",
-              },
-            });
-          }
 
           // Get admins
           const admins = await User.findAll({
@@ -136,6 +104,39 @@ const createLeadDetail = async (req, res) => {
             })
           );
         }
+
+         const clientEmail = client?.email;
+          const clientName = client?.name;
+
+          if (clientEmail) {
+            // Welcome email
+            sendEmail({
+              to: 'anjali.webtrack@gmail.com',//clientEmail,
+              subject: "Welcome Mail",
+              templateName: "welcome",
+              templateData: {
+                title: "Welcome!",
+                name: clientName,
+                company: "FZCS",
+                features: ["24/7 Support", "Premium Tools", "Free Training"],
+                year: new Date().getFullYear(),
+              },
+            });
+
+            // New lead email to client
+            sendEmail({
+              to: 'anjali.webtrack@gmail.com',//clientEmail,clientEmail,
+              subject: "New Lead Created",
+              templateName: "newlead",
+              templateData: {
+                title: "New Lead",
+                name: clientName,
+                lead_number,
+                created_by: req.user.name,
+                company: "FZCS",
+              },
+            });
+          }
       } catch (asyncErr) {
         console.error("Background task failed:", asyncErr);
       }

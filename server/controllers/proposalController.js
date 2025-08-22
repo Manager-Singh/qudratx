@@ -1,4 +1,4 @@
-const { Proposal, User, Notification, Lead, Client } = require('../models');
+const { Proposal, User, Notification, Lead, Client, Reason } = require('../models');
 const { Op, where, col } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
@@ -291,6 +291,7 @@ const updateProposal = async (req, res) => {
       approved_by: bodyApprovedBy,
       employee_approval,
       approval_status,
+      reason,
     } = req.body;
 
     const isAdmin = req.user.role === 'admin';
@@ -390,6 +391,14 @@ const updateProposal = async (req, res) => {
     //}
 
     await proposal.save({ userId: req.user.id });
+
+         const userId = req.user.id;
+       await Reason.create({
+      model: "Proposal",   // polymorphic type
+      modelId: proposal.id, // ✅ this is the proposal’s record id
+      reason,
+      userId,
+    });
 
     // Send email if proposal PDF was updated
     // if (proposal.generated_pdf && proposal.pdf_path) {
@@ -543,92 +552,6 @@ const getEmployeeProposals = async (req, res) => {
     });
   }
 };
-
-
-// const getEmployeeProposals = async (req, res) => {
-//   try {
-//     const employeeId = req.user.id;
-
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 10;
-//     const offset = (page - 1) * limit;
-
-//     const search = req.query.search ? req.query.search.trim().toLowerCase() : "";
-
-//     // Base filter: proposals created by this employee
-//     const whereClause = { created_by: employeeId };
-
-//     // Build includes
-//     const include = [
-//       {
-//         model: User,
-//         as: "creator",
-//         attributes: ["id", "name", "email"], // adjust as needed
-//       },
-//       {
-//         model: Client,
-//         as: "client", // matches Proposal.belongsTo(Client, { as: "client" })
-//         attributes: ["id", "name"],
-//         required: false,
-//       },
-//     ];
-
-//     if (search) {
-//       if (search === "draft") {
-//         // Special case: drafts
-//         whereClause.employee_approval = 0;
-//       } else if (search === "unapproved") {
-//         whereClause.approval_status = 0;
-//       } else if (search === "approved") {
-//         whereClause.approval_status = 1;
-//       } else if (search === "pending") {
-//         whereClause.approval_status = 2;
-//       } else {
-//         // Normal text search
-//         whereClause[Op.or] = [
-//           { zone_name: { [Op.like]: `%${search}%` } },
-//           { authority_name: { [Op.like]: `%${search}%` } },
-//           { package_name: { [Op.like]: `%${search}%` } },
-//           { proposal_number: { [Op.like]: `%${search}%` } },
-//         ];
-
-//         // Add search on client name
-//         include[1].where = {
-//           name: { [Op.like]: `%${search}%` },
-//         };
-//         include[1].required = false;
-//       }
-//     }
-
-//     const { rows: proposals, count: totalRecords } =
-//       await Proposal.findAndCountAll({
-//         where: whereClause,
-//         include,
-//         limit,
-//         offset,
-//         order: [["created_at", "DESC"]],
-//         distinct: true,
-//       });
-
-//     const totalPages = Math.ceil(totalRecords / limit);
-
-//     return res.status(200).json({
-//       message: "Proposals fetched successfully",
-//       success: true,
-//       page,
-//       limit,
-//       totalPages,
-//       totalRecords,
-//       data: proposals,
-//     });
-//   } catch (error) {
-//     console.error("Error fetching employee proposals:", error);
-//     return res.status(500).json({
-//       message: "Internal server error",
-//       error: error.message,
-//     });
-//   }
-// };
 
 
 // // GET DELETED Package
@@ -815,6 +738,14 @@ const unapproveProposal = async (req, res) => {
     proposal.last_update = new Date();
 
     await proposal.save({ userId: req.user.id });
+      const userId = req.user.id;
+       await Reason.create({
+      model: "Proposal",   // polymorphic type
+      modelId: proposal.id, // ✅ this is the proposal’s record id
+      reason,
+      userId,
+    });
+
 
       if (proposal.created_by !== req.user.id) {
       await Notification.create({

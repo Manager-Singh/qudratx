@@ -119,6 +119,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
  import { CButton } from '@coreui/react';
 import DashboardLineChart from './DashboardLineChart'
+import NoticeBoard from '../../../../components/DashboardNoticeBoard/NoticeBoard'
 
 const DashboardCard = ({ title, value, icon, color, change, description, trend }) => (
   <CCard className="shadow-sm border-0 h-100">
@@ -164,6 +165,7 @@ const Dashboard = () => {
       </div>
 
       <CRow className="gy-4">
+       
         <CCol xs={12} md={6} xl={4}>
              <Link to="/my-proposal" className="text-decoration-none text-dark">
           <DashboardCard
@@ -177,6 +179,10 @@ const Dashboard = () => {
           />
           </Link>
         </CCol>
+        {/* <CCol xs={12} md={6} xl={4}>
+             <NoticeBoard/>
+        </CCol> */}
+
 
         <CCol xs={12} md={6} xl={4}>
              <Link to="/all-lead" className="text-decoration-none text-dark">

@@ -68,34 +68,9 @@ function AllLead() {
    },[])
    
 
-    const confirmApproval = (uuid, action) => {
-    setSelectedApprovalUUID(uuid)
-    setApprovalAction(action)
-    if (action === 'unapprove') {
-      setDisapprovalMessage('') // clear previous message
-    }
-    setApprovalModalVisible(true)
-  }
-  const confirmDelete = (uuid) => {
-    setSelectedUUID(uuid);
-    setDeleteModalVisible(true);
-  };
+    
 
-  const handleConfirmDelete = () => {
-    if (selectedUUID) {
-      dispatch(deleteLead(selectedUUID)).then(() => {
-        fetchData();
-      });
-    }
-    setDeleteModalVisible(false);
-    setSelectedUUID(null);
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false);
-    setSelectedUUID(null);
-  };
-
+ 
  const columns = [
  {
           name: 'Lead Number',
@@ -306,6 +281,8 @@ function AllLead() {
       showToast('warning', 'Cannot create proposal before approve lead');
     };
 
+    console.log(leads,"leads")
+
     return (
       <div className="d-flex gap-2">
         <FaRegEdit
@@ -411,13 +388,7 @@ const isConfirmed = await confirm({
         progressPending={isLoading}
         noDataComponent="No leads found"
       />
-      <ConfirmDeleteModal
-        visible={deleteModalVisible}
-        onCancel={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this lead?"
-      />
+     
     </div>
   );
 }

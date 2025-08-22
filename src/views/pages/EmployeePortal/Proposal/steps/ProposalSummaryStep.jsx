@@ -950,7 +950,7 @@ const ProposalSummary = () => {
 
         // This runs after the user enters a reason and clicks confirm
         preConfirm: (reason) => {
-          const finalPayload = { ...basePayload, reason_for_resubmission: reason }; // Add the reason to the payload
+          const finalPayload = { ...basePayload, reason }; // Add the reason to the payload
 
           // Dispatch the update action and return the promise for the loading state
           return dispatch(updateProposal({ uuid: proposal.uuid, data: finalPayload }))

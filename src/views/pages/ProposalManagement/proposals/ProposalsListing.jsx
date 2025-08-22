@@ -27,21 +27,24 @@ import { FaRegEdit } from "react-icons/fa";
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
 import { useSearchParams } from "react-router-dom"
 import useConfirm from '../../../../components/SweetConfirm/useConfirm'
+import Swal from 'sweetalert2';
+// Optional: If you want to use React components inside your alert
+import withReactContent from 'sweetalert2-react-content';
+
+// Then create the MySwal instance if you need it
+const MySwal = withReactContent(Swal);
 function AllProposals() {
   const confirm = useConfirm(); 
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
-
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
-  const [selectedUUID, setSelectedUUID] = useState(null)
   const [filterText, setFilterText] = useState('')
 
   // manage aprove / disapprove proposal status
   const [approvalModalVisible, setApprovalModalVisible] = useState(false)
   const [selectedApprovalUUID, setSelectedApprovalUUID] = useState(null)
   const [approvalAction, setApprovalAction] = useState(null) // 'approve' or 'disapprove'
-  const [openDropdownUUID, setOpenDropdownUUID] = useState(null)
+  
 
   const [disapprovalMessage, setDisapprovalMessage] = useState('')
    const [totalRecords,setTotalRecords] = useState('')
@@ -73,40 +76,7 @@ function AllProposals() {
   }, [dispatch, page, limit, filterText,status])
 
  
-  const confirmDelete = (uuid) => {
-    setSelectedUUID(uuid)
-    setDeleteModalVisible(true)
-  }
-
-  const handleConfirmDelete = () => {
-    if (selectedUUID) {
-      dispatch(deleteProposal(selectedUUID)).then(() => {
-       dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
-    
-       if (data.payload.success) {
-            setTotalRecords(data?.payload?.totalRecords)
-          }
-    })
-      })
-    }
-    setDeleteModalVisible(false)
-    setSelectedUUID(null)
-  }
-
-  const handleCancelDelete = () => {
-    setDeleteModalVisible(false)
-    setSelectedUUID(null)
-  }
-
-  const confirmApproval = (uuid, action) => {
-    setSelectedApprovalUUID(uuid)
-    setApprovalAction(action)
-    if (action === 'unapprove') {
-      setDisapprovalMessage('') // clear previous message
-    }
-    setApprovalModalVisible(true)
-  }
-
+ 
   const handleConfirmApproval = () => {
     if (selectedApprovalUUID && approvalAction) {
       const payload = {
@@ -163,14 +133,111 @@ const isConfirmed = await confirm({
       })
     }
 }
+const handleApproval= (uuid , status,reason)=>{
+ const payload = {
+        uuid ,
+        action: status,
+      }
+      console.log(uuid ,"uuid",status,"status",reason,"resaon")
+      if (status === 'unapprove') {
+        payload.reason = reason // ✅ Only send reason on unapprove
+      }
+ dispatch(approveProposalStatus(payload))
+        .unwrap()
+        .then(() => {
+          dispatch(dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+    
+       if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
+    }))
+        })
+        .catch((error) => {
+          console.error('Approval API error:', error)
+        })
+}
+
   const columns = [
 {
   name: 'Approval Status',
   cell: (row) => {
-    const isPending = row.approval_status === 2
-    const isApproved = row.approval_status === 1
+    // Helper booleans for status checks
+    const isPending = row.approval_status === 2;
+    const isApproved = row.approval_status === 1;
+    const isUnapproved = !isPending && !isApproved;
 
-    const currentValue = isPending ? 'Pending' : isApproved ? 'Approved' : 'Unapproved'
+  
+    const currentValue = isPending ? 'Pending' : isApproved ? 'Approved' : 'Unapproved';
+
+    // This is the new handler function with SweetAlert integration
+    const handleStatusChange = async(e) => {
+      const selectedValue = e.target.value;
+
+      if (selectedValue === 'Approved') {
+      const isConfirmed = await confirm({
+      title: 'Confirm Approve',
+      text: `Are you absolutely sure you want to approve the proposal "${row.proposal_number}"?`,
+      icon: 'info', // Use a more impactful icon
+      confirmButtonText: 'Yes, Approve It!',
+    });
+    if (isConfirmed) {
+        handleApproval(row.uuid, 'approve');
+    }
+      
+      } else if (selectedValue === 'Unapproved') {
+    
+       Swal.fire({
+  title: 'Are you sure you want to unapprove?',
+  html: `Please provide a clear reason below.`,
+  icon: 'warning', // Adds a warning icon for better visual context
+  
+  input: 'textarea',
+  inputPlaceholder: 'Enter the reason for unapproval here...',
+  inputAttributes: {
+    'aria-label': 'Type your reason here'
+  },
+  
+  showCancelButton: true,
+  confirmButtonText: 'Yes, Unapprove It',
+  confirmButtonColor: '#d33',
+  cancelButtonText: 'Cancel',
+
+  showLoaderOnConfirm: true,
+
+  // Validate that a reason was entered
+  inputValidator: (value) => {
+    if (!value) {
+      return 'You must provide a reason for unapproval!';
+    }
+    if (value.length < 10) {
+      return 'The reason must be at least 10 characters long.';
+    }
+  },
+
+          // This function runs after validation passes
+          preConfirm: (reason) => {
+            // Here, we call your original function but now include the reason
+            // You can make this an async call if needed
+            
+            return handleApproval(row.uuid, 'unapprove', reason);
+          },
+
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Status Updated',
+              text: 'The item has been marked as unapproved.',
+              timer: 1500, // Auto-close after 1.5 seconds
+              showConfirmButton: false,
+            });
+          }
+          // Note: If the user cancels, the dropdown will visually remain on "Unapproved".
+          // The table will correct itself upon the next data refresh.
+        });
+      }
+    };
 
     return (
       <select
@@ -180,27 +247,23 @@ const isConfirmed = await confirm({
           padding: '6px 12px',
           borderRadius: '0.375rem',
           border: '1px solid #ccc',
-          backgroundColor: isApproved ? '#d4edda' : isPending ? '#fff3cd' : '#fff9db',
-          color: isApproved ? '#155724' : isPending ? '#856404' : '#b58900',
+          backgroundColor: isApproved ? '#d4edda' : isPending ? '#fff3cd' : '#f8d7da',
+          color: isApproved ? '#155724' : isPending ? '#856404' : '#721c24',
           fontWeight: 500,
         }}
         value={currentValue}
-        onChange={(e) => {
-          const selected = e.target.value
-          const newStatus = selected === 'Approved' ? 'approve' : 'unapprove'
-          confirmApproval(row.uuid, newStatus)
-        }}
+        onChange={handleStatusChange}
+        
       >
-        {/* Show "Pending" as disabled option if status is pending */}
-        {isPending && (
-          <option value="Pending" disabled>
-            Pending
-          </option>
-        )}
-        <option value="Approved">Approved</option>
-        <option value="Unapproved">Unapproved</option>
+        {isPending && <option disabled>Pending</option>}
+        {isApproved && <option>Approved</option>}
+        {isUnapproved && <option>Unapproved</option>}
+
+        {/* Allow changing to other states */}
+        {!isApproved && <option>Approved</option>}
+        {!isUnapproved && <option>Unapproved</option>}
       </select>
-    )
+    );
   },
   sortable: true,
   grow: 5,
@@ -453,13 +516,7 @@ const handleStatusChange = (e)=>{
   noDataComponent="No proposals found"
 />
       {/* To confirm delete  */}
-      <ConfirmDeleteModal
-        visible={deleteModalVisible}
-        onCancel={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this proposal?"
-      />
+    
 
       {/* for confirmation of approval / disapproval */}
       {/* <ConfirmDeleteModal

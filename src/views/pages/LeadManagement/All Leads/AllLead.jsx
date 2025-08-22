@@ -38,14 +38,14 @@ function AllLead() {
   // Pagination and search states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-
+  const [search, setSearch] = useState('');
+  const [status ,setStatus]= useState(searchParams.get("search") || "")
   useEffect(() => {
     fetchData();
-  }, [dispatch, page, limit, search, user.role]);
+  }, [dispatch, page, limit, search, user.role ,status]);
 
   const fetchData = () => {
-    const params = { page, limit, search };
+    const params = { page, limit,search: search || status};
    
     if (user.role === 'admin') {
       dispatch(getLead(params));
@@ -334,6 +334,11 @@ function AllLead() {
 
 ]
 
+const handleStatusChange = (e)=>{
+  setStatus(e.target.value)
+  setSearch('')
+  setPage(1)
+}
 
   return (
     <div className="container">
@@ -342,13 +347,27 @@ function AllLead() {
                   <ToastExample status={toastData.status} message={toastData.message} />
                 </div>
                               )}
+                              
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
+
         <Link to="/add-lead">
           <CButton className="custom-button">Add Lead</CButton>
         </Link>
+        <div className='d-flex'>
+        <select
+            className="form-select w-auto me-2"
+           value={status}
+           onChange={handleStatusChange}
+          >
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="unapproved">Unapproved</option>
+          </select>
+
         <input
           type="text"
-          className="form-control w-25"
+          className="form-control "
           placeholder="Search leads..."
           value={search}
           onChange={(e) => {
@@ -356,6 +375,8 @@ function AllLead() {
             setPage(1); // Reset to first page on new search
           }}
         />
+        </div>
+        
       </div>
 
       <DataTable

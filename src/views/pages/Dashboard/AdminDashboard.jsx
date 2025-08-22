@@ -34,6 +34,8 @@ const AdminDashboard = () => {
   useEffect(()=>{
     dispatch(getDashboardData())
   },[dispatch])
+
+  
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -49,6 +51,7 @@ const AdminDashboard = () => {
 
       <CRow className="gy-4">
         <CCol xs={12} md={6} xl={4}>
+        
              <Link to="/proposals" className="text-decoration-none text-dark">
           <DashboardCard
             title="Total Proposals"
@@ -92,10 +95,11 @@ const AdminDashboard = () => {
 
         
         <CCol xs={12} md={6} xl={4}>
-                     <Link to="/all-lead" className="text-decoration-none text-dark">
+                     
+                     <Link to={`/all-lead`} className="text-decoration-none text-dark">
                   <DashboardCard
                     title="New Leads"
-                    value={DasboardData?.newLeads}
+                    value={DasboardData?.unreadLeadCount}
                     icon={<FaChartLine />}
                     color="#c17cff"
                     change="+8.7%"
@@ -106,7 +110,8 @@ const AdminDashboard = () => {
                 </CCol>
                
                        <CCol xs={12} md={6} xl={4}>
-                            <Link to="#" className="text-decoration-none text-dark">
+                        
+                            <Link to={`/proposals?search=${encodeURIComponent("unapproved")}`} className="text-decoration-none text-dark">
                          <DashboardCard
                            title="Unapproved Proposals"
                            value={DasboardData?.unapprovedProposals}
@@ -119,10 +124,25 @@ const AdminDashboard = () => {
                          </Link>
                        </CCol>
          <CCol xs={12} md={6} xl={4}>
-                     <Link to="#" className="text-decoration-none text-dark">
+
+                     <Link  to={`/proposals?search=${encodeURIComponent("pending")}`} className="text-decoration-none text-dark">
                   <DashboardCard
                     title="Pending Proposals"
                     value={DasboardData?.pendingProposals}
+                    icon={<FaClock />}
+                    color="#ff5722"
+                    change="-2.1%"
+                    description="Pending approval"
+                    trend="down"
+                  />
+                  </Link>
+                </CCol>
+                <CCol xs={12} md={6} xl={4}>
+
+                     <Link  to='/proposals' className="text-decoration-none text-dark">
+                  <DashboardCard
+                    title="New Proposals"
+                    value={DasboardData?.unreadProposalCount}
                     icon={<FaClock />}
                     color="#ff5722"
                     change="-2.1%"

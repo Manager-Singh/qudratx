@@ -22,10 +22,12 @@ import {
 import { approveProposalStatus } from '../../../../store/admin/proposalSlice'
 import './ProposalsListing.css'
 import DisapproveProposalModal from '../components/DisapproveProposalModal'
-import { getNotifications, readNotification } from '../../../../store/admin/notificationSlice'
+import {readNotification } from '../../../../store/admin/notificationSlice'
 import { FaRegEdit } from "react-icons/fa";
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
+import { useSearchParams } from "react-router-dom"
 function AllProposals() {
+    const [searchParams] = useSearchParams();
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
 
@@ -44,14 +46,14 @@ function AllProposals() {
   
  const [page, setPage] = useState(1)
  const [limit, setLimit] = useState(10) 
-
+ const [status ,setStatus]= useState(searchParams.get("search") || "")
 
   useEffect(()=>{
     const data ={
       type:"proposal"
     }
   dispatch(readNotification(data)).then((data)=>{
-    console.log(data)
+    
     if (data.payload.success) {
       dispatch(getDashboardData())
     }
@@ -59,14 +61,14 @@ function AllProposals() {
  },[])
 
  useEffect(() => {
-    dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+    dispatch(GetAllProposal({ page, limit, search: filterText || status})).then((data)=>{
   
     if (data.payload.success) {
             setTotalRecords(data?.payload?.totalRecords)
           }
           
     })
-  }, [dispatch, page, limit, filterText])
+  }, [dispatch, page, limit, filterText,status])
 
  
   const confirmDelete = (uuid) => {
@@ -367,19 +369,39 @@ function AllProposals() {
     }
   }
 
+
+const handleStatusChange = (e)=>{
+  setStatus(e.target.value)
+  setFilterText('')
+  setPage(1)
+}
+
   return (
     <div className="container">
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
         <Link to="/business-zones">
           <CButton className="custom-button">Add Proposal</CButton>
         </Link>
+   <div className='d-flex'>
+  <select
+            className="form-select w-auto me-2"
+           value={status}
+           onChange={handleStatusChange}
+          >
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="unapproved">Unapproved</option>
+          </select>
         <input
           type="text"
-          className="form-control w-25"
+          className="form-control"
           placeholder="Search proposals..."
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
         />
+   </div>
+        
       </div>
 
       {/* <DataTable

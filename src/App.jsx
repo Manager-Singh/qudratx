@@ -151,58 +151,7 @@ if (isLoading) {
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
           
-          {/* Protected Routes */}
-{/*       
-          <Route
-            path="/"
-            element={
-              <AuthRoute >
-                <DefaultLayout />
-              </AuthRoute>
-            }
-          > */}
-       {/* <Route path="/employees" element={<EmployeesListing/>} />
-       <Route path="/add-employees" element={<AddEmployee/>} />
-       <Route path="/edit-employee/:uuid" element={<AddEmployee/>} />
-       <Route path="/" element={<AdminDashboard/>}/>
-       <Route path="/business-zone" element={<BusinessZone/>} />
-       <Route path ="/add-businesszone" element={<AddBusinessZone/>}   />
-       <Route path ="/edit-businesszone/:id" element={<AddBusinessZone/>} />
-       <Route path ="/business-authority/:uuid" element={<BusinessAuthority/>} />
-       <Route path="/fee-structure" element={<FeeStructure/>} />
-       <Route path="/add-feestructure" element={<AddFeeStructure />} />
-       <Route path="/edit-feestructure/:id" element={<AddFeeStructure />} />
-       <Route path="/business-category" element={<BusinessCategory/>} />
-       <Route path="/add-business-category" element={<AddBusinessCategory/>} />
-       <Route path="/edit-business-category/:uuid" element={<AddBusinessCategory/>} />
-       <Route path="/business-subcategory/:uuid" element={<BusinessSubCategory/>} />
-      <Route path="/business-activity/:uuid" element={<BusinessActivity/>} />
-       <Route path="/add-business-activity/:uuid" element={<AddBusinessActivity/>} />
-       <Route path="/edit-business-activity/:uuid" element={<EditBusinessActivity/>} />
-       <Route path="/clients" element={<ClientListing/>} /> */}
-       {/* <Route path="/add-client" element={<AddClient/>} />
-       <Route path="/edit-client/:uuid" element={<AddClient/>} />
-       <Route path="/all-lead" element={<AllLead/>} />
-       <Route path="/view-lead/:uuid" element={<ViewLead />} />
-       <Route path="/add-lead" element={<AddLead />} />
-       <Route path="/edit-lead/:uuid" element={<EditLead />} />
-       <Route path="/create-lead/:uuid" element={<AddLead />} /> */}
-       {/* <Route path="/packages/:uuid" element={<PackageListing/>} />
-       <Route path="/add-package/:authority_uuid" element={<AddPackage/>} />
-       <Route path="/edit-package/:uuid" element={<AddPackage/>} />
-       <Route path="/view-package/:uuid" element={<ViewPackageDetail/>}/>
-        <Route path='/setting' element={<Setting/>}/>
-        <Route path='/view-proposal/:uuid' element={ <ProposalSummary/> }/>
-        <Route path='/logs' element={<HistoryLogs/>}/> */}
-       {/* Employee portal routes */}
-      {/* <Route path="/dashboard" element={<Dashboard/>}/>
-      <Route path="/create-proposal" element={<Proposal />} />
-      <Route path="/proposal/:uuid" element={<Proposal />} />
-      <Route path="/business-zones" element={<EmployeeBusinessZone />} />
-      <Route path='/proposals' element={<AllProposals/>}/>
-      <Route path='/my-proposal' element={<MyProposal/>}/> */}
-       {/* </Route> */}
-
+         
 
 <Route
   path="/"

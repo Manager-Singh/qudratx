@@ -1,4 +1,4 @@
-const { Lead, Client, User , Notification } = require('../models');
+const { Lead, Client, User , Notification,Reason } = require('../models');
 const { Op, where, col } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -516,16 +516,6 @@ const getLeadDetailByEmployeeID = async (req, res) => {
       deleted_at: null,
     };
 
-    // Lead status filter
-    // if (lead_status) {
-    //   leadWhere.lead_status = { [Op.like]: `%${lead_status}%` };
-    // }
-
-    // // Origin filter
-    // if (origin) {
-    //   leadWhere.origin = { [Op.like]: `%${origin}%` };
-    // }
-
     // Search filter
     if (search) {
       if (search === "unapproved") {
@@ -656,7 +646,13 @@ const updateLeadApprovalStatus = async (req, res) => {
       lead.updated_at = new Date();
       lead.last_update = new Date();
       await lead.save({ userId: req.user.id });
-
+   const userId = req.user.id;
+       await Reason.create({
+      model: "Lead",   // polymorphic type
+      modelId: lead.id, // ✅ this is the proposal’s record id
+      reason,
+      userId,
+    });
       if (lead.created_by !== req.user.id) {
         await Notification.create({
           user_id: lead.created_by,

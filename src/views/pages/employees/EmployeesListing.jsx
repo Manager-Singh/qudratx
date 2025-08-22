@@ -9,7 +9,7 @@ import { deleteEmployee, getEmployees } from '../../../store/admin/employeeSlice
 import { Link } from 'react-router-dom';
 import { MdEdit } from "react-icons/md";
 import CIcon from '@coreui/icons-react';
-import { cilTrash } from '@coreui/icons';
+import { cilTrash , cilBell } from '@coreui/icons';
 import { ToastExample } from '../../../components/toast/Toast';
 import useConfirm from '../../../components/SweetConfirm/useConfirm';
 
@@ -103,6 +103,9 @@ function EmployeesListing() {
           <Link to={`/edit-employee/${row.uuid}`}>
             <MdEdit size={20} style={{ cursor: 'pointer', color: '#333' }} />
           </Link>
+          <Link to={`/notification-settings/${row.uuid}`}>
+            <CIcon icon={cilBell} size="lg" style={{ cursor: 'pointer', color: '#333' }} />
+          </Link>
         </div>
       ),
       ignoreRowClick: true,
@@ -117,7 +120,6 @@ function EmployeesListing() {
           <ToastExample status={toastData.status} message={toastData.message} />
         </div>
       )}
-
       <div className="w-100 mb-3 d-flex justify-content-between align-items-center">
         <Link to="/add-employees">
           <CButton className="custom-button">Add Employee</CButton>

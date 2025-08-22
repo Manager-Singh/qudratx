@@ -742,8 +742,14 @@ import dubaiSouth from '../../../../../assets/proposal_images/dubaiSouth.jpeg';
 import dmcc from '../../../../../assets/proposal_images/dmcc.jpg';
 import dedDubai from '../../../../../assets/proposal_images/dedDubai.jpg';
 import { useParams } from 'react-router-dom';
+import useConfirm from '../../../../../components/SweetConfirm/useConfirm';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
 
 const ProposalSummary = () => {
+  const MySwal = withReactContent(Swal);
+  const confirm = useConfirm()
   const { uuid } = useParams();
   const [showReasonModal, setShowReasonModal] = useState(false);
   const [status, setStatus] = useState('');
@@ -810,7 +816,13 @@ const ProposalSummary = () => {
        const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob'); 
        const formData = new FormData(); 
        formData.append('generated_pdf', pdfBlob, pdfFileName); 
-
+         const isConfirmed = await confirm({
+      title: 'Confirm Generate PDF',
+      text: `Are you absolutely sure you want to generate the pdf "${proposal.proposal_number}"?`,
+      icon: 'info', // Use a more impactful icon
+      confirmButtonText: 'Yes, Generate It!',
+    });
+    if (isConfirmed) {
        dispatch(updateProposalPdf({ 
          uuid: proposal.uuid,
          data:formData 
@@ -820,6 +832,8 @@ const ProposalSummary = () => {
             dispatch(getProposalByUUID(proposal.uuid)) 
          } 
        }) 
+    }
+      
 
      } catch (error) { 
        console.error('PDF generation/upload failed:', error); 
@@ -908,28 +922,94 @@ const ProposalSummary = () => {
      fetchWebSetting(); 
    }, []); 
    const user = useSelector((state) => state.auth.user); 
-   const HandleSendApproval =()=>{ 
-     const newdata={ 
-     employee_approval:1, 
-     approval_status: 2 
-     } 
-       dispatch(updateProposal({uuid:proposal.uuid,data:newdata})).then((res)=>{ 
-         if (res.payload.success) { 
-            showToast('success', 'Proposal Send For Approval.'); 
-           dispatch(getProposalByUUID(proposal.uuid))
-         } 
-       }) 
+   const HandleSendApproval = async () => {
+    // The payload to reset the proposal to a 'pending' state
+    const basePayload = {
+      employee_approval: 1,
+      approval_status: 2,
+    };
+
+    // Case 1: The proposal was unapproved (status is 0) and needs to be resent with a reason.
+    if (proposal.approval_status === 0) {
+      MySwal.fire({
+        title: 'Resend Proposal for Approval',
+        html: `Please provide a brief reason for resubmitting proposal <strong>#${proposal.proposal_number}</strong>.`,
+        input: 'textarea', // Use a textarea for the reason
+        inputLabel: 'Reason for Resubmission',
+        inputPlaceholder: 'Type your reason here...',
+        showCancelButton: true,
+        confirmButtonText: 'Resend for Approval',
+        showLoaderOnConfirm: true,
+        
+        // Validate that a reason was entered
+        inputValidator: (value) => {
+          if (!value || value.trim().length < 10) {
+            return 'Please enter a meaningful reason (at least 10 characters).';
+          }
+        },
+
+        // This runs after the user enters a reason and clicks confirm
+        preConfirm: (reason) => {
+          const finalPayload = { ...basePayload, reason_for_resubmission: reason }; // Add the reason to the payload
+
+          // Dispatch the update action and return the promise for the loading state
+          return dispatch(updateProposal({ uuid: proposal.uuid, data: finalPayload }))
+            .unwrap()
+            .catch(error => {
+              Swal.showValidationMessage(`Request failed: ${error.message}`);
+            });
+        },
+
+        allowOutsideClick: () => !Swal.isLoading(),
+
+      }).then((result) => {
+        if (result.isConfirmed) {
+          showToast('success', 'Proposal has been resent for approval.');
+          dispatch(getProposalByUUID(proposal.uuid)); // Refresh the data
+        }
+      });
     } 
-   const HandleSendToClient = () => { 
+    // Case 2: This is the first time the proposal is being sent for approval.
+    else {
+      const isConfirmed = await confirm({
+        title: 'Confirm Send Approval',
+        text: `Are you absolutely sure you want to send proposal #${proposal.proposal_number} for approval?`,
+        icon: 'info',
+        confirmButtonText: 'Yes, Send It!',
+      });
+
+      if (isConfirmed) {
+        dispatch(updateProposal({ uuid: proposal.uuid, data: basePayload }))
+          .unwrap()
+          .then(() => {
+            showToast('success', 'Proposal sent for approval.');
+            dispatch(getProposalByUUID(proposal.uuid));
+          })
+          .catch((error) => {
+            showToast('error', `Failed to send: ${error.message}`);
+          });
+      }
+    }
+  };
+   const HandleSendToClient = async() => { 
    if (proposal?.client_info && Object.keys(proposal.client_info).length > 0) { 
-     dispatch(sendToClient({uuid:proposal.uuid})).then((data)=>{ 
+    const isConfirmed = await confirm({
+      title: 'Confirm Send To Client',
+      text: `Are you absolutely sure you want to send the proposal to client. proposal number is "${proposal.proposal_number}"?`,
+      icon: 'info', // Use a more impactful icon
+      confirmButtonText: 'Yes, Send It!',
+    });
+    if (isConfirmed) {
+      dispatch(sendToClient({uuid:proposal.uuid})).then((data)=>{ 
        if (data.payload.success) { 
          showToast('success', 'Proposal sent to client successfully.'); 
        } 
      }) 
-     
+    }
+       
    } else { 
-     setShowClientModal(true); 
+    
+     handleSendToClientWithAlert() 
    } 
  }; 
   const handleDownload = async () => { 
@@ -1011,6 +1091,65 @@ const ProposalSummary = () => {
     }
   };
 
+ 
+
+  // Add this new handler function to your component
+  const handleSendToClientWithAlert = () => {
+    MySwal.fire({
+      title: 'Send Proposal to Client',
+      html: `Enter the client's email to send proposal <strong>#${proposal.proposal_number}</strong>.`,
+      input: 'email', // Use the built-in email input
+      inputLabel: 'Client Email Address',
+      inputPlaceholder: 'name@example.com',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Send It!',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      showLoaderOnConfirm: true,
+       allowOutsideClick:false,
+       allowEscapeKey:false,
+      
+
+       
+      // 1. Handle validation directly inside the alert
+      inputValidator: (value) => {
+        if (!value) {
+          return 'An email address is required!';
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          return 'Please enter a valid email address.';
+        }
+      },
+
+      // 2. This function runs after validation passes but before the alert closes
+      preConfirm: (clientEmail) => {
+        // This is where you dispatch your Redux action.
+        // We return the dispatch promise so SweetAlert can handle the loading state.
+        return dispatch(sendToClient({ uuid: proposal.uuid, client_email: clientEmail }))
+          .unwrap() // Use unwrap() to easily catch errors
+          .catch(error => {
+            Swal.showValidationMessage(`Request failed: ${error.message}`);
+          });
+      },
+      
+      // allowOutsideClick: () => !Swal.isLoading()
+
+    }).then((result) => {
+      // 3. This block runs only after the preConfirm promise succeeds
+      if (result.isConfirmed) {
+        // The result.value is the payload from your successful Redux action
+        if (result.value && result.value.success) {
+           MySwal.fire({
+            icon: 'success',
+            title: 'Proposal Sent!',
+            text: `The proposal has been successfully sent to the client.`,
+          });
+        }
+      }
+    });
+  };
+
   return proposal ? (
     <div>
        {/* Modal remains the same */}
@@ -1044,50 +1183,7 @@ const ProposalSummary = () => {
            </div> 
                          )} 
                         
-                         {showClientModal && ( 
-  <CModal 
-   visible={showClientModal} 
-   onClose={() => setShowClientModal(false)} 
-   alignment="top" 
-   className="mt-5"
- > 
-   <CModalHeader> 
-     <h5>Enter Client Email</h5> 
-   </CModalHeader> 
-   <CModalBody> 
-     <CFormInput 
-       type="email" 
-       value={clientEmail} 
-       onChange={(e) => setClientEmail(e.target.value)} 
-       placeholder="Enter client email" 
-       className="mb-3" 
-     /> 
-     <div className="d-flex gap-2"> 
-       <CButton 
-         color="primary" 
-         onClick={() => { 
-           if (!clientEmail) { 
-             showToast('error', 'Please enter an email.'); 
-             return; 
-           } 
-           dispatch(sendToClient({uuid:proposal.uuid ,client_email:clientEmail})).then((data)=>{ 
-             if (data.payload.success) { 
-                showToast('success', 'Proposal sent to client successfully.'); 
-                setShowClientModal(false); 
-             } 
-           }) 
-          
-         }} 
-       > 
-         Send 
-       </CButton> 
-       <CButton color="secondary" onClick={() => setShowClientModal(false)}> 
-         Cancel 
-       </CButton> 
-     </div> 
-   </CModalBody> 
- </CModal> 
- )} 
+
       <div className='d-flex  justify-content-end'>
              
           {user.role === 'admin' ? (

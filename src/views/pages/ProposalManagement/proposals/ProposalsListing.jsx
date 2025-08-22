@@ -26,8 +26,10 @@ import {readNotification } from '../../../../store/admin/notificationSlice'
 import { FaRegEdit } from "react-icons/fa";
 import { getDashboardData } from '../../../../store/admin/dashboardSlice'
 import { useSearchParams } from "react-router-dom"
+import useConfirm from '../../../../components/SweetConfirm/useConfirm'
 function AllProposals() {
-    const [searchParams] = useSearchParams();
+  const confirm = useConfirm(); 
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
 
@@ -143,7 +145,24 @@ function AllProposals() {
     setSelectedApprovalUUID(null)
     setApprovalAction(null)
   }
-
+const handleDelete =async(uuid,name)=>{
+const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the proposal "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+         dispatch(deleteProposal(uuid)).then(() => {
+       dispatch(GetAllProposal({ page, limit, search: filterText })).then((data)=>{
+    
+       if (data.payload.success) {
+            setTotalRecords(data?.payload?.totalRecords)
+          }
+    })
+      })
+    }
+}
   const columns = [
 {
   name: 'Approval Status',
@@ -342,7 +361,8 @@ function AllProposals() {
             <FaEye style={{ cursor: 'pointer', color: '#333' }} size={20} />
           </Link>
           <span
-            onClick={() => confirmDelete(row.uuid)}
+            // onClick={() => confirmDelete(row.uuid)}
+            onClick={() => handleDelete(row.uuid,row.proposal_number)}
             title="Delete Proposal"
             style={{ cursor: 'pointer' }}
           >

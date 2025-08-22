@@ -19,8 +19,10 @@ import { ToastExample } from '../../../../components/toast/Toast'
 import { MdModeEdit } from "react-icons/md";
 import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
+import useConfirm from '../../../../components/SweetConfirm/useConfirm';
 
 function AllLead() {
+  const confirm = useConfirm()
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
        const showToast = (status, message) => {
          setToastData({ show: true, status, message })
@@ -319,7 +321,7 @@ function AllLead() {
          <MdModeEdit style={{ cursor: 'pointer', color: '#333' }} size={20}  />
         </Link>
         <span
-          onClick={() => confirmDelete(row.uuid)}
+          onClick={() => handleDelete(row.uuid,row.lead_number)}
           title="Delete Lead"
           style={{ cursor: 'pointer' }}
         >
@@ -338,6 +340,19 @@ const handleStatusChange = (e)=>{
   setStatus(e.target.value)
   setSearch('')
   setPage(1)
+}
+
+const handleDelete=async(uuid,name)=>{
+const isConfirmed = await confirm({
+      title: 'Confirm Deletion',
+      text: `Are you absolutely sure you want to delete the Lead "${name}"?`,
+      icon: 'error', // Use a more impactful icon
+      confirmButtonText: 'Yes, Delete It!',
+    });
+    if (isConfirmed) {
+        dispatch(deleteLead(uuid)).then(() => {
+        fetchData();
+    })}
 }
 
   return (

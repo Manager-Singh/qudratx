@@ -14,13 +14,13 @@ import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
 import { FaRegEdit } from 'react-icons/fa';
-import ConfirmDeleteModal from '../../../../components/ConfirmDelete/ConfirmDeleteModal';
 import { ToastExample } from '../../../../components/toast/Toast'
 import { MdModeEdit } from "react-icons/md";
 import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 import useConfirm from '../../../../components/SweetConfirm/useConfirm';
-
+import { fetchReasons } from '../../../../store/admin/reasonSlice';
+import Swal from 'sweetalert2';
 function AllLead() {
   const confirm = useConfirm()
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' })
@@ -33,9 +33,7 @@ function AllLead() {
   const dispatch = useDispatch();
   const { leads, total, isLoading } = useSelector((state) => state.lead);
   const user = useSelector((state) => state.auth.user);
-
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [selectedUUID, setSelectedUUID] = useState(null);
+  const {reasons} = useSelector((state)=>state.reasons)
 
   // Pagination and search states
   const [page, setPage] = useState(1);
@@ -67,8 +65,78 @@ function AllLead() {
     })
    },[])
    
+useEffect(()=>{
+dispatch(fetchReasons())
+ 
+},[dispatch])
 
+ const ExpandedComponent = ({ data }) => {
+  const clientInfo = data.Client;
+  
+  const cardStyle = {
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px',
+    padding: '16px',
+    margin: '10px',
+    border: '1px solid #dee2e6',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
     
+  };
+
+  const detailBlockStyle = {
+    lineHeight: '1.6'
+  };
+
+  const headingStyle = {
+    borderBottom: '2px solid #4a148c', // A nice accent color
+    paddingBottom: '8px',
+    marginBottom: '12px',
+    color: '#4a148c'
+  };
+ 
+  //  const AdminReason = reasons.filter((item)=> item.modelId == data.id && item.userId != user.id && item.model == "Lead")
+  //  const MyReason = reasons.filter((item)=> item.modelId == data.id && item.userId == user.id && item.model == "Lead")
+   const Reason = reasons.filter((item)=> item.modelId == data.id  && item.model == "Lead")
+   
+  return (
+    <div style={cardStyle}>
+      {/* <div>
+    <h5 style={headingStyle}>Reasons for UnApproval</h5>
+    {AdminReason[0]?.reason ? <p>{AdminReason[0]?.reason} </p> : <p> </p>}
+   
+   </div>  */}
+   {/* {
+    MyReason[0]?.reason && <div>
+    <h5 style={headingStyle}>Reasons for Resend Approval</h5>
+    <p>{MyReason[0]?.reason} </p>
+   </div>
+   } */}
+   {
+    Reason[0]?.reason &&  <div>
+    <h5 style={headingStyle}>Reasons for UnApprove lead</h5>
+    <p>{Reason[0]?.reason} </p>
+   </div>
+   }
+   
+      <div style={detailBlockStyle}>
+        <h5 style={headingStyle}>Client Details</h5>
+        {clientInfo ? (
+          <>
+            <p><strong>Name:</strong> {clientInfo.name || 'N/A'}</p>
+            <p><strong>Email:</strong> {clientInfo.email || 'N/A'}</p>
+            <p><strong>Phone:</strong> {clientInfo.phone || 'N/A'}</p>
+            <p><strong>Notes:</strong> {clientInfo.notes || 'No notes provided.'}</p>
+          </>
+        ) : (
+          <p>No client details available.</p>
+        )}
+      </div>
+
+    </div>
+  );
+};   
 
  
  const columns = [
@@ -82,110 +150,111 @@ function AllLead() {
    ...(user.role === 'admin'
     ? [
        
-      {
+     {
   name: 'Approval Status',
   cell: (row) => {
+    // This component now uses SweetAlert for a consistent UX
     const LeadApprovalDropdown = () => {
-      const [selectedStatus, setSelectedStatus] = useState(row.approval_status);
-      const [showReasonModal, setShowReasonModal] = useState(false);
-      const [reason, setReason] = useState('');
       const dispatch = useDispatch();
 
-      const handleChange = (e) => {
-        const value = Number(e.target.value); // always a number
-        setSelectedStatus(value);
+      // --- State Derivation (No useState needed) ---
+      // We derive the current state directly from props to avoid sync issues.
+      const isApproved = row.approval_status === 1;
+      const isPending = row.approval_status === 2;
+      const isUnapproved = row.approval_status === 0;
+      
+      const currentValue = isApproved ? 'Approved' : isPending ? 'Pending' : 'Unapproved';
 
-        if (value === 0) {
-          // Unapprove → ask for reason
-          setShowReasonModal(true);
-        } else if (value === 1) {
-          // Approve directly
-          dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "approve" } }))
-            .then((data) => {
-              if (data.payload.success) {
-                showToast('success', 'Lead approved successfully');
-                dispatch(getLead({ page, limit }));
+      // --- SweetAlert Handler ---
+      const handleStatusChange = async (e) => {
+        const selectedValue = e.target.value;
+
+        if (selectedValue === 'Approved') {
+          Swal.fire({
+            title: 'Confirm Approval',
+            text: `Are you sure you want to approve this lead?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Approve It!',
+            confirmButtonColor: '#28a745',
+            cancelButtonText: 'Cancel',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "approve" } }))
+                .unwrap() // Use unwrap to handle promise states
+                .then(() => {
+                  showToast('success', 'Lead approved successfully');
+                  dispatch(getLead({ page, limit }));
+                })
+                .catch((err) => {
+                  showToast('error', err.message || 'Failed to approve lead');
+                });
+            }
+          });
+
+        } else if (selectedValue === 'Unapproved') {
+          Swal.fire({
+            title: 'Confirm Unapproval',
+            text: 'Please provide a reason for unapproval.',
+            icon: 'warning',
+            input: 'textarea',
+            inputPlaceholder: 'Enter the reason here...',
+            showCancelButton: true,
+            confirmButtonText: 'Confirm Unapproval',
+            confirmButtonColor: '#d33',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            inputValidator: (value) => {
+              if (!value) {
+                return 'You must provide a reason!';
               }
-            });
+              if (value.length < 10) {
+                return 'Reason must be at least 10 characters long.';
+              }
+            },
+            preConfirm: (reason) => {
+              // Dispatch the action within preConfirm to leverage the loader
+              return dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "unapprove", reason } }))
+                .unwrap()
+                .catch((err) => {
+                   Swal.showValidationMessage(`Request failed: ${err.message || 'Server error'}`);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading(),
+          }).then((result) => {
+            if (result.isConfirmed) {
+              showToast('success', 'Lead unapproved successfully');
+              dispatch(getLead({ page, limit }));
+            }
+          });
         }
       };
 
-      const handleConfirmUnapprove = () => {
-        dispatch(handleApproveStatus({ uuid: row.uuid, data: { action: "unapprove", reason } }))
-          .then((data) => {
-            if (data.payload.success) {
-              showToast('success', 'Lead unapproved successfully');
-              dispatch(getLead({ page, limit }));
-              setShowReasonModal(false);
-            }
-          });
-      };
-
+      // --- Render JSX ---
       return (
-        <>
-          <select
-            className="form-select form-select-sm"
-            value={selectedStatus}
-            onChange={handleChange}
-            style={{
-              width: '162px',
-              padding: '6px 12px',
-              borderRadius: '0.375rem',
-              border: '1px solid #ccc',
-              backgroundColor:
-                selectedStatus === 1
-                  ? '#d4edda'
-                  : selectedStatus === 2
-                  ? '#fff3cd'
-                  : '#fff9db',
-              color:
-                selectedStatus === 1
-                  ? '#155724'
-                  : selectedStatus === 2
-                  ? '#856404'
-                  : '#b58900',
-              fontWeight: 500,
-            }}
-          >
-            {selectedStatus === 2 && (
-              <option value={2} disabled>
-                Pending
-              </option>
-            )}
-            <option value={1}>Approved</option>
-            <option value={0}>Unapproved</option>
-          </select>
+        <select
+          className="form-select form-select-sm"
+          value={currentValue}
+          onChange={handleStatusChange}
+          style={{
+            width: '162px',
+            padding: '6px 12px',
+            borderRadius: '0.375rem',
+            border: '1px solid #ccc',
+            backgroundColor: isApproved ? '#d4edda' : isPending ? '#fff3cd' : '#f8d7da',
+            color: isApproved ? '#155724' : isPending ? '#856404' : '#721c24',
+            fontWeight: 500,
+          }}
+        >
+          {/* Show the current status as a disabled option */}
+          {isPending && <option disabled>Pending</option>}
+          {isApproved && <option>Approved</option>}
+          {isUnapproved && <option>Unapproved</option>}
 
-          {/* Reason Modal */}
-          <CModal
-            visible={showReasonModal}
-            onClose={() => setShowReasonModal(false)}
-          >
-            <CModalHeader>
-              <h5>Reason for Unapproval</h5>
-            </CModalHeader>
-            <CModalBody>
-              <textarea
-                className="form-control"
-                rows={3}
-                placeholder="Enter reason..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-              <div className="mt-3 d-flex justify-content-end gap-2">
-                <CButton
-                  color="secondary"
-                  onClick={() => setShowReasonModal(false)}
-                >
-                  Cancel
-                </CButton>
-                <CButton color="danger" onClick={handleConfirmUnapprove}>
-                  Confirm Unapproval
-                </CButton>
-              </div>
-            </CModalBody>
-          </CModal>
-        </>
+          {/* Show other available options */}
+          {!isApproved && <option>Approved</option>}
+          {!isUnapproved && <option>Unapproved</option>}
+        </select>
       );
     };
 
@@ -194,7 +263,6 @@ function AllLead() {
   sortable: true,
   grow: 5,
 },
-
 ]
     : [
         {
@@ -281,7 +349,7 @@ function AllLead() {
       showToast('warning', 'Cannot create proposal before approve lead');
     };
 
-    console.log(leads,"leads")
+   
 
     return (
       <div className="d-flex gap-2">
@@ -387,6 +455,9 @@ const isConfirmed = await confirm({
         striped
         progressPending={isLoading}
         noDataComponent="No leads found"
+        expandableRows
+        expandableRowsComponent={ExpandedComponent}
+        expandOnRowClicked
       />
      
     </div>

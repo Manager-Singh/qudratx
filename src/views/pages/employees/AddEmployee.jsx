@@ -84,7 +84,7 @@ function AddEmployee() {
         }
       }, 1500)
     }else{
-   showToast('success', res.payload)
+   showToast('error', res.payload)
     }
         })
         .catch((err) => {

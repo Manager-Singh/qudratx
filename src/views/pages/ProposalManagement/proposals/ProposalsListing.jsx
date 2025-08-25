@@ -30,6 +30,7 @@ import useConfirm from '../../../../components/SweetConfirm/useConfirm'
 import Swal from 'sweetalert2';
 // Optional: If you want to use React components inside your alert
 import withReactContent from 'sweetalert2-react-content';
+import { fetchReasons } from '../../../../store/admin/reasonSlice'
 
 // Then create the MySwal instance if you need it
 const MySwal = withReactContent(Swal);
@@ -39,12 +40,12 @@ function AllProposals() {
   const dispatch = useDispatch()
   const { proposals, isLoading } = useSelector((state) => state.proposal)
   const [filterText, setFilterText] = useState('')
-
+  const {reasons}= useSelector((state)=>state.reasons)
   // manage aprove / disapprove proposal status
   const [approvalModalVisible, setApprovalModalVisible] = useState(false)
   const [selectedApprovalUUID, setSelectedApprovalUUID] = useState(null)
   const [approvalAction, setApprovalAction] = useState(null) // 'approve' or 'disapprove'
-  
+  const {user} = useSelector((state)=>state.auth)
 
   const [disapprovalMessage, setDisapprovalMessage] = useState('')
    const [totalRecords,setTotalRecords] = useState('')
@@ -75,7 +76,7 @@ function AllProposals() {
     })
   }, [dispatch, page, limit, filterText,status])
 
- 
+
  
   const handleConfirmApproval = () => {
     if (selectedApprovalUUID && approvalAction) {
@@ -156,6 +157,86 @@ const handleApproval= (uuid , status,reason)=>{
           console.error('Approval API error:', error)
         })
 }
+
+
+   
+useEffect(()=>{
+dispatch(fetchReasons())
+},[dispatch])
+
+
+
+const ExpandedComponent = ({ data }) => {
+  const clientInfo = data.client_info;
+ 
+
+  const cardStyle = {
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px',
+    padding: '16px',
+    margin: '10px',
+    border: '1px solid #dee2e6',
+    display: 'grid',
+    gridTemplateColumns: '0.5fr 1fr', // Creates a two-column layout
+    gap: '20px'
+  };
+
+  const detailBlockStyle = {
+    lineHeight: '1.6'
+  };
+
+  const headingStyle = {
+    borderBottom: '2px solid #4a148c', // A nice accent color
+    paddingBottom: '8px',
+    marginBottom: '12px',
+    color: '#4a148c'
+  };
+   const EmployeeReason = reasons.filter((item)=> item.modelId == data.id && item.userId != user.id && item.model == "Proposal")
+   const MyReason = reasons.filter((item)=> item.modelId == data.id && item.userId == user.id && item.model == "Proposal")
+  return (
+    <div style={cardStyle}>
+     { EmployeeReason[0]?.reason &&   <div>
+    <h5 style={headingStyle}>Reasons for Resend Approval</h5>
+    <p>{EmployeeReason[0]?.reason} </p>
+   </div>}
+ {
+      MyReason[0]?.reason &&  <div>
+    <h5 style={headingStyle}>Reasons for UnApproval</h5>
+    <p>{MyReason[0]?.reason} </p>
+   </div>
+ }
+
+  
+      <div style={detailBlockStyle}>
+        <h5 style={headingStyle}>Client Details</h5>
+        {clientInfo ? (
+          <>
+            <p><strong>Name:</strong> {clientInfo.name || 'N/A'}</p>
+            <p><strong>Email:</strong> {clientInfo.email || 'N/A'}</p>
+            <p><strong>Phone:</strong> {clientInfo.phone || 'N/A'}</p>
+            <p><strong>Notes:</strong> {clientInfo.notes || 'No notes provided.'}</p>
+          </>
+        ) : (
+          <p>No client details available.</p>
+        )}
+      </div>
+
+      {/* Lead Details Section */}
+      <div style={detailBlockStyle}>
+        <h5 style={headingStyle}>Lead Details</h5>
+        {data?.lead_id ? (
+          <>
+            {/* Example fields - adjust based on your actual lead data structure */}
+            <p><strong>Lead Id:</strong> {data?.lead_id || 'N/A'}</p>
+            
+          </>
+        ) : (
+          <p>No lead associated with this proposal.</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
   const columns = [
 {
@@ -514,6 +595,9 @@ const handleStatusChange = (e)=>{
   striped
   progressPending={isLoading}
   noDataComponent="No proposals found"
+        expandableRows
+      expandableRowsComponent={ExpandedComponent}
+
 />
       {/* To confirm delete  */}
     

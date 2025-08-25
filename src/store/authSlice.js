@@ -4,7 +4,7 @@ import { postData,getData } from '../utils/api'
 
 export const loginUser = createAsyncThunk('auth/loginUser', async (credentials, thunkAPI) => {
   try {
-    console.log(credentials,"credentials")
+   
     const response = await postData('/login', credentials)
     // localStorage.setItem('token', response.token)
     // localStorage.setItem('user', JSON.stringify(response.user)) 

@@ -1,0 +1,315 @@
+/* --- General Layout & Container Styles --- */
+.no-proposal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+}
+
+.toast-container {
+  position: fixed;
+  top: 0;
+  end: 0;
+  padding: 1rem;
+  z-index: 1055;
+}
+
+/* --- Proposal Actions Header --- */
+.proposal-actions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.proposal-buttons-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.status-control-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-select {
+  width: 150px;
+}
+
+.download-button {
+  background: none;
+  border: none;
+  color: #4a148c;
+  padding: 0;
+}
+
+.admin-approval-notice {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+
+/* --- Main PDF Content Styles --- */
+.proposal-content {
+  padding: 25px;
+  background: #fff;
+  color: #000;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-image-container {
+  width: 100%;
+ 
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Content Sections --- */
+.content-section {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  page-break-inside: avoid; /* Prevents this section from splitting across pages */
+}
+
+/* --- Business Activities List --- */
+.activity-list {
+  list-style: none;
+  padding: 0;
+}
+
+.activity-list-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-label {
+  display: inline-block;
+  width: 150px; /* Aligns the colons */
+  font-weight: 500;
+}
+
+.activity-value {
+  margin-left: 1rem;
+  font-weight: 700;
+}
+
+.activity-description-row {
+  display: flex;
+  margin-top: 8px;
+}
+
+.activity-description-label {
+  width: 150px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.activity-description-text {
+  margin-left: 1rem;
+}
+
+
+/* --- Summary Cost Table --- */
+.table-responsive-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  page-break-inside: avoid; /* Prevents table from splitting across pages */
+}
+
+.table-header {
+  background-color: #4a148c;
+  color: white;
+}
+
+.table-header-cell {
+  padding: 14px 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.table-body-row {
+  transition: background-color 0.3s ease;
+}
+
+.table-body-row:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table-body-row:hover {
+  background-color: #eeeeee;
+}
+
+.table-cell {
+  padding: 12px 20px;
+  color: #333;
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.table-cell-index {
+  font-weight: 700;
+}
+
+.table-cell-cost {
+  font-weight: 600;
+}
+
+.table-footer-row {
+  background-color: #f0f0f0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.table-cell-total-label {
+  padding: 14px 20px;
+  text-align: right;
+  border-top: 2px solid #ccc;
+}
+
+.table-cell-total-value {
+  padding: 14px 20px;
+  text-align: right;
+  border-top: 2px solid #ccc;
+}
+
+
+/* --- Generic Info Lists (Documents, Benefits, etc.) --- */
+.info-list {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.info-list li {
+  margin-bottom: 8px;
+}
+
+/* --- Notes & Agreement --- */
+.notes-container {
+  background-color: #f7f7f7;
+  padding: 15px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.agreement-text {
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* --- Signature Section --- */
+.signature-section {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
+  page-break-inside: avoid; /* Prevents signatures from splitting across pages */
+}
+
+.signature-block {
+  flex: 1;
+  min-width: 300px;
+  margin: 10px;
+}
+
+.signature-field {
+  margin-top: 20px;
+}
+
+.signature-field p {
+  border-bottom: 1px solid #000;
+  padding-bottom: 5px;
+  margin-top: 5px;
+  min-height: 24px; /* Ensures line is visible even if name is missing */
+}
+
+
+/* --- Footer --- */
+.creation-info p,
+.footer-address-details p {
+  margin: 5px 0;
+}
+
+.footer-address-section {
+  margin-top: 40px;
+  page-break-before: always; /* Puts the final address/contact page on its own page */
+}
+
+/* --- PRINT-SPECIFIC STYLES --- */
+@media print {
+  /* Hide non-printable elements */
+  .proposal-actions-header, .toast-container, .custom-button {
+    display: none !important;
+  }
+
+  /* Reset body and main container for printing */
+  body, html {
+    background: #fff !important;
+    font-size: 12pt;
+  }
+
+  .proposal-content {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+  
+  /* Ensure HeadingBar has a clear break before it to start new sections on new pages */
+  .content-section > div[class*="HeadingBar"] { /* A bit generic, might need to adjust HeadingBar component */
+    page-break-before: always;
+  }
+  .table-responsive-container {
+    page-break-before: always;
+  }
+  
+  /* Avoid breaking inside these key elements */
+  .summary-table, .signature-section, .activity-list-item {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure the last page isn't empty if the address block starts a new page */
+  .footer-address-section {
+    page-break-before: auto; /* Override the 'always' for print if it's too aggressive */
+  }
+}

@@ -181,6 +181,7 @@ import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 import { useSearchParams } from "react-router-dom"
 import useConfirm from '../../../../components/SweetConfirm/useConfirm';
+import { fetchReasons } from '../../../../store/admin/reasonSlice';
 
 function AllProposals() {
  const confirm = useConfirm()
@@ -188,13 +189,14 @@ function AllProposals() {
   const [searchParams] = useSearchParams(); 
   const { proposals, isLoading } = useSelector(state => state.proposal);
 const [totalRecords ,setTotalRecords] = useState(0)
-
+const {user} = useSelector((state)=>state.auth)
   const [selectedUUID, setSelectedUUID] = useState(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
   const [searchDebounce, setSearchDebounce] = useState(''); // for debouncing
   const [status ,setStatus]= useState(searchParams.get("search") || "")
+  const {reasons} = useSelector((state)=>state.reasons)
   // ✅ Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -216,8 +218,10 @@ const [totalRecords ,setTotalRecords] = useState(0)
     })
    },[])
    
+useEffect(()=>{
+dispatch(fetchReasons())
+},[dispatch])
 
-  // ✅ Fetch proposals from server
   const fetchData = useCallback(() => {
     dispatch(GetMyProposal({ page, limit: perPage, search: searchDebounce || status })).then((data)=>{
      
@@ -234,11 +238,80 @@ const [totalRecords ,setTotalRecords] = useState(0)
 
 
 
+const ExpandedComponent = ({ data }) => {
+  const clientInfo = data.client_info;
   
+  const cardStyle = {
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px',
+    padding: '16px',
+    margin: '10px',
+    border: '1px solid #dee2e6',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr', // Creates a two-column layout
+    gap: '20px'
+  };
+
+  const detailBlockStyle = {
+    lineHeight: '1.6'
+  };
+
+  const headingStyle = {
+    borderBottom: '2px solid #4a148c', // A nice accent color
+    paddingBottom: '8px',
+    marginBottom: '12px',
+    color: '#4a148c'
+  };
+  
+   const AdminReason = reasons.filter((item)=> item.modelId == data.id && item.userId != user.id && item.model == "Proposal")
+   const MyReason = reasons.filter((item)=> item.modelId == data.id && item.userId == user.id && item.model == "Proposal")
+  return (
+    <div style={cardStyle}>
+      {AdminReason[0]?.reason && <div>
+    <h5 style={headingStyle}>Reasons for UnApproval</h5>
+    <p>{AdminReason[0]?.reason} </p>
+   </div> }
+   {
+    MyReason[0]?.reason && <div>
+    <h5 style={headingStyle}>Reasons for Resend Approval</h5>
+    <p>{MyReason[0]?.reason} </p>
+   </div>
+   }
+   
+      <div style={detailBlockStyle}>
+        <h5 style={headingStyle}>Client Details</h5>
+        {clientInfo ? (
+          <>
+            <p><strong>Name:</strong> {clientInfo.name || 'N/A'}</p>
+            <p><strong>Email:</strong> {clientInfo.email || 'N/A'}</p>
+            <p><strong>Phone:</strong> {clientInfo.phone || 'N/A'}</p>
+            <p><strong>Notes:</strong> {clientInfo.notes || 'No notes provided.'}</p>
+          </>
+        ) : (
+          <p>No client details available.</p>
+        )}
+      </div>
+
+      {/* Lead Details Section */}
+      <div style={detailBlockStyle}>
+        <h5 style={headingStyle}>Lead Details</h5>
+        {data.lead_id ? (
+          <>
+            {/* Example fields - adjust based on your actual lead data structure */}
+            <p><strong>Lead id:</strong> {data.lead_id  || 'N/A'}</p>
+            
+          </>
+        ) : (
+          <p>No lead associated with this proposal.</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ExpandedRow = ({ data }) => {
   const fields = [];
-console.log(data.approval_status)
+
   // conditionally push fields
   if (data.approval_status == 0) {
     fields.push({
@@ -402,7 +475,7 @@ const isConfirmed = await confirm({
   progressPending={isLoading}
   noDataComponent="No proposals found"
   expandableRows
-  expandableRowsComponent={ExpandedRow}
+  expandableRowsComponent={ExpandedComponent}
   expandOnRowClicked
 />
 

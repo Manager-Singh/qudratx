@@ -22,7 +22,7 @@ import { cilUser, cilInfo, cilNotes, cilFile } from '@coreui/icons';
 import { ToastExample } from '../../../../components/toast/Toast';
 import { getLeadByUuid, handleApproveStatus } from '../../../../store/admin/leadSlice';
 import './Lead.css';
-
+import Swal from 'sweetalert2';
 const ViewLead = () => {
    const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
   const showToast = (status, message) => {
@@ -59,59 +59,69 @@ const ViewLead = () => {
   }, [lead]);
 
   // Handle dropdown changes
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const newStatus = e.target.value;
-    setStatus(newStatus); // Update UI immediately
 
-    if (newStatus === 'unapprove') {
-     
-      setReason(''); // Clear previous reason
-      setShowReasonModal(true);
-    } else {
-      // For "approve", dispatch the action directly
-      dispatch(handleApproveStatus({ uuid: lead?.uuid, data: { action: newStatus } })).then(
-        (data) => {
-          if (data.payload.success) {
-            showToast('success', data.payload.message);
-            dispatch(getLeadByUuid(uuid)); // Re-fetch data to be sure
-          } else {
-            showToast('danger', 'Failed to approve lead.');
+    if (newStatus === 'approve') {
+      Swal.fire({
+        title: 'Confirm Approval',
+        text: `Are you sure you want to approve lead "${lead?.lead_number}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Approve It!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // If confirmed, dispatch the action
+          dispatch(handleApproveStatus({ uuid: lead?.uuid, data: { action: 'approve' } }))
+            .unwrap()
+            .then((payload) => {
+              showToast('success', payload.message);
+              dispatch(getLeadByUuid(uuid)); // Re-fetch data
+            })
+            .catch((error) => {
+              showToast('danger', error.message || 'Failed to approve lead.');
+            });
+        }
+      });
+    } else if (newStatus === 'unapprove') {
+      Swal.fire({
+        title: 'Confirm Unapproval',
+        text: 'Please provide a reason for unapproving this lead.',
+        icon: 'warning',
+        input: 'textarea',
+        inputPlaceholder: 'Enter the reason here (min. 10 characters)...',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Confirm Unapproval',
+        showLoaderOnConfirm: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You must provide a reason!';
+          }
+          if (value.length < 10) {
+            return 'The reason must be at least 10 characters long.';
           }
         },
-      );
+        preConfirm: (reason) => {
+          // This function runs while the loader is showing
+          return dispatch(handleApproveStatus({ uuid: lead?.uuid, data: { action: 'unapprove', reason } }))
+            .unwrap()
+            .catch((error) => {
+              Swal.showValidationMessage(`Request failed: ${error.message || 'Server Error'}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // The action was already dispatched in preConfirm, just show the toast
+          showToast('success', result.value.message);
+          dispatch(getLeadByUuid(uuid)); // Re-fetch data
+        }
+      });
     }
   };
-
-  // Handler for the modal's confirm button
-  const handleConfirmUnapprove = () => {
-    if (!reason) {
-        showToast('warning', 'Please provide a reason for unapproval.');
-        return;
-    }
-
-    dispatch(
-      handleApproveStatus({ uuid: lead?.uuid, data: { action: 'unapprove', reason: reason } }),
-    ).then((data) => {
-      if (data.payload.success) {
-        showToast('success', data.payload.message);
-        dispatch(getLeadByUuid(uuid)); // Re-fetch data to be sure
-        setShowReasonModal(false);
-      } else {
-        showToast('danger', 'Failed to unapprove lead.');
-      }
-    });
-  };
-
-  const handleCancelModal = () => {
-    setShowReasonModal(false);
-    // Revert the status dropdown to its original state from Redux
-     if (lead) {
-      if (lead.approval_status == 1) setStatus('approve');
-      else if (lead.approval_status == 2) setStatus('pending');
-      else setStatus('unapprove');
-    }
-  }
-
 
   if (isLoading || !lead) {
     return <div className="p-4">Loading lead details...</div>;
@@ -135,20 +145,30 @@ const ViewLead = () => {
               <span className="ms-3 badge bg-info-gradient text-dark">{lead?.lead_number || '-'}</span>
             </CCardTitle>
           </div>
-          {user.role === "admin" ? <div className="d-flex align-items-center mt-2 mt-md-0">
-            <label htmlFor="status-select" className="me-2 fw-semibold">Approval Status:</label>
-            <CFormSelect
-              id="status-select"
-              onChange={handleChange}
-              value={status}
-              style={{ width: '150px' }}
-              aria-label="Select approval status"
-            >
-              <option disabled value="pending">Pending</option>
-              <option value="approve">Approved</option>
-              <option value="unapprove">Unapproved</option>
-            </CFormSelect>
-          </div> :<div><span className='fw-bold'>Approval Status:</span> {lead?.approval_status == 2 ? "Pending" : lead?.approval_status == 1 ? "Approved" :"UnApproved" }</div> }
+         {user.role === 'admin' ? (
+            <div className="d-flex align-items-center mt-2 mt-md-0">
+              <label htmlFor="status-select" className="me-2 fw-semibold">
+                Approval Status:
+              </label>
+              <CFormSelect
+                id="status-select"
+                onChange={handleChange}
+                value={status} // Controlled by state
+                style={{ width: '150px' }}
+                aria-label="Select approval status"
+              >
+                {/* Only show 'Pending' as a disabled option if it's the current status */}
+                {status === 'pending' && <option disabled value="pending">Pending</option>}
+                <option value="approve">Approved</option>
+                <option value="unapprove">Unapproved</option>
+              </CFormSelect>
+            </div>
+          ) : (
+            <div>
+              <span className="fw-bold">Approval Status:</span>{' '}
+              {lead?.approval_status == 2 ? 'Pending' : lead?.approval_status == 1 ? 'Approved' : 'Unapproved'}
+            </div>
+          )}
          
         </CCardHeader>
 
@@ -232,28 +252,7 @@ const ViewLead = () => {
         </CCardBody>
       </CCard>
        {/* ======================= REASON MODAL ======================= */}
-      <CModal visible={showReasonModal} onClose={handleCancelModal}>
-        <CModalHeader>
-          <h5>Reason for Unapproval</h5>
-        </CModalHeader>
-        <CModalBody>
-          <textarea
-            className="form-control"
-            rows={4}
-            placeholder="Enter the reason why this lead is being unapproved..."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-          <div className="mt-3 d-flex justify-content-end gap-2">
-            <CButton color="secondary" onClick={handleCancelModal}>
-              Cancel
-            </CButton>
-            <CButton color="danger" onClick={handleConfirmUnapprove}>
-              Confirm Unapproval
-            </CButton>
-          </div>
-        </CModalBody>
-      </CModal>
+      
     </div>
   );
 };

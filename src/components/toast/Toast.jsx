@@ -3,10 +3,10 @@ import { CToast, CToastBody, CToastHeader } from '@coreui/react'
 
 export const ToastExample = ({ status = 'success', message = '' }) => {
     const getColor = () => {
-    if (status === 'success') return '#28a745'; // green
-    if (status === 'error') return '#dc3545';   // red
+    if (status === 'success') return '#28a745'; 
+    if (status === 'error') return '#dc3545';   
     // if (status === 'warning') return '#6c757d'; 
-    if (status === 'warning') return '#dfd10ec5'
+    if (status === 'warning') return '#fd7e14'
     return '#6c757d';
   };
 
@@ -18,7 +18,7 @@ export const ToastExample = ({ status = 'success', message = '' }) => {
   }
 
   return (
-    <CToast animation={false} autohide={false} visible={true}>
+    <CToast animation={false} autohide={false} visible={true} style={{ backgroundColor: getColor(), color: '#fff' }} >
       <CToastHeader closeButton>
         <svg
           className="rounded me-2"

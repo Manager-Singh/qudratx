@@ -208,7 +208,7 @@ useEffect(()=>{
     setTotalAmount(proposal.total_amount || 0);
     setNotes(proposal.notes || initialNotes);
     if (proposal?.lead_id) {
-      console.log("proposal",proposal?.lead?.Client)
+     
        setSelectedClient(proposal?.lead?.Client)
        
     }else{
@@ -232,7 +232,7 @@ useEffect(()=>{
       dispatch(clearSelectedProposal())
     }
   },[uuid])
-console.log(selectedClient,"selectedClient")
+
 useEffect(() => {
   if (location.state?.zone) {
     setZoneData(location.state.zone);

@@ -65,6 +65,22 @@ function ClientListing() {
     navigate(`/create-lead/${id}`);
   };
 
+  const ExpandedComponent = ({data})=>{
+    console.log(data.notes,"notes")
+    return (
+      <div className='card p-4'>
+        {data.notes ? <div>
+         <h5>Notes</h5>
+        <div>
+          {data.notes}
+        </div>
+       </div> : <p className='fw-medium text-lg-start'>Notes does not exist for this user</p>}
+       
+
+      </div>
+    )
+  }
+
   const columns = [
     { name: 'Name', selector: (row) => row.name || 'N/A', sortable: true },
     {
@@ -75,11 +91,11 @@ function ClientListing() {
       ),
       sortable: true,
     },
-    { name: 'Address', selector: (row) => row.address || 'N/A', wrap: true, grow: 2, sortable: true },
-    { name: 'Email', selector: (row) => row.email || 'N/A', wrap: true, grow: 2, sortable: true },
-    { name: 'Phone', selector: (row) => row.phone || 'N/A', sortable: true },
-    { name: 'Company Name', selector: (row) => row.company_name || 'N/A', sortable: true, width: '140px' },
-    { name: 'Notes', selector: (row) => row.notes || 'N/A', wrap: true, grow: 2 },
+    { name: 'Address', selector: (row) => row.address || 'N/A', wrap: true,  sortable: true , width:"180px" },
+    { name: 'Email', selector: (row) => row.email || 'N/A', wrap: true,  sortable: true , width: '160px'},
+    { name: 'Phone', selector: (row) => row.phone || 'N/A', sortable: true , wrap: true ,width: '140px' },
+    { name: 'Company Name', selector: (row) => row.company_name || 'N/A', sortable: true, width: '140px' , wrap: true},
+  
     {
       name: 'Created At',
       selector: (row) => (row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'),
@@ -152,6 +168,9 @@ function ClientListing() {
         }}
         progressPending={loading}
         highlightOnHover
+        expandableRows
+        expandableRowsComponent={ExpandedComponent}
+        expandOnRowClicked
         responsive
         striped
       />

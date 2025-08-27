@@ -39,10 +39,10 @@ const EmployeeLogin = () => {
          dispatch(verifyUser())
          navigate('/dashboard')
       } else {
-        alert('Login failed')
+     
       }
     } catch (error) {
-      alert('Error during login')
+    console.log(error.message,"error")
     }
   }
 

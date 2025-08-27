@@ -176,7 +176,7 @@ import { Link } from 'react-router-dom';
 import CIcon from '@coreui/icons-react';
 import { cilTrash } from '@coreui/icons';
 import { FaEye } from 'react-icons/fa';
-import { deleteProposal, GetMyProposal } from '../../../../store/admin/proposalSlice';
+import { deleteProposal, GetMyProposal} from '../../../../store/admin/proposalSlice';
 import { readNotification } from '../../../../store/admin/notificationSlice';
 import { getDashboardData } from '../../../../store/admin/dashboardSlice';
 import { useSearchParams } from "react-router-dom"
@@ -342,6 +342,7 @@ const ExpandedRow = ({ data }) => {
 
   // ✅ Table Columns
   const columns = [
+   
     {
       name: 'Proposal No.',
       selector: (row) => row.proposal_number || '-',
@@ -349,7 +350,7 @@ const ExpandedRow = ({ data }) => {
       minWidth: '110px',
       wrap: true,
     },
-    { name: 'Business Zone', selector: row => row.zone_name || 'NA', sortable: true, Width: '130px', wrap: true },
+    { name: 'Business Zone', selector: row => row.zone_name || 'NA', sortable: true, Width: '160px', wrap: true },
     { name: 'Business Authority', selector: row => row.authority_name || 'NA', sortable: true, Width: '160px', wrap: true },
     {
       name: 'Package & Amount',

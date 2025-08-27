@@ -31,18 +31,16 @@ const EmployeeLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-     
       const result = await dispatch(loginUser({ email, password ,login_type: 'employee'}))
      
       if (result.payload.success) {
          localStorage.setItem('token',result.payload.token)
          dispatch(verifyUser())
          navigate('/dashboard')
-      } else {
-        alert('Login failed')
-      }
+      } 
+      
     } catch (error) {
-      alert('Error during login')
+    console.log(error,"error this is ")
     }
   }
 

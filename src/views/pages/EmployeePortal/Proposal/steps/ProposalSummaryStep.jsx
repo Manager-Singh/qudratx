@@ -40,13 +40,9 @@ const ProposalSummary = () => {
   const MySwal = withReactContent(Swal);
   const confirm = useConfirm()
   const { uuid } = useParams();
-  const [showReasonModal, setShowReasonModal] = useState(false);
   const [status, setStatus] = useState('');
-  const [reason, setReason] = useState('');
   const { proposal } = useSelector((state) => state.proposal);
-  const [showClientModal, setShowClientModal] = useState(false);
 
-  const [clientEmail, setClientEmail] = useState('');
   const dispatch = useDispatch();
   const proposalRef = useRef(null);
   const [toastData, setToastData] = useState({ show: false, status: '', message: '' });
@@ -326,64 +322,86 @@ const imageMap = {}
 
 
   // ✅ 3. Centralized function to handle the API dispatch
-  const handleConfirmApproval = (action, reason = null) => {
+const handleConfirmApproval = (action, reason = null) => {
     const payload = {
       uuid: proposal.uuid,
       action: action,
     };
-
     if (reason) {
       payload.reason = reason;
     }
-
-    dispatch(approveProposalStatus(payload))
+    // Return the promise for SweetAlert's loading state
+    return dispatch(approveProposalStatus(payload))
       .unwrap()
       .then(() => {
-        showToast('success', `Proposal ${action}ed successfully.`);
-        setShowReasonModal(false); // Close modal on success
+        showToast('success', `Proposal has been ${action}d successfully.`);
         dispatch(getProposalByUUID(uuid)); // Re-fetch the proposal data
       })
       .catch((error) => {
         showToast('danger', error.message || `Failed to ${action} proposal.`);
         console.error('API Error:', error);
+        // Throw error to be caught by SweetAlert
+        throw new Error(error.message || `Failed to ${action} proposal.`);
       });
   };
 
-  // ✅ 4. Updated handleChange to open modal or dispatch directly
-  const handleChange = (e) => {
+  const handleStatusSelection = async (e) => {
     const newStatus = e.target.value;
-    setStatus(newStatus); // Update UI immediately
 
-    if (newStatus === 'unapprove') {
-      setReason(''); // Clear any previous reason
-      setShowReasonModal(true);
-    } else if (newStatus === 'approve') {
-      handleConfirmApproval('approve');
-    }
-  };
-  
-  // ✅ 5. Updated handleConfirmUnapprove to use the central handler
-  const handleConfirmUnapprove = () => {
-    if (!reason.trim()) {
-      showToast('warning', 'Please provide a reason for unapproval.');
-      return;
-    }
-    handleConfirmApproval('unapprove', reason);
-  };
+    if (newStatus === 'approve') {
+      const isConfirmed = await confirm({
+        title: 'Confirm Approval',
+        text: `Are you sure you want to approve proposal "${proposal.proposal_number}"?`,
+        icon: 'info',
+        confirmButtonText: 'Yes, Approve It!',
+      });
 
-  // ✅ 6. Updated handleCancelModal to revert the state correctly
-  const handleCancelModal = () => {
-    setShowReasonModal(false);
-    // Revert the status dropdown to its original state from Redux
-    if (proposal) {
-      if (proposal.approval_status == 1) setStatus('approve');
-      else if (proposal.approval_status == 2) setStatus('pending');
-      else setStatus('unapprove');
+      if (isConfirmed) {
+        handleConfirmApproval('approve');
+      }
+    } else if (newStatus === 'unapprove') {
+      MySwal.fire({
+        title: 'Unapprove Proposal',
+        html: `Please provide a reason for unapproving proposal "<b>${proposal.proposal_number}</b>".`,
+        icon: 'warning',
+        input: 'textarea',
+        inputPlaceholder: 'Type your reason here...',
+        showCancelButton: true,
+        confirmButtonText: 'Confirm Unapproval',
+        confirmButtonColor: '#d33',
+        showLoaderOnConfirm: true, // This enables the loading spinner
+        inputValidator: (value) => {
+          if (!value || value.trim().length < 10) {
+            return 'A meaningful reason (at least 10 characters) is required.';
+          }
+        },
+        // This function runs after validation passes
+        preConfirm: (reason) => {
+          // We call our central function and return its promise.
+          // SweetAlert will wait for this promise to resolve or reject.
+          return handleConfirmApproval('unapprove', reason)
+            .catch(error => {
+              Swal.showValidationMessage(`Request failed: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Action Complete',
+            text: 'The proposal has been marked as unapproved.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      });
     }
   };
 
  
-
+  
   // Add this new handler function to your component
   const handleSendToClientWithAlert = () => {
     MySwal.fire({
@@ -443,30 +461,6 @@ const imageMap = {}
 
   return proposal ? (
     <div>
-       {/* Modal remains the same */}
-      <CModal visible={showReasonModal} onClose={handleCancelModal}>
-        <CModalHeader>
-          <h5>Reason for Unapproval</h5>
-        </CModalHeader>
-        <CModalBody>
-          <textarea
-            className="form-control"
-            rows={4}
-            placeholder="Enter the reason why this proposal is being unapproved..."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-          <div className="mt-3 d-flex justify-content-end gap-2">
-            <CButton color="secondary" onClick={handleCancelModal}>
-              Cancel
-            </CButton>
-            <CButton color="danger" onClick={handleConfirmUnapprove}>
-              Confirm Unapproval
-            </CButton>
-          </div>
-        </CModalBody>
-      </CModal>
-
       {/* ... (toast and client email modal remain the same) ... */}
        {toastData.show && ( 
            <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}> 
@@ -477,35 +471,39 @@ const imageMap = {}
 
       <div className='d-flex  justify-content-end'>
              
-          {user.role === 'admin' ? (
-            <div className="d-flex align-items-center mt-2 mt-md-0">
-              <label htmlFor="status-select" className="me-2 fw-semibold">
-                Approval Status:
-              </label>
-              <CFormSelect
-                id="status-select"
-                onChange={handleChange}
-                value={status}
-                style={{ width: '150px' }}
-                aria-label="Select approval status"
-             
-              >
-                {/* Only show 'Pending' as a disabled option if it's the current status */}
-                {status === 'pending' && <option disabled value="pending">Pending</option>}
-                <option value="approve">Approved</option>
-                <option value="unapprove">Unapproved</option>
-              </CFormSelect>
-            </div>
-          ) : (
-            <div>
-              <span className="fw-bold">Approval Status:</span>{' '}
-              {proposal?.approval_status == 2
-                ? 'Pending'
-                : proposal?.approval_status == 1
-                ? 'Approved'
-                : 'Unapproved'}
-            </div>
-          )}
+           {user.role === 'admin' ? (
+          <div className="d-flex align-items-center mt-2 mt-md-0">
+            <label htmlFor="status-select" className="me-2 fw-semibold">
+              Approval Status:
+            </label>
+            <CFormSelect
+              id="status-select"
+              // ✅ 5. UPDATED: onChange now points to our new SweetAlert handler
+              onChange={handleStatusSelection}
+              value={status} // This correctly shows the current status from the state
+              style={{ width: '150px' }}
+              aria-label="Select approval status"
+            >
+              {/* This logic correctly displays the options based on current status */}
+              {status === 'pending' && <option value="pending">Pending</option>}
+              {status === 'approve' && <option value="approve">Approved</option>}
+              {status === 'unapprove' && <option value="unapprove">Unapproved</option>}
+
+              {status !== 'approve' && <option value="approve">Approve</option>}
+              {status !== 'unapprove' && <option value="unapprove">Unapprove</option>}
+            </CFormSelect>
+          </div>
+        ) : (
+          // ... (non-admin view remains the same)
+          <div>
+            <span className="fw-bold">Approval Status:</span>{' '}
+            {proposal?.approval_status == 2
+              ? 'Pending'
+              : proposal?.approval_status == 1
+              ? 'Approved'
+              : 'Unapproved'}
+          </div>
+        )}
       </div>
 
       <div className="d-flex justify-content-between">

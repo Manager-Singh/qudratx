@@ -171,7 +171,7 @@ function BusinessAuthority() {
     {
       name: 'Action',
       cell: (row) => (
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 align-items-center">
           <Link to={`/packages/${row.uuid}`} style={{ textDecoration: 'none' }} className="custom-button">
             Add Package
           </Link>

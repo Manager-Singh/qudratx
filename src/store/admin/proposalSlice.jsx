@@ -150,7 +150,7 @@ export const updateTrackingStatus = createAsyncThunk(
   async ({ uuid, proposal_status }, thunkAPI) => {
     try {
       const response = await patchData(`/admin/update-proposal-status/${uuid}`, { proposal_status })
-      return { uuid, proposal_status }
+      return response
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message || 'Failed to update tracking status')
     }
@@ -158,7 +158,7 @@ export const updateTrackingStatus = createAsyncThunk(
 )
 
 export const sendToClient = createAsyncThunk(
-  'proposal/updateTrackingStatus',
+  'proposal/sendToClient',
   async ({ uuid ,client_email=""}, thunkAPI) => {
     try {
       const response = await postData(`/admin/send-proposal-email/${uuid}?client_email=${client_email}`,)
@@ -325,8 +325,8 @@ const proposalSlice = createSlice({
       })
       .addCase(updateTrackingStatus.fulfilled, (state, action) => {
         state.isLoading = false
-
-        const { uuid, proposal_status } = action.payload
+      console.log(action.payload,"action.payload")
+        const { uuid, proposal_status } = action.payload.data
         const proposalIndex = state.proposals.findIndex((p) => p.uuid === uuid)
 
         if (proposalIndex !== -1) {

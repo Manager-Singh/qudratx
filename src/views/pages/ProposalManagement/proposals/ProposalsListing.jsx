@@ -396,16 +396,13 @@ const ExpandedComponent = ({ data }) => {
       sortable: true,
       minWidth: '170px',
     },
-   {
+{
   name: 'Tracking Status',
   cell: (row) => {
-    const StatusDropdownWithModal = () => {
+    const StatusDropdown = () => {
       const dispatch = useDispatch();
-      const [approvalModalVisible, setApprovalModalVisible] = useState(false);
       const [selectedStatus, setSelectedStatus] = useState(row?.proposal_status || 'Proposal Sent');
-      const [approvalAction, setApprovalAction] = useState('');
 
-      // Do NOT include "Proposal Sent" here — it's just default, not an option
       const statusOptions = [
         'Client Reviewing',
         'Follow-up Required',
@@ -417,81 +414,63 @@ const ExpandedComponent = ({ data }) => {
         setSelectedStatus(row?.proposal_status || 'Proposal Sent');
       }, [row?.proposal_status]);
 
-      const handleStatusChange = (e) => {
+      const handleStatusChange = async (e) => {
         const newStatus = e.target.value;
         setSelectedStatus(newStatus);
-        setApprovalAction('change status');
-        setApprovalModalVisible(true);
+        try {
+
+        const isConfirmed = await confirm({
+      title: 'Confirm Status Chnage ',
+      text: `Are you absolutely sure you want to chnage  the proposal "${row.proposal_number} tracking status"?`,
+      icon: 'question',
+      confirmButtonText: 'Yes, update It!',
+    });
+    if (isConfirmed) {
+       await dispatch(updateTrackingStatus({ uuid: row.uuid, proposal_status: newStatus })).unwrap();
+    }
+         
+          // dispatch(GetAllProposal()); // refresh data after update
+        } catch (err) {
+          console.error('Tracking status update error:', err);
+        }
       };
 
-      const handleConfirmApproval = () => {
-        dispatch(updateTrackingStatus({ uuid: row.uuid, proposal_status: selectedStatus }))
-          .unwrap()
-          .then(() => {
-            dispatch(GetAllProposal());
-          })
-          .catch((err) => {
-            console.error('Tracking status update error:', err);
-          });
-        setApprovalModalVisible(false);
-      };
-
-      const handleCancelApproval = () => {
-        setApprovalModalVisible(false);
-      };
-
-      const getConfirmColor = (action) => {
-        return action.includes('Rejected') ? 'danger' : 'primary';
-      };
-
- 
       return (
-        <>
-          <select
-            className="form-select form-select-sm custom-tracking-select"
-            style={{
-              width: '162px',
-              padding: '6px 12px',
-              borderRadius: '0.375rem',
-              border: '1px solid #ccc',
-              backgroundColor: '#d1ecf1',
-              color: '#0c5460',
-              fontWeight: 500,
-            }}
-            value={selectedStatus}
-            onChange={handleStatusChange}
-          >
-            {/* If current status is "Proposal Sent", show it as the first option but disabled */}
-            {selectedStatus === 'Proposal Sent' && (
-              <option value="Proposal Sent" disabled>
-                Proposal Sent
-              </option>
-            )}
-            {statusOptions.map((status, index) => (
-              <option key={index} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-
-          <ConfirmDeleteModal
-            visible={approvalModalVisible}
-            onConfirm={handleConfirmApproval}
-            onCancel={handleCancelApproval}
-            message={`Are you sure you want to change status to "${selectedStatus}"?`}
-            title="Confirm Status Change"
-            confirmLabel="Confirm"
-            confirmColor={getConfirmColor(selectedStatus)}
-          />
-        </>
+        <select
+          className="form-select form-select-sm custom-tracking-select"
+          style={{
+            width: '162px',
+            padding: '6px 12px',
+            borderRadius: '0.375rem',
+            border: '1px solid #ccc',
+            backgroundColor: '#d1ecf1',
+            color: '#0c5460',
+            fontWeight: 500,
+          }}
+          value={selectedStatus}
+          onChange={handleStatusChange}
+        >
+          {/* Show Proposal Sent only if it's the current status */}
+          {selectedStatus === 'Proposal Sent' && (
+            <option value="Proposal Sent" disabled>
+              Proposal Sent
+            </option>
+          )}
+          {statusOptions.map((status, index) => (
+            <option key={index} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
       );
     };
 
-    return <StatusDropdownWithModal />;
+    return <StatusDropdown />;
   },
   sortable: true,
   minWidth: '200px',
 }
+
 ,
     {
       name: 'Actions',

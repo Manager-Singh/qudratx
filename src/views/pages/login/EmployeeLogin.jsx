@@ -37,18 +37,10 @@ const EmployeeLogin = () => {
          localStorage.setItem('token',result.payload.token)
          dispatch(verifyUser())
          navigate('/dashboard')
-<<<<<<< HEAD
       } 
       
     } catch (error) {
     console.log(error,"error this is ")
-=======
-      } else {
-     
-      }
-    } catch (error) {
-    console.log(error.message,"error")
->>>>>>> 44537242e0471e1d914b125d4599531ff66e11fb
     }
   }
 

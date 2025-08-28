@@ -16,8 +16,9 @@ import {
   CButton,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilBell, cilMenu } from '@coreui/icons'
+import { cilBell, cilMenu,cilTrash } from '@coreui/icons'
 import moment from 'moment'
+import { FaRegTrashAlt } from "react-icons/fa";
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -123,7 +124,8 @@ dispatch(readNotification(data)).then((data)=>{
             
           </CHeaderNav>
 
-          <CHeaderNav className="ms-auto">
+          <CHeaderNav className="ms-auto ">
+             
             <CNavItem>
               <CNavLink
                 href="#"
@@ -133,7 +135,7 @@ dispatch(readNotification(data)).then((data)=>{
                 }}
                 style={{ position: 'relative' }}
               >
-                <CIcon icon={cilBell} size="lg" />
+                <CIcon icon={cilBell} size="xl" />
                 {unreadCount > 0 && (
                   <CBadge
                     color="danger"
@@ -150,6 +152,11 @@ dispatch(readNotification(data)).then((data)=>{
                 )}
               </CNavLink>
             </CNavItem>
+            <CNavItem>
+    <CNavLink to="/trash" as={NavLink} style={{paddingBottom:"8px"}}>
+     <FaRegTrashAlt size={20}/>
+    </CNavLink>
+  </CNavItem>
           </CHeaderNav>
 
           <CHeaderNav>
@@ -204,6 +211,7 @@ dispatch(readNotification(data)).then((data)=>{
           ) : (
             <div className="text-muted text-center mt-4">No notifications found</div>
           )}
+         
         </COffcanvasBody>
       </COffcanvas>
     </>

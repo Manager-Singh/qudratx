@@ -13,7 +13,6 @@ const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 import AuthRoute from './routes/AuthRoute' // ✅ import auth protector
 import { verifyUser } from './store/authSlice'
-import { AppContent } from './components'
 import EmployeesListing from './views/pages/employees/EmployeesListing'
 import AddEmployee from './views/pages/employees/AddEmployee'
 import AdminLogin from './views/pages/login/AdminLogin'
@@ -49,6 +48,7 @@ import EditLead from './views/pages/LeadManagement/All Leads/EditLead'
 import ProposalSummary from './views/pages/EmployeePortal/Proposal/steps/ProposalSummaryStep'
 import NotFound from './views/pages/NotFoundPage/NotFoundPage'
 import NotificationSetting from './views/pages/NotificationSettings/NotificationSetting'
+import AllTrash from './components/trash/trash'
 
 export const routes = [
   // ✅ Admin-only
@@ -152,8 +152,6 @@ if (isLoading) {
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
           
-         
-
 <Route
   path="/"
   element={
@@ -224,10 +222,11 @@ if (isLoading) {
        <Route path="/add-lead" element={<AddLead />} />
        <Route path="/edit-lead/:uuid" element={<EditLead />} />
        <Route path="/create-lead/:uuid" element={<AddLead />} />
-        <Route path="/create-proposal" element={<Proposal />} />
+      <Route path="/create-proposal" element={<Proposal />} />
       <Route path="/proposal/:uuid" element={<Proposal />} />
       <Route path="/business-zones" element={<EmployeeBusinessZone />} />
-        <Route path="/clients" element={<ClientListing/>} />
+      <Route path="/clients" element={<ClientListing/>} />
+      <Route path="/trash" element={<AllTrash/>} />
 </Route>
 
 

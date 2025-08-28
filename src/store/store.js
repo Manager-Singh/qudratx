@@ -15,6 +15,7 @@ import proposalReducer from './admin/proposalSlice'
 import DashboardReducer from './admin/dashboardSlice'
 import notificationSlice from './admin/notificationSlice';
 import reasonReducer from './admin/reasonSlice'
+import trashReducer from './admin/trashSlice'
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -33,6 +34,7 @@ const store = configureStore({
     dashboard:DashboardReducer,
     notification: notificationSlice,
     reasons:reasonReducer,
+    trash:trashReducer
   }, 
 })
 

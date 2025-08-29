@@ -59,7 +59,7 @@ const trashSlice = createSlice({
       })
       .addCase(fetchAllTrash.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.items = action.payload.data
       })
       .addCase(fetchAllTrash.rejected, (state, action) => {
         state.loading = false

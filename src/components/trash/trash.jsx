@@ -62,12 +62,17 @@ console.log(items)
     {
       name: "Module",
       selector: (row) => row.moduleType?.toUpperCase(),
-      sortable: true,
+     
     },
     {
       name: "Id",
       selector: (row) => row.id,
-      sortable: true,
+      
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name || row.activity_name || row.lead_number || row.proposal_number,
+      
     },
     {
       name: "Deleted At",

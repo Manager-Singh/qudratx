@@ -122,9 +122,11 @@ const ViewLead = () => {
       });
     }
   };
-
-  if (isLoading || !lead) {
-    return <div className="p-4">Loading lead details...</div>;
+if (!lead){
+  return <div className="p-4 w-100 fw-bold text-center 2xl fs-3">Lead Not found </div>
+}
+  if (isLoading ) {
+    return <div className="p-4 w-100 fw-bold text-center 2xl fs-3">Loading lead details...</div>;
   }
 
   return (

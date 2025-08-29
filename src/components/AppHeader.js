@@ -75,19 +75,19 @@ dispatch(readNotification(data)).then((data)=>{
     dispatch(getDashboardData())
     setShowNotificationSidebar(false)
     const t = notification.type?.toLowerCase();
+    console.log(t,"type h ye ")
      if (user?.role === 'employee') {
-    if (t === 'proposal'){
+    if (t === 'proposal' || t === "proposals"){
      navigate(`/proposal/${notification.related_id}`)
     } 
-    if (t === 'lead'){
-      
+    if (t === 'lead' || t == 'leads'){
       navigate(`/view-lead/${notification.related_id}`)
     } 
   } else if (user?.role === 'admin') {
-    if (t === 'proposal') {
-      navigate(`/proposal/${notification.related_id}`)
+    if (t === 'proposal' || t === 'proposals') {
+      navigate(`/view-proposal/${notification.related_id}`)
     }
-    if (t === 'lead'){
+    if (t === 'lead' || t ==='leads'){
       navigate(`/view-lead/${notification.related_id}`)
     }
   }
